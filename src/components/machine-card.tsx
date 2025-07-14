@@ -126,12 +126,12 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
             <PopoverContent className="w-80">
                 <Tabs defaultValue="report" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="report">
+                    <TabsTrigger value="report" className="data-[state=active]:bg-red-500 data-[state=active]:text-white">
                       <Flag className="h-4 w-4 mr-2" />
                       Report
                     </TabsTrigger>
-                    <TabsTrigger value="warning">
-                      <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
+                    <TabsTrigger value="warning" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
+                      <AlertTriangle className="h-4 w-4 mr-2 text-yellow-700 data-[state=active]:text-black" />
                       Warning
                     </TabsTrigger>
                   </TabsList>
