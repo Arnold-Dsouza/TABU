@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { initialBuildingsData } from '@/lib/data';
-import { Building, Home as HomeIcon } from 'lucide-react';
+import { Building, Home as HomeIcon, Dumbbell, Globe, Coffee, Utensils, Martini, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function PageContent() {
@@ -98,6 +98,49 @@ function PageContent() {
                   ))}
                 </SidebarMenu>
               </SidebarGroup>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+                <SidebarGroup>
+                    <SidebarGroupLabel>TABU 2</SidebarGroupLabel>
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Fitness room">
+                                <Dumbbell />
+                                <span>Fitness room</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="International Tutor">
+                                <Globe />
+                                <span>International Tutor</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Tea Room">
+                                <Coffee />
+                                <span>Tea Room</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Tabu Cafeteria">
+                                <Utensils />
+                                <span>Tabu Cafeteria</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Tabu Bar">
+                                <Martini />
+                                <span>Tabu Bar</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Network mentor">
+                                <Users />
+                                <span>Network mentor</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
