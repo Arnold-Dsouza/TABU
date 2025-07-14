@@ -7,7 +7,7 @@ import MachineCard from './machine-card';
 import { useToast } from "@/hooks/use-toast";
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, doc, runTransaction, Timestamp } from 'firebase/firestore';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface LaundryDashboardProps {
   selectedBuildingId: string;
