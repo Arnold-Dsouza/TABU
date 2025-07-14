@@ -1,13 +1,14 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Building, Machine } from '@/lib/types';
 import MachineCard from './machine-card';
 import { useToast } from "@/hooks/use-toast";
 import { db } from '@/lib/firebase';
-import { collection, onSnapshot, doc, runTransaction, Timestamp } from 'firebase/firestore';
+import { collection, doc, writeBatch, onSnapshot, runTransaction, Timestamp, getDocs } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { initialBuildingsData } from '@/lib/data';
 
 interface LaundryDashboardProps {
   selectedBuildingId: string;
@@ -19,34 +20,95 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'buildings'), (snapshot) => {
-      const buildingsData: Building[] = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          name: data.name,
-          machines: data.machines.map((machine: any) => ({
-            ...machine,
-            // Convert Firestore Timestamps to JS Date objects then to numbers
-            timerEnd: machine.timerEnd instanceof Timestamp ? machine.timerEnd.toMillis() : null,
-          })) as Machine[],
-        };
-      });
-      setBuildings(buildingsData);
-      setIsLoading(false);
-    }, (error) => {
-      console.error("Error fetching buildings:", error);
-      toast({
-        title: "Error",
-        description: "Could not fetch laundry data. Please try again later.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    });
+  const initializeMachineData = useCallback(async () => {
+    console.log("Checking if machine data needs initialization...");
+    const buildingsRef = collection(db, 'buildings');
+    const snapshot = await getDocs(buildingsRef);
 
-    return () => unsubscribe();
-  }, [toast]);
+    if (snapshot.empty) {
+      console.log("No data found. Initializing buildings and machines in Firestore...");
+      const batch = writeBatch(db);
+      initialBuildingsData.forEach(building => {
+        const buildingRef = doc(db, 'buildings', building.id);
+        const buildingData = {
+          ...building,
+          machines: building.machines.map(m => ({
+            ...m,
+            // Ensure timerEnd is null or a Firestore timestamp
+            timerEnd: null 
+          }))
+        };
+        batch.set(buildingRef, buildingData);
+      });
+      await batch.commit();
+      console.log("Initial data seeded in Firestore.");
+    } else {
+       console.log("Machine data already exists in Firestore.");
+    }
+  }, []);
+
+  useEffect(() => {
+    const setupListeners = async () => {
+      await initializeMachineData();
+
+      const unsubscribe = onSnapshot(collection(db, 'buildings'), (snapshot) => {
+        const buildingsData: Building[] = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            name: data.name,
+            machines: data.machines.map((machine: any) => ({
+              ...machine,
+              timerEnd: machine.timerEnd instanceof Timestamp ? machine.timerEnd.toMillis() : null,
+            })) as Machine[],
+          };
+        });
+        setBuildings(buildingsData);
+        setIsLoading(false);
+      }, (error) => {
+        console.error("Error fetching buildings:", error);
+        toast({
+          title: "Error",
+          description: "Could not fetch laundry data. Please try again later.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+      });
+
+      return unsubscribe;
+    };
+    
+    const unsubscribePromise = setupListeners();
+
+    return () => {
+      unsubscribePromise.then(unsubscribe => unsubscribe && unsubscribe());
+    };
+  }, [toast, initializeMachineData]);
+
+
+  const findMachineLocation = async (transaction: any, machineId: string) => {
+    let buildingDoc, buildingRef, machineIndex = -1;
+
+    for (const b of initialBuildingsData) { // Use initial data to find where the machine should be
+      const tempIndex = b.machines.findIndex(m => m.id === machineId);
+      if (tempIndex !== -1) {
+        buildingRef = doc(db, 'buildings', b.id);
+        const buildingDocSnap = await transaction.get(buildingRef);
+        if (!buildingDocSnap.exists()) {
+            throw new Error(`Building ${b.id} not found in database.`);
+        }
+        buildingDoc = buildingDocSnap.data() as Building;
+        machineIndex = buildingDoc.machines.findIndex(m => m.id === machineId);
+        break;
+      }
+    }
+    
+    if (!buildingDoc || !buildingRef || machineIndex === -1) {
+      throw new Error("Could not find the machine in any building.");
+    }
+    
+    return { building: buildingDoc, buildingRef, machineIndex };
+  };
 
   const machinesInUseByUser = buildings
     .flatMap(b => b.machines)
@@ -91,7 +153,7 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
     try {
       await runTransaction(db, async (transaction) => {
         const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
-        if (machineIndex === -1) throw new Error("Machine not found");
+        if (machineIndex === -1) return; // Don't throw error if machine not found during auto-finish
 
         const newMachines = [...building.machines];
         newMachines[machineIndex] = {
@@ -104,7 +166,7 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
       });
     } catch (error) {
       console.error("Error finishing machine:", error);
-      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+      // Do not toast here as it can be annoying if it happens automatically
     }
   };
 
@@ -145,35 +207,12 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
         };
         transaction.update(buildingRef, { machines: newMachines });
       });
-    } catch (error) {
+    } catch (error)      {
       console.error("Error sending warning:", error);
       toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
     }
   };
 
-  const findMachineLocation = async (transaction: any, machineId: string) => {
-    let buildingDoc, buildingRef, machineIndex = -1;
-
-    for (const b of buildings) {
-      const tempIndex = b.machines.findIndex(m => m.id === machineId);
-      if (tempIndex !== -1) {
-        buildingRef = doc(db, 'buildings', b.id);
-        const buildingDocSnap = await transaction.get(buildingRef);
-        if (!buildingDocSnap.exists()) {
-            throw new Error(`Building ${b.id} not found in database.`);
-        }
-        buildingDoc = buildingDocSnap.data() as Building;
-        machineIndex = buildingDoc.machines.findIndex(m => m.id === machineId);
-        break;
-      }
-    }
-    
-    if (!buildingDoc || !buildingRef || machineIndex === -1) {
-      throw new Error("Could not find the machine in any building.");
-    }
-    
-    return { building: buildingDoc, buildingRef, machineIndex };
-  };
 
   if (isLoading) {
     return (
@@ -201,8 +240,8 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
         <h2 className="text-2xl font-semibold">No Machines Found</h2>
         <p className="text-muted-foreground mt-2">
           {selectedBuildingId === 'all' 
-            ? "There are no buildings or machines configured in the database." 
-            : "This building has no machines configured or does not exist."}
+            ? "There are no buildings or machines defined in the code." 
+            : "This building has no machines defined or does not exist."}
         </p>
       </div>
     )
