@@ -81,18 +81,18 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
 
       <div className={cn(
           "relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto rounded-full border-8 shadow-inner bg-background",
-          isAvailable ? "border-accent" : "border-orange-500"
+          isAvailable ? "border-green-500" : "border-orange-500"
       )}>
         <div className={cn(
           "flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
-           isAvailable ? "bg-accent/20" : "bg-orange-500/20"
+           isAvailable ? "bg-green-500/20" : "bg-orange-500/20"
         )}>
           {isAvailable ? (
             <span className="text-2xl font-bold text-accent-foreground tracking-wider">Available</span>
           ) : (
             <div className="text-center text-foreground">
-              <div className="text-3xl lg:text-4xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
-                <Timer className="h-6 w-6 lg:h-8 lg:w-8" />
+              <div className="text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
+                <Timer className="h-5 w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
               </div>
               <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5 mt-2">
