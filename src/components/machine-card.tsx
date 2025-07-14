@@ -249,9 +249,20 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
           cardColor
       )}>
         <div className={cn(
-          "flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
+          "relative flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
            cardBgColor
         )}>
+          {(machine.reports.length > 0 || machine.warnings.length > 0) && (
+              <div className="absolute top-3 sm:top-5 flex items-center gap-2">
+                  {machine.reports.length > 0 && (
+                      <FileWarning className="h-5 w-5 text-red-500" />
+                  )}
+                  {machine.warnings.length > 0 && (
+                      <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  )}
+              </div>
+          )}
+
           {isOutOfOrder ? (
               <div className="text-center text-red-700">
                 <ShieldAlert className="h-12 w-12 mx-auto animate-pulse" />
@@ -259,26 +270,10 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
               </div>
           ) : isAvailable ? (
             <div className="flex flex-col items-center justify-center text-center">
-              <div className="flex items-center gap-2">
-                  {machine.reports.length > 0 && (
-                    <FileWarning className="h-5 w-5 text-red-500" />
-                  )}
-                  {machine.warnings.length > 0 && (
-                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                  )}
-              </div>
-              <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider mt-1">Available</span>
+              <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center text-foreground">
-                <div className="flex items-center gap-2 mb-1">
-                  {machine.reports.length > 0 && (
-                    <FileWarning className="h-5 w-5 text-red-500" />
-                  )}
-                  {machine.warnings.length > 0 && (
-                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                  )}
-                </div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
                 <Timer className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
@@ -353,5 +348,3 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
     </div>
   );
 }
-
-    
