@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { sendFeedback } from '@/ai/flows/feedback-flow';
 
 const formSchema = z.object({
   feedback: z.string().min(10, {
@@ -52,8 +51,18 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
   async function onSubmit(values: FeedbackFormValues) {
     setIsSubmitting(true);
     try {
-      const result = await sendFeedback({ feedback: values.feedback });
-      if (result.success) {
+      const response = await fetch('https://formsubmit.co/YOUR_EMAIL_HERE', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          feedback: values.feedback,
+        }),
+      });
+
+      if (response.ok) {
         toast({
           title: 'Feedback Sent!',
           description: 'Thank you for your feedback.',
@@ -104,7 +113,7 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
                 </FormItem>
               )}
             />
-
+            
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)} type="button">
                 Cancel
