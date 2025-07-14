@@ -3,7 +3,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, AlertTriangle } from 'lucide-react';
+import { useTheme } from "next-themes";
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,7 @@ export default function Header({ currentUser }: HeaderProps) {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { setTheme } = useTheme();
 
   const handleLogout = async () => {
     if (currentUser) {
@@ -123,14 +125,51 @@ export default function Header({ currentUser }: HeaderProps) {
                 <MessageSquare className="mr-2" />
                 Feedback
               </DropdownMenuItem>
+               <DropdownMenuSub>
+                <DropdownMenuSubTrigger>
+                  <Settings className="mr-2" />
+                  Settings
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem disabled>
+                      <Languages className="mr-2" />
+                      Language
+                    </DropdownMenuItem>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <Sun className="mr-2" />
+                        Theme
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem onClick={() => setTheme("light")}>
+                            <Sun className="mr-2" />
+                            Light
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTheme("dark")}>
+                            <Moon className="mr-2" />
+                            Dark
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setTheme("system")}>
+                            <Laptop className="mr-2" />
+                            System
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuSub>
+                     <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => setIsDeleteAlertOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
+                      <Trash2 className="mr-2" />
+                      Delete Account
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2" />
                 Logout
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setIsDeleteAlertOpen(true)} className="text-destructive focus:bg-destructive/10 focus:text-destructive">
-                <Trash2 className="mr-2" />
-                Delete Account
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
