@@ -34,7 +34,6 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
           ...building,
           machines: building.machines.map(m => ({
             ...m,
-            // Ensure timerEnd is null or a Firestore timestamp
             timerEnd: null 
           }))
         };
@@ -59,7 +58,7 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
             name: data.name,
             machines: data.machines.map((machine: any) => ({
               ...machine,
-              timerEnd: machine.timerEnd instanceof Timestamp ? machine.timerEnd.toMillis() : null,
+              timerEnd: machine.timerEnd instanceof Timestamp ? machine.timerEnd.toMillis() : machine.timerEnd,
             })) as Machine[],
           };
         });
@@ -89,7 +88,7 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
   const findMachineLocation = async (transaction: any, machineId: string) => {
     let buildingDoc, buildingRef, machineIndex = -1;
 
-    for (const b of initialBuildingsData) { // Use initial data to find where the machine should be
+    for (const b of initialBuildingsData) { 
       const tempIndex = b.machines.findIndex(m => m.id === machineId);
       if (tempIndex !== -1) {
         buildingRef = doc(db, 'buildings', b.id);
@@ -149,11 +148,11 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
     }
   };
 
-  const handleMachineFinish = async (machineId: string) => {
+  const handleMachineFinish = useCallback(async (machineId: string) => {
     try {
       await runTransaction(db, async (transaction) => {
         const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
-        if (machineIndex === -1) return; // Don't throw error if machine not found during auto-finish
+        if (machineIndex === -1) return;
 
         const newMachines = [...building.machines];
         newMachines[machineIndex] = {
@@ -166,9 +165,8 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
       });
     } catch (error) {
       console.error("Error finishing machine:", error);
-      // Do not toast here as it can be annoying if it happens automatically
     }
-  };
+  }, []);
 
   const handleReport = async (machineId: string, issue: string) => {
     try {

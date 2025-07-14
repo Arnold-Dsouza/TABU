@@ -31,7 +31,7 @@ const formatTime = (totalSeconds: number) => {
   if (totalSeconds <= 0) return '00:00:00';
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+  const seconds = Math.floor(totalSeconds % 60);
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
@@ -52,21 +52,29 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
   const isOutOfOrder = machine.status === 'out-of-order';
 
   useEffect(() => {
-    if (machine.status === 'in-use' && machine.timerEnd) {
-      const updateTimer = () => {
-        const secondsLeft = Math.round((machine.timerEnd! - Date.now()) / 1000);
-        if (secondsLeft > 0) {
-          setRemainingSeconds(secondsLeft);
-        } else {
-          setRemainingSeconds(0);
-          onFinish(machine.id);
-        }
-      };
-      
-      updateTimer();
-      const intervalId = setInterval(updateTimer, 1000);
-      return () => clearInterval(intervalId);
+    if (machine.status !== 'in-use' || !machine.timerEnd) {
+      setRemainingSeconds(0);
+      return;
     }
+  
+    const calculateRemaining = () => {
+      return Math.round((machine.timerEnd! - Date.now()) / 1000);
+    };
+  
+    setRemainingSeconds(calculateRemaining());
+  
+    const intervalId = setInterval(() => {
+      const secondsLeft = calculateRemaining();
+      if (secondsLeft > 0) {
+        setRemainingSeconds(secondsLeft);
+      } else {
+        setRemainingSeconds(0);
+        onFinish(machine.id);
+        clearInterval(intervalId);
+      }
+    }, 1000);
+  
+    return () => clearInterval(intervalId);
   }, [machine.status, machine.timerEnd, machine.id, onFinish]);
 
   const handleStartClick = () => {
@@ -325,5 +333,3 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
     </div>
   );
 }
-
-  
