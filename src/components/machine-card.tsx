@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -14,6 +15,7 @@ interface MachineCardProps {
   currentUser: string;
   onStart: (machineId: string, durationMinutes: number) => void;
   onFinish: (machineId: string) => void;
+  canStartNewMachine: boolean;
 }
 
 const formatTime = (totalSeconds: number) => {
@@ -23,7 +25,7 @@ const formatTime = (totalSeconds: number) => {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-export default function MachineCard({ machine, currentUser, onStart, onFinish }: MachineCardProps) {
+export default function MachineCard({ machine, currentUser, onStart, onFinish, canStartNewMachine }: MachineCardProps) {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [durationInput, setDurationInput] = useState('45');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -104,7 +106,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish }:
       ) : (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full" disabled={!isAvailable}>
+            <Button className="w-full" disabled={!isAvailable || !canStartNewMachine}>
               Start Cycle
             </Button>
           </DialogTrigger>

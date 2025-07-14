@@ -1,9 +1,12 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import type { Building } from '@/lib/types';
 import { initialBuildingsData } from '@/lib/data';
 import MachineCard from './machine-card';
+import { useToast } from "@/hooks/use-toast";
+
 
 const initializeTimers = (buildings: Building[]): Building[] => {
   const now = Date.now();
@@ -25,6 +28,7 @@ const initializeTimers = (buildings: Building[]): Building[] => {
 export default function LaundryDashboard() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const { toast } = useToast();
   
   // Simulate a logged-in user
   const currentUser = 'Apt 101';
@@ -34,7 +38,20 @@ export default function LaundryDashboard() {
     setIsClient(true);
   }, []);
 
+  const machinesInUseByUser = buildings
+    .flatMap(b => b.machines)
+    .filter(m => m.status === 'in-use' && m.apartmentUser === currentUser).length;
+
   const handleStartMachine = (machineId: string, durationMinutes: number) => {
+    if (machinesInUseByUser >= 2) {
+      toast({
+        title: "Machine Limit Reached",
+        description: "You can only use a maximum of 2 machines at a time.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setBuildings(currentBuildings => {
       return currentBuildings.map(building => ({
         ...building,
@@ -90,6 +107,7 @@ export default function LaundryDashboard() {
                 currentUser={currentUser}
                 onStart={handleStartMachine}
                 onFinish={handleMachineFinish}
+                canStartNewMachine={machinesInUseByUser < 2}
               />
             ))}
           </div>
