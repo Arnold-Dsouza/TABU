@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Building } from '@/lib/types';
 import { initialBuildingsData } from '@/lib/data';
 import MachineCard from './machine-card';
 
+const initializeTimers = (buildings: Building[]): Building[] => {
+  const now = Date.now();
+  return buildings.map(building => ({
+    ...building,
+    machines: building.machines.map(machine => {
+      if (machine.status === 'in-use' && machine.timerEnd !== null) {
+        return {
+          ...machine,
+          timerEnd: now + machine.timerEnd,
+        };
+      }
+      return machine;
+    }),
+  }));
+};
+
 export default function LaundryDashboard() {
-  const [buildings, setBuildings] = useState<Building[]>(initialBuildingsData);
+  const [buildings, setBuildings] = useState<Building[]>([]);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setBuildings(initializeTimers(initialBuildingsData));
+    setIsClient(true);
+  }, []);
 
   const handleStartMachine = (machineId: string, durationMinutes: number) => {
     setBuildings(currentBuildings => {
@@ -45,6 +67,11 @@ export default function LaundryDashboard() {
       }));
     });
   };
+  
+  if (!isClient) {
+    // Render a placeholder or nothing on the server to avoid hydration mismatch
+    return null; 
+  }
 
   return (
     <div className="space-y-8">
