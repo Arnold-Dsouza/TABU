@@ -258,7 +258,12 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                 <span className="text-lg font-bold tracking-wider mt-1">Out of Order</span>
               </div>
           ) : isAvailable ? (
-            <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
+            <div className="flex flex-col items-center justify-center text-center">
+              {machine.reports.length > 0 && (
+                <FileWarning className="h-5 w-5 text-red-500 mb-1" />
+              )}
+              <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center text-foreground">
                 {machine.reports.length > 0 && (
