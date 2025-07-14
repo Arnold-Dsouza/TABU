@@ -19,7 +19,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { initialBuildingsData } from '@/lib/data';
-import { Building, Home as HomeIcon, Dumbbell, Globe, Coffee, Utensils, Martini, Users } from 'lucide-react';
+import { Building, Home as HomeIcon, Dumbbell, Globe, Coffee, Utensils, Martini, Users, Smile } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function PageContent() {
@@ -137,6 +137,12 @@ function PageContent() {
                             <SidebarMenuButton tooltip="Network mentor">
                                 <Users />
                                 <span>Network mentor</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Seniors">
+                                <Smile />
+                                <span>Seniors</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
