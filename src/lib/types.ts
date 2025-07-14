@@ -1,4 +1,14 @@
-export type MachineStatus = 'available' | 'in-use';
+export type MachineStatus = 'available' | 'in-use' | 'out-of-order';
+
+export interface Report {
+  userId: string;
+  issue: string;
+}
+
+export interface Warning {
+  userId: string;
+  message: string;
+}
 
 export interface Machine {
   id: string;
@@ -7,6 +17,8 @@ export interface Machine {
   status: MachineStatus;
   timerEnd: number | null;
   apartmentUser: string | null;
+  reports: Report[];
+  warnings: Warning[];
 }
 
 export interface Building {

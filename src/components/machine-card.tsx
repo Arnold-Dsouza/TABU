@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle } from 'lucide-react';
+import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,8 @@ interface MachineCardProps {
   currentUser: string;
   onStart: (machineId: string, durationMinutes: number) => void;
   onFinish: (machineId: string) => void;
+  onReport: (machineId: string, issue: string) => void;
+  onWarning: (machineId: string, message: string) => void;
   canStartNewMachine: boolean;
 }
 
@@ -31,7 +33,7 @@ const formatTime = (totalSeconds: number) => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-export default function MachineCard({ machine, currentUser, onStart, onFinish, canStartNewMachine }: MachineCardProps) {
+export default function MachineCard({ machine, currentUser, onStart, onFinish, onReport, onWarning, canStartNewMachine }: MachineCardProps) {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [durationHours, setDurationHours] = useState('0');
   const [durationMinutes, setDurationMinutes] = useState('45');
@@ -42,6 +44,10 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   const [otherWarningValue, setOtherWarningValue] = useState("");
 
   const { toast } = useToast();
+
+  const hasUserReported = machine.reports.some(r => r.userId === currentUser);
+  const hasUserWarned = machine.warnings.some(w => w.userId === currentUser);
+  const isOutOfOrder = machine.status === 'out-of-order';
 
   useEffect(() => {
     if (machine.status === 'in-use' && machine.timerEnd) {
@@ -77,8 +83,8 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   };
   
   const handleReportSubmit = () => {
-    if (!reportValue) return;
-    console.log(`Report for ${machine.name}: ${reportValue}`);
+    if (!reportValue || hasUserReported) return;
+    onReport(machine.id, reportValue);
     toast({
       title: "Report Submitted",
       description: `Your report for "${reportValue}" has been sent.`,
@@ -89,8 +95,8 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
 
   const handleWarningSubmit = () => {
     const finalWarning = warningSelection === 'other' ? otherWarningValue : warningSelection;
-    if (!finalWarning) return;
-    console.log(`Warning for ${machine.name}: ${finalWarning}`);
+    if (!finalWarning || hasUserWarned) return;
+    onWarning(machine.id, finalWarning);
      toast({
       title: "Warning Submitted",
       description: `Your warning has been sent.`,
@@ -103,17 +109,21 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   const isAvailable = machine.status === 'available';
   const isUserMachine = machine.status === 'in-use' && machine.apartmentUser === currentUser;
   const MachineIcon = machine.type === 'washer' ? WashingMachine : Wind;
+  
+  const getCardColor = () => {
+    if (isOutOfOrder) return { border: 'border-red-700', bg: 'bg-red-700/10', icon: 'text-red-700' };
+    if (isAvailable) return { border: 'border-green-500', bg: 'bg-green-500/10', icon: 'text-green-500' };
+    return { border: 'border-orange-500', bg: 'bg-orange-500/10', icon: 'text-orange-500' };
+  };
 
-  const cardColor = isAvailable ? 'border-green-500' : 'border-orange-500';
-  const cardBgColor = isAvailable ? 'bg-green-500/10' : 'bg-orange-500/10';
-  const iconColor = isAvailable ? 'text-green-500' : 'text-orange-500';
+  const { border: cardColor, bg: cardBgColor, icon: iconColor } = getCardColor();
 
 
   return (
     <div className={cn(
       "relative flex flex-col justify-between w-full mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-3 sm:p-4 space-y-3 sm:space-y-4 border",
     )}>
-       <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : "bg-orange-500")}></div>
+       <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : isOutOfOrder ? "bg-red-700" : "bg-orange-500")}></div>
        <div className="flex justify-between items-start pt-2">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
         <div className="flex items-center gap-2">
@@ -126,11 +136,11 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
             <PopoverContent className="w-80">
                 <Tabs defaultValue="report" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="report" className="data-[state=active]:bg-red-500 data-[state=active]:text-white">
+                    <TabsTrigger value="report" className="data-[state=active]:bg-red-500 data-[state=active]:text-white" disabled={hasUserReported}>
                       <Flag className="h-4 w-4 mr-2" />
                       Report
                     </TabsTrigger>
-                    <TabsTrigger value="warning" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black">
+                    <TabsTrigger value="warning" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black" disabled={hasUserWarned}>
                       <AlertTriangle className="h-4 w-4 mr-2 text-yellow-700 data-[state=active]:text-black" />
                       Warning
                     </TabsTrigger>
@@ -140,19 +150,19 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
                         <Label>Select an issue to report:</Label>
                         <RadioGroup value={reportValue} onValueChange={setReportValue}>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Machine not working" id="r1" />
-                            <Label htmlFor="r1">Machine not working</Label>
+                            <RadioGroupItem value="Machine not working" id={`${machine.id}-r1`} />
+                            <Label htmlFor={`${machine.id}-r1`}>Machine not working</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Machine not draining" id="r2" />
-                            <Label htmlFor="r2">Machine not draining</Label>
+                            <RadioGroupItem value="Machine not draining" id={`${machine.id}-r2`} />
+                            <Label htmlFor={`${machine.id}-r2`}>Machine not draining</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Cycle not starting" id="r3" />
-                            <Label htmlFor="r3">Cycle not starting</Label>
+                            <RadioGroupItem value="Cycle not starting" id={`${machine.id}-r3`} />
+                            <Label htmlFor={`${machine.id}-r3`}>Cycle not starting</Label>
                           </div>
                         </RadioGroup>
-                        <Button className="w-full" onClick={handleReportSubmit} disabled={!reportValue}>Submit Report</Button>
+                        <Button className="w-full" onClick={handleReportSubmit} disabled={!reportValue || hasUserReported}>{hasUserReported ? "Already Reported" : "Submit Report"}</Button>
                      </div>
                   </TabsContent>
                   <TabsContent value="warning">
@@ -160,16 +170,16 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
                         <Label>Select a warning:</Label>
                         <RadioGroup value={warningSelection} onValueChange={setWarningSelection}>
                            <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Machine is smelling" id="w1" />
-                            <Label htmlFor="w1">Machine is smelling</Label>
+                            <RadioGroupItem value="Machine is smelling" id={`${machine.id}-w1`} />
+                            <Label htmlFor={`${machine.id}-w1`}>Machine is smelling</Label>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Machine not clean" id="w2" />
-                            <Label htmlFor="w2">Machine not clean</Label>
+                            <RadioGroupItem value="Machine not clean" id={`${machine.id}-w2`} />
+                            <Label htmlFor={`${machine.id}-w2`}>Machine not clean</Label>
                           </div>
                            <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="other" id="w3" />
-                            <Label htmlFor="w3">Other</Label>
+                            <RadioGroupItem value="other" id={`${machine.id}-w3`} />
+                            <Label htmlFor={`${machine.id}-w3`}>Other</Label>
                           </div>
                         </RadioGroup>
                         {warningSelection === 'other' && (
@@ -183,8 +193,8 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
                          <Button 
                             className="w-full" 
                             onClick={handleWarningSubmit} 
-                            disabled={!warningSelection || (warningSelection === 'other' && !otherWarningValue)}>
-                              Submit Warning
+                            disabled={hasUserWarned || !warningSelection || (warningSelection === 'other' && !otherWarningValue)}>
+                              {hasUserWarned ? "Already Warned" : "Submit Warning" }
                           </Button>
                     </div>
                   </TabsContent>
@@ -203,7 +213,12 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
           "flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
            cardBgColor
         )}>
-          {isAvailable ? (
+          {isOutOfOrder ? (
+              <div className="text-center text-red-700">
+                <ShieldAlert className="h-12 w-12 mx-auto" />
+                <span className="text-lg font-bold tracking-wider mt-1">Out of Order</span>
+              </div>
+          ) : isAvailable ? (
             <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
           ) : (
             <div className="text-center text-foreground">
@@ -227,8 +242,8 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
       ) : (
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full" disabled={!isAvailable || !canStartNewMachine}>
-              Start Cycle
+            <Button className="w-full" disabled={!isAvailable || !canStartNewMachine || isOutOfOrder}>
+               {isOutOfOrder ? 'Out of Order' : 'Start Cycle'}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">

@@ -92,6 +92,42 @@ export default function LaundryDashboard({ selectedBuildingId }: LaundryDashboar
       }));
     });
   };
+
+  const handleReport = (machineId: string, issue: string) => {
+    setBuildings(currentBuildings => {
+      return currentBuildings.map(building => ({
+        ...building,
+        machines: building.machines.map(machine => {
+          if (machine.id === machineId) {
+            const newReports = [...machine.reports, { userId: currentUser, issue }];
+            return {
+              ...machine,
+              reports: newReports,
+              status: newReports.length >= 5 ? 'out-of-order' : machine.status,
+            };
+          }
+          return machine;
+        }),
+      }));
+    });
+  };
+
+  const handleWarning = (machineId: string, message: string) => {
+    setBuildings(currentBuildings => {
+      return currentBuildings.map(building => ({
+        ...building,
+        machines: building.machines.map(machine => {
+          if (machine.id === machineId) {
+            return {
+              ...machine,
+              warnings: [...machine.warnings, { userId: currentUser, message }],
+            };
+          }
+          return machine;
+        }),
+      }));
+    });
+  };
   
   if (!isClient) {
     // Render a placeholder or nothing on the server to avoid hydration mismatch
@@ -115,6 +151,8 @@ export default function LaundryDashboard({ selectedBuildingId }: LaundryDashboar
                 currentUser={currentUser}
                 onStart={handleStartMachine}
                 onFinish={handleMachineFinish}
+                onReport={handleReport}
+                onWarning={handleWarning}
                 canStartNewMachine={machinesInUseByUser < 2}
               />
             ))}
