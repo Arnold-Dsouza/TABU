@@ -57,6 +57,9 @@ function PageContent() {
     }
   };
 
+  const isTabu2View = ['fitness', 'tutor', 'tea', 'cafeteria', 'bar', 'mentor', 'seniors'].includes(activeView);
+  const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
+
 
   if (!currentUser) {
     return (
@@ -167,7 +170,7 @@ function PageContent() {
       </Sidebar>
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col bg-background">
-          <Header currentUser={currentUser} />
+          <Header currentUser={currentUser} title={headerTitle} />
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />}
              {activeView === 'fitness' && <FitnessRoom />}

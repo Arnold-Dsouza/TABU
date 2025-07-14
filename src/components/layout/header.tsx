@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from "next-themes";
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop } from 'lucide-react';
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,9 +38,10 @@ import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
   currentUser: string | null;
+  title?: string;
 }
 
-export default function Header({ currentUser }: HeaderProps) {
+export default function Header({ currentUser, title = 'LaundryView' }: HeaderProps) {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const router = useRouter();
@@ -92,6 +93,8 @@ export default function Header({ currentUser }: HeaderProps) {
     return name.charAt(0);
   };
 
+  const HeaderIcon = title === 'TABU 2' ? AppWindow : WashingMachine;
+
   return (
     <>
       <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/95 backdrop-blur px-4 md:px-6 z-50">
@@ -101,8 +104,8 @@ export default function Header({ currentUser }: HeaderProps) {
 
         <div className="flex-1 flex justify-center">
             <a href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
-                <WashingMachine className="h-6 w-6 text-primary" />
-                <span className="font-bold font-headline">LaundryView</span>
+                <HeaderIcon className="h-6 w-6 text-primary" />
+                <span className="font-bold font-headline">{title}</span>
             </a>
         </div>
         
