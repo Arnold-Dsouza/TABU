@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import LaundryDashboard from '@/components/laundry-dashboard';
 import FitnessRoom from '@/components/fitness-room';
+import TabuCafeteria from '@/components/tabu-cafeteria';
 import {
   Sidebar,
   SidebarContent,
@@ -135,7 +136,7 @@ function PageContent() {
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Tabu Cafeteria">
+                            <SidebarMenuButton tooltip="Tabu Cafeteria" onClick={() => handleViewSelect('cafeteria')} isActive={activeView === 'cafeteria'}>
                                 <Utensils />
                                 <span>Tabu Cafeteria</span>
                             </SidebarMenuButton>
@@ -170,6 +171,7 @@ function PageContent() {
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />}
              {activeView === 'fitness' && <FitnessRoom />}
+             {activeView === 'cafeteria' && <TabuCafeteria />}
           </main>
         </div>
       </SidebarInset>
