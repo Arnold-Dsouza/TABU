@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FeedbackForm } from '../feedback-form';
 import { SidebarTrigger } from '../ui/sidebar';
+import { ThemeToggle } from '../theme-toggle';
 
 export default function Header() {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
@@ -41,6 +42,7 @@ export default function Header() {
         
         {/* Right side */}
         <div className="flex items-center gap-4">
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
