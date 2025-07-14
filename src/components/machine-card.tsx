@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert, MessageSquareWarning, FileWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -69,7 +69,9 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
         setRemainingSeconds(secondsLeft);
       } else {
         setRemainingSeconds(0);
-        onFinish(machine.id);
+        if (machine.status === 'in-use') { // Prevent multiple calls
+            onFinish(machine.id);
+        }
         clearInterval(intervalId);
       }
     }, 1000);
@@ -258,7 +260,10 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
           ) : isAvailable ? (
             <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
           ) : (
-            <div className="text-center text-foreground">
+            <div className="flex flex-col items-center justify-center text-center text-foreground">
+                {machine.reports.length > 0 && (
+                  <FileWarning className="h-5 w-5 text-red-500 mb-1" />
+                )}
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
                 <Timer className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
