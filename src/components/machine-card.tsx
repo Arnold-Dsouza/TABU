@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Machine } from '@/lib/types';
+import type { Machine, Report } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -121,6 +121,19 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
     setOtherWarningValue("");
     setIsPopoverOpen(false);
   };
+
+  const hasFiveSameReports = (reports: Report[]): boolean => {
+    if (reports.length < 5) {
+      return false;
+    }
+    const issueCounts = reports.reduce((acc: { [key: string]: number }, report) => {
+      acc[report.issue] = (acc[report.issue] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.values(issueCounts).some(count => count >= 5);
+  };
+
+  const showReportIconInCircle = hasFiveSameReports(machine.reports);
 
   const isAvailable = machine.status === 'available';
   const isUserMachine = machine.status === 'in-use' && machine.apartmentUser === currentUser;
@@ -270,9 +283,9 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
           "relative flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
            cardBgColor
         )}>
-          {(machine.reports.length > 0 || machine.warnings.length > 0) && !isOutOfOrder && (
+          {(showReportIconInCircle || machine.warnings.length > 0) && !isOutOfOrder && (
               <div className="absolute top-3 sm:top-5 flex items-center gap-2">
-                  {machine.reports.length > 0 && (
+                  {showReportIconInCircle && (
                       <FileWarning className="h-5 w-5 text-red-500 animate-blink" />
                   )}
                   {machine.warnings.length > 0 && (
