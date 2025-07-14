@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert, MessageSquareWarning, FileWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
 
 interface MachineCardProps {
   machine: Machine;
@@ -134,17 +136,44 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
-                <Tabs defaultValue="report" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="report" className="data-[state=active]:bg-red-500 data-[state=active]:text-white" disabled={hasUserReported}>
+                <Tabs defaultValue="info" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="info">
+                      <Info className="h-4 w-4 mr-2" />
+                      Info
+                    </TabsTrigger>
+                    <TabsTrigger value="report" className="data-[state=active]:bg-red-500 data-[state=active]:text-white" disabled={hasUserReported || isOutOfOrder}>
                       <Flag className="h-4 w-4 mr-2" />
                       Report
                     </TabsTrigger>
-                    <TabsTrigger value="warning" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black" disabled={hasUserWarned}>
+                    <TabsTrigger value="warning" className="data-[state=active]:bg-yellow-400 data-[state=active]:text-black" disabled={hasUserWarned || isOutOfOrder}>
                       <AlertTriangle className="h-4 w-4 mr-2 text-yellow-700 data-[state=active]:text-black" />
                       Warning
                     </TabsTrigger>
                   </TabsList>
+                  <TabsContent value="info">
+                     <ScrollArea className="h-48 w-full py-4">
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center"><FileWarning className="h-4 w-4 mr-2 text-red-500" /> Reports ({machine.reports.length})</h4>
+                            {machine.reports.length > 0 ? (
+                              <ul className="list-disc pl-5 space-y-1 text-xs text-muted-foreground">
+                                {machine.reports.map((report, index) => <li key={index}>"{report.issue}" by {report.userId}</li>)}
+                              </ul>
+                            ) : (<p className="text-xs text-muted-foreground">No reports for this machine.</p>)}
+                          </div>
+                          <Separator />
+                          <div>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center"><MessageSquareWarning className="h-4 w-4 mr-2 text-yellow-500" /> Warnings ({machine.warnings.length})</h4>
+                            {machine.warnings.length > 0 ? (
+                               <ul className="list-disc pl-5 space-y-1 text-xs text-muted-foreground">
+                                {machine.warnings.map((warning, index) => <li key={index}>"{warning.message}" by {warning.userId}</li>)}
+                              </ul>
+                            ) : (<p className="text-xs text-muted-foreground">No warnings for this machine.</p>)}
+                          </div>
+                        </div>
+                     </ScrollArea>
+                  </TabsContent>
                   <TabsContent value="report">
                      <div className="py-4 space-y-4">
                         <Label>Select an issue to report:</Label>
@@ -215,7 +244,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
         )}>
           {isOutOfOrder ? (
               <div className="text-center text-red-700">
-                <ShieldAlert className="h-12 w-12 mx-auto" />
+                <ShieldAlert className="h-12 w-12 mx-auto animate-pulse" />
                 <span className="text-lg font-bold tracking-wider mt-1">Out of Order</span>
               </div>
           ) : isAvailable ? (
@@ -296,3 +325,5 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
     </div>
   );
 }
+
+  
