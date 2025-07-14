@@ -6,12 +6,8 @@ import { Dumbbell, Calendar, Clock, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const schedule = [
-    { day: 'Monday', hours: 'Closed' },
     { day: 'Tuesday', hours: '6:00 PM - 8:00 PM' },
-    { day: 'Wednesday', hours: 'Closed' },
-    { day: 'Thursday', hours: 'Closed' },
     { day: 'Friday', hours: '6:00 PM - 8:00 PM' },
-    { day: 'Saturday', hours: 'Closed' },
     { day: 'Sunday', hours: '6:00 PM - 8:00 PM' },
 ];
 
