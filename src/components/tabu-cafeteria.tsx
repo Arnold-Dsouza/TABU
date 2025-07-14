@@ -2,19 +2,31 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check } from "lucide-react";
+import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 
 const schedule = [
-    { day: 'Monday - Friday', hours: '8:00 AM - 3:00 PM' },
-    { day: 'Saturday - Sunday', hours: 'Closed' },
+    { day: 'Wednesday', hours: '5:00 PM - 8:00 PM' },
+    { day: 'Sunday', hours: '5:00 PM - 8:00 PM' },
 ];
 
-const menu = [
-    { category: 'Hot Drinks', items: ['Coffee', 'Tea', 'Hot Chocolate'] },
-    { category: 'Cold Drinks', items: ['Iced Coffee', 'Juice', 'Soda'] },
-    { category: 'Food', items: ['Sandwich of the Day', 'Salad Bowl', 'Daily Soup'] },
+const specialMenu = [
+    { name: 'Mango Cheesecake', price: '€ 2.5' },
+    { name: 'Fruit Popsicle Eis', price: '€ 1' },
+    { name: 'Spaghetti Icecream', price: '€ 1.5' },
+    { name: 'Vanilla Berry Sunday', price: '€ 2' },
+];
+
+const usualMenu = [
+    { name: 'Pommes', price: '€ 2 / € 1.5' },
+    { name: 'Chicken Wings', price: '2-3 Pcs' },
+    { name: 'Iced Coffee Latte', price: '€ 1.5' },
+    { name: 'Warm Tea', price: '€ 0.50' },
+    { name: 'Desi Chai', price: '€ 1.5' },
+    { name: 'Pan Cakes + Berries', price: '€ 2' },
+    { name: 'Brownies', price: '1.5 - 2 Pcs' },
+    { name: 'Peach ice tea', price: '€ 1' },
 ];
 
 const upcomingEvents = [
@@ -73,25 +85,38 @@ export default function TabuCafeteria() {
 
             <Separator className="my-4 w-full max-w-2xl" />
 
-            <Card className="w-full max-w-2xl shadow-lg">
+            <Card className="w-full max-w-4xl shadow-lg">
                 <CardHeader>
                     <div className="flex items-center gap-3">
                         <BookOpen className="h-8 w-8 text-primary" />
-                        <CardTitle className="text-2xl font-bold font-headline">Menu</CardTitle>
+                        <CardTitle className="text-2xl font-bold font-headline">Menu for the Day</CardTitle>
                     </div>
+                    <CardDescription>Seasonal, cold, and made with love</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        {menu.map((category) => (
-                            <div key={category.category}>
-                                <h3 className="font-semibold text-lg mb-2">{category.category}</h3>
-                                <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                    {category.items.map((item) => (
-                                        <li key={item}>{item}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        ))}
+                    <div className="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="text-xl font-bold mb-4 text-center text-white bg-yellow-500 rounded-md py-2">SPECIAL MENU</h3>
+                            <ul className="space-y-3">
+                                {specialMenu.map((item) => (
+                                    <li key={item.name} className="flex justify-between items-baseline border-b border-dashed pb-2">
+                                        <span className="font-medium">{item.name}</span>
+                                        <span className="font-mono text-muted-foreground">{item.price}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div>
+                             <h3 className="text-xl font-bold mb-4 text-center text-white bg-yellow-500 rounded-md py-2">USUAL MENU</h3>
+                             <ul className="space-y-3">
+                                {usualMenu.map((item) => (
+                                    <li key={item.name} className="flex justify-between items-baseline border-b border-dashed pb-2">
+                                        <span className="font-medium">{item.name}</span>
+                                        <span className="font-mono text-muted-foreground">{item.price}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -104,18 +129,22 @@ export default function TabuCafeteria() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-4">
-                        {upcomingEvents.map((event) => (
-                            <li key={event.title} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background rounded-lg border border-border/50">
-                                <span className="font-semibold text-lg">{event.title}</span>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 sm:mt-0">
-                                    <div className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {event.date}</div>
-                                    <div className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {event.time}</div>
-                                    <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {event.location}</div>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    {upcomingEvents.length > 0 ? (
+                        <ul className="space-y-4">
+                            {upcomingEvents.map((event) => (
+                                <li key={event.title} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background rounded-lg border border-border/50">
+                                    <span className="font-semibold text-lg">{event.title}</span>
+                                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 sm:mt-0">
+                                        <div className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {event.date}</div>
+                                        <div className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {event.time}</div>
+                                        <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {event.location}</div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-muted-foreground text-center">No upcoming events scheduled.</p>
+                    )}
                 </CardContent>
             </Card>
 
@@ -127,15 +156,33 @@ export default function TabuCafeteria() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-3">
-                        {passedEvents.map((event) => (
-                            <li key={event.title} className="flex items-center gap-3 text-muted-foreground">
-                                <Check className="h-5 w-5 text-green-500" />
-                                <span className="flex-1">{event.title}</span>
-                                <span className="text-sm">{event.date}</span>
-                            </li>
-                        ))}
-                    </ul>
+                     {passedEvents.length > 0 ? (
+                        <ul className="space-y-3">
+                            {passedEvents.map((event) => (
+                                <li key={event.title} className="flex items-center gap-3 text-muted-foreground">
+                                    <Check className="h-5 w-5 text-green-500" />
+                                    <span className="flex-1">{event.title}</span>
+                                    <span className="text-sm">{event.date}</span>
+                                </li>
+                            ))}
+                        </ul>
+                     ) : (
+                        <p className="text-muted-foreground text-center">No past events to show.</p>
+                     )}
+                </CardContent>
+            </Card>
+
+            <Card className="w-full max-w-2xl shadow-lg">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <Gift className="h-8 w-8 text-primary" />
+                        <CardTitle className="text-2xl font-bold font-headline">Private Parties</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-center text-muted-foreground">
+                        To rent the cafeteria for a private party, please contact ABC.
+                    </p>
                 </CardContent>
             </Card>
         </div>
