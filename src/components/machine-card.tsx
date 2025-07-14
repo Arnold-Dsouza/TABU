@@ -27,7 +27,8 @@ const formatTime = (totalSeconds: number) => {
 
 export default function MachineCard({ machine, currentUser, onStart, onFinish, canStartNewMachine }: MachineCardProps) {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
-  const [durationInput, setDurationInput] = useState('45');
+  const [durationHours, setDurationHours] = useState('0');
+  const [durationMinutes, setDurationMinutes] = useState('45');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -49,9 +50,12 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   }, [machine.status, machine.timerEnd, machine.id, onFinish]);
 
   const handleStartClick = () => {
-    const duration = parseInt(durationInput, 10);
-    if (!isNaN(duration) && duration > 0) {
-      onStart(machine.id, duration);
+    const hours = parseInt(durationHours, 10) || 0;
+    const minutes = parseInt(durationMinutes, 10) || 0;
+    const totalDurationMinutes = (hours * 60) + minutes;
+
+    if (totalDurationMinutes > 0) {
+      onStart(machine.id, totalDurationMinutes);
       setIsDialogOpen(false);
     }
   };
@@ -67,16 +71,16 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   return (
     <div className={cn(
       "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-gray-100 dark:bg-gray-800 rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4",
-      isAvailable ? "border-2 border-green-500" : "border-2 border-transparent"
     )}>
-      {/* Control Panel */}
       <div className="flex justify-between items-center">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
         <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-green-600" : "text-muted-foreground")} />
       </div>
 
-      {/* Machine Window */}
-      <div className="relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto bg-gray-300 dark:bg-gray-700 rounded-full border-8 border-gray-400 dark:border-gray-600 shadow-inner">
+      <div className={cn(
+          "relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto rounded-full border-8 shadow-inner",
+          isAvailable ? "border-green-500" : "border-gray-400 dark:border-gray-600"
+      )}>
         <div className={cn(
           "flex items-center justify-center w-full h-full rounded-full backdrop-blur-sm",
           isAvailable ? "bg-green-500/80" : "bg-orange-500/80"
@@ -98,7 +102,6 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
         </div>
       </div>
 
-      {/* Action Button */}
       {isUserMachine ? (
         <Button className="w-full" variant="destructive" onClick={handleStopClick}>
           Stop Cycle
@@ -114,22 +117,40 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
             <DialogHeader>
               <DialogTitle>Start {machine.name}</DialogTitle>
               <DialogDescription>
-                Set the cycle duration in minutes. The machine will be marked as in-use.
+                Set the cycle duration. The machine will be marked as in-use.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="duration" className="text-right">
-                  Duration
-                </Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  value={durationInput}
-                  onChange={(e) => setDurationInput(e.target.value)}
-                  className="col-span-3"
-                  placeholder="e.g., 45"
-                />
+              <div className="grid grid-cols-2 items-center gap-4">
+                  <div>
+                    <Label htmlFor="hours" className="text-right">
+                      Hours
+                    </Label>
+                    <Input
+                      id="hours"
+                      type="number"
+                      value={durationHours}
+                      onChange={(e) => setDurationHours(e.target.value)}
+                      className="w-full"
+                      placeholder="e.g., 1"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="minutes" className="text-right">
+                      Minutes
+                    </Label>
+                    <Input
+                      id="minutes"
+                      type="number"
+                      value={durationMinutes}
+                      onChange={(e) => setDurationMinutes(e.target.value)}
+                      className="w-full"
+                      placeholder="e.g., 30"
+                      min="0"
+                      max="59"
+                    />
+                  </div>
               </div>
             </div>
             <DialogFooter>
