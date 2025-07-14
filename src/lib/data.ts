@@ -18,7 +18,6 @@ export const initialBuildingsData: Building[] = [
     machines: [
       { id: 'w1-60', name: 'Washer 1', type: 'washer', status: 'available', timerEnd: null, apartmentUser: null, reports: [], warnings: [] },
       { id: 'w2-60', name: 'Washer 2', type: 'washer', status: 'available', timerEnd: null, apartmentUser: null, reports: [], warnings: [] },
-      { id: 'w3-60', name: 'Washer 3', type: 'washer', status: 'available', timerEnd: null, apartmentUser: null, reports: [], warnings: [] },
       { id: 'd1-60', name: 'Dryer 1', type: 'dryer', status: 'available', timerEnd: null, apartmentUser: null, reports: [], warnings: [] },
     ],
   },
