@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { WashingMachine, Wind, Timer, User, Info } from 'lucide-react';
+import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -126,8 +126,14 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
             <PopoverContent className="w-80">
                 <Tabs defaultValue="report" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="report">Report</TabsTrigger>
-                    <TabsTrigger value="warning">Warning</TabsTrigger>
+                    <TabsTrigger value="report">
+                      <Flag className="h-4 w-4 mr-2" />
+                      Report
+                    </TabsTrigger>
+                    <TabsTrigger value="warning">
+                      <AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" />
+                      Warning
+                    </TabsTrigger>
                   </TabsList>
                   <TabsContent value="report">
                      <div className="py-4 space-y-4">
