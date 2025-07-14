@@ -25,51 +25,6 @@ const passedEvents = [
 export default function FitnessRoom() {
     return (
         <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
-             <Card className="w-full max-w-2xl shadow-lg">
-                <CardHeader>
-                    <div className="flex items-center gap-3">
-                         <PartyPopper className="h-8 w-8 text-primary" />
-                        <CardTitle className="text-2xl font-bold font-headline">Upcoming Events</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-4">
-                        {upcomingEvents.map((event) => (
-                            <li key={event.title} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background rounded-lg border border-border/50">
-                                <span className="font-semibold text-lg">{event.title}</span>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 sm:mt-0">
-                                    <div className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {event.date}</div>
-                                    <div className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {event.time}</div>
-                                    <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {event.location}</div>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </CardContent>
-            </Card>
-
-            <Card className="w-full max-w-2xl shadow-lg opacity-70">
-                <CardHeader>
-                    <div className="flex items-center gap-3">
-                        <CalendarOff className="h-8 w-8 text-muted-foreground" />
-                        <CardTitle className="text-2xl font-bold font-headline">Passed Events</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-3">
-                        {passedEvents.map((event) => (
-                            <li key={event.title} className="flex items-center gap-3 text-muted-foreground">
-                                <Check className="h-5 w-5 text-green-500" />
-                                <span className="flex-1">{event.title}</span>
-                                <span className="text-sm">{event.date}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </CardContent>
-            </Card>
-
-            <Separator className="my-4 w-full max-w-2xl" />
-
             <Card className="w-full max-w-2xl shadow-lg">
                 <CardHeader className="text-center bg-muted/30">
                     <div className="flex justify-center items-center gap-3 mb-2">
@@ -109,6 +64,51 @@ export default function FitnessRoom() {
                                 </li>
                             );
                         })}
+                    </ul>
+                </CardContent>
+            </Card>
+
+            <Separator className="my-4 w-full max-w-2xl" />
+
+             <Card className="w-full max-w-2xl shadow-lg">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                         <PartyPopper className="h-8 w-8 text-primary" />
+                        <CardTitle className="text-2xl font-bold font-headline">Upcoming Events</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <ul className="space-y-4">
+                        {upcomingEvents.map((event) => (
+                            <li key={event.title} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background rounded-lg border border-border/50">
+                                <span className="font-semibold text-lg">{event.title}</span>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 sm:mt-0">
+                                    <div className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {event.date}</div>
+                                    <div className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {event.time}</div>
+                                    <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {event.location}</div>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </CardContent>
+            </Card>
+
+            <Card className="w-full max-w-2xl shadow-lg opacity-70">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <CalendarOff className="h-8 w-8 text-muted-foreground" />
+                        <CardTitle className="text-2xl font-bold font-headline">Passed Events</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <ul className="space-y-3">
+                        {passedEvents.map((event) => (
+                            <li key={event.title} className="flex items-center gap-3 text-muted-foreground">
+                                <Check className="h-5 w-5 text-green-500" />
+                                <span className="flex-1">{event.title}</span>
+                                <span className="text-sm">{event.date}</span>
+                            </li>
+                        ))}
                     </ul>
                 </CardContent>
             </Card>
