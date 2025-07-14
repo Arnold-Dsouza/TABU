@@ -27,15 +27,13 @@ const initializeTimers = (buildings: Building[]): Building[] => {
 
 interface LaundryDashboardProps {
   selectedBuildingId: string;
+  currentUser: string;
 }
 
-export default function LaundryDashboard({ selectedBuildingId }: LaundryDashboardProps) {
+export default function LaundryDashboard({ selectedBuildingId, currentUser }: LaundryDashboardProps) {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
-  
-  // Simulate a logged-in user
-  const currentUser = 'Apt 101';
 
   useEffect(() => {
     setBuildings(initializeTimers(initialBuildingsData));

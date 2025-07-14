@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { WashingMachine } from 'lucide-react';
 import {
   DropdownMenu,
@@ -21,8 +22,27 @@ import { FeedbackForm } from '../feedback-form';
 import { SidebarTrigger } from '../ui/sidebar';
 import { ThemeToggle } from '../theme-toggle';
 
-export default function Header() {
+interface HeaderProps {
+  currentUser: string | null;
+}
+
+export default function Header({ currentUser }: HeaderProps) {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem('laundryUser');
+    router.push('/login');
+  };
+
+  const getInitials = (name: string | null) => {
+    if (!name) return 'U';
+    const parts = name.split(' ');
+    if (parts.length > 1) {
+      return parts[0].charAt(0) + parts[1].charAt(0);
+    }
+    return name.charAt(0);
+  }
 
   return (
     <>
@@ -48,13 +68,13 @@ export default function Header() {
               <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar>
                   <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="person portrait" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarFallback>{getInitials(currentUser)}</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Apt 101</DropdownMenuLabel>
+              <DropdownMenuLabel>{currentUser || 'Guest'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
@@ -71,7 +91,7 @@ export default function Header() {
               </DropdownMenuSub>
               <DropdownMenuItem onSelect={() => setIsFeedbackFormOpen(true)}>Feedback</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
