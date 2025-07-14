@@ -273,7 +273,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
               <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center text-center text-foreground">
+            <div className="flex flex-col items-center justify-center text-center text-foreground pt-1">
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
                 <Timer className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
