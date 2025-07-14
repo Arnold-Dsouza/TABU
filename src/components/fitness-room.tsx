@@ -97,7 +97,7 @@ export default function FitnessRoom() {
                 <CardHeader>
                     <div className="flex items-center gap-3">
                         <CalendarOff className="h-8 w-8 text-muted-foreground" />
-                        <CardTitle className="text-2xl font-bold font-headline">Passed Events</CardTitle>
+                        <CardTitle className="text-2xl font-bold font-headline">Past Events</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent>
