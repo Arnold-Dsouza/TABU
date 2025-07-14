@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert, MessageSquareWarning, FileWarning } from 'lucide-react';
+import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert, FileWarning } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -174,7 +174,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                           </div>
                           <Separator />
                           <div>
-                            <h4 className="font-semibold text-sm mb-2 flex items-center"><MessageSquareWarning className="h-4 w-4 mr-2 text-yellow-500" /> Warnings ({machine.warnings.length})</h4>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" /> Warnings ({machine.warnings.length})</h4>
                             {machine.warnings.length > 0 ? (
                                <ul className="list-disc pl-5 space-y-1 text-xs text-muted-foreground">
                                 {machine.warnings.map((warning, index) => <li key={index}>"{warning.message}" by {warning.userId}</li>)}
@@ -264,7 +264,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                     <FileWarning className="h-5 w-5 text-red-500" />
                   )}
                   {machine.warnings.length > 0 && (
-                    <MessageSquareWarning className="h-5 w-5 text-yellow-500" />
+                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
                   )}
               </div>
               <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider mt-1">Available</span>
@@ -276,7 +276,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                     <FileWarning className="h-5 w-5 text-red-500" />
                   )}
                   {machine.warnings.length > 0 && (
-                    <MessageSquareWarning className="h-5 w-5 text-yellow-500" />
+                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
                   )}
                 </div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
@@ -353,3 +353,5 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
     </div>
   );
 }
+
+    
