@@ -70,9 +70,12 @@ export default function MachineCard({ machine, onStart, onFinish }: MachineCardP
 
       {/* Machine Window */}
       <div className="relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto bg-gray-300 dark:bg-gray-700 rounded-full border-8 border-gray-400 dark:border-gray-600 shadow-inner">
-        <div className="flex items-center justify-center w-full h-full bg-black/70 rounded-full backdrop-blur-sm">
+        <div className={cn(
+          "flex items-center justify-center w-full h-full rounded-full backdrop-blur-sm",
+          isAvailable ? "bg-accent/80" : "bg-black/70"
+        )}>
           {isAvailable ? (
-            <span className="text-2xl font-bold text-white tracking-wider">Available</span>
+            <span className="text-2xl font-bold text-accent-foreground tracking-wider">Available</span>
           ) : (
             <div className="text-center text-white">
               <div className="text-4xl lg:text-5xl font-bold font-headline tabular-nums flex items-center justify-center gap-2">
