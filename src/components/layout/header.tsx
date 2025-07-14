@@ -27,7 +27,7 @@ export default function Header() {
     <>
       <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 md:px-6 z-50">
         <div className="flex items-center gap-2">
-            <SidebarTrigger className="md:hidden" />
+            <SidebarTrigger />
             <a href="#" className="flex items-center gap-2 text-lg font-semibold md:text-base">
                 <WashingMachine className="h-6 w-6 text-primary" />
                 <span className="font-bold font-headline hidden sm:inline">LaundryView</span>

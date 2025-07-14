@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +12,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
 } from '@/components/ui/sidebar';
@@ -26,9 +24,7 @@ export default function Home() {
   return (
     <SidebarProvider>
       <Sidebar>
-        <SidebarHeader>
-          <SidebarTrigger />
-        </SidebarHeader>
+        <SidebarHeader></SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem>
