@@ -19,10 +19,11 @@ interface MachineCardProps {
 }
 
 const formatTime = (totalSeconds: number) => {
-  if (totalSeconds <= 0) return '00:00';
-  const minutes = Math.floor(totalSeconds / 60);
+  if (totalSeconds <= 0) return '00:00:00';
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
 export default function MachineCard({ machine, currentUser, onStart, onFinish, canStartNewMachine }: MachineCardProps) {
@@ -70,30 +71,31 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
 
   return (
     <div className={cn(
-      "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-gray-100 dark:bg-gray-800 rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4",
+      "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4 border",
     )}>
-      <div className="flex justify-between items-center">
+       <div className="absolute top-0 left-0 w-full h-2 bg-primary rounded-t-xl"></div>
+       <div className="flex justify-between items-center pt-4">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
-        <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-green-600" : "text-muted-foreground")} />
+        <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-accent" : "text-muted-foreground")} />
       </div>
 
       <div className={cn(
-          "relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto rounded-full border-8 shadow-inner",
-          isAvailable ? "border-green-500" : "border-gray-400 dark:border-gray-600"
+          "relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto rounded-full border-8 shadow-inner bg-background",
+          isAvailable ? "border-accent" : "border-orange-500"
       )}>
         <div className={cn(
-          "flex items-center justify-center w-full h-full rounded-full backdrop-blur-sm",
-          isAvailable ? "bg-green-500/80" : "bg-orange-500/80"
+          "flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
+           isAvailable ? "bg-accent/20" : "bg-orange-500/20"
         )}>
           {isAvailable ? (
-            <span className="text-2xl font-bold text-white tracking-wider">Available</span>
+            <span className="text-2xl font-bold text-accent-foreground tracking-wider">Available</span>
           ) : (
-            <div className="text-center text-white">
-              <div className="text-4xl lg:text-5xl font-bold font-headline tabular-nums flex items-center justify-center gap-2">
-                <Timer className="h-8 w-8 lg:h-10 lg:w-10" />
+            <div className="text-center text-foreground">
+              <div className="text-3xl lg:text-4xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
+                <Timer className="h-6 w-6 lg:h-8 lg:w-8" />
                 {formatTime(remainingSeconds)}
               </div>
-              <p className="text-xs text-gray-200 flex items-center justify-center gap-1.5 mt-2">
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5 mt-2">
                 <User className="h-3 w-3" />
                 {machine.apartmentUser}
               </p>
