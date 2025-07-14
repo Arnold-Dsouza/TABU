@@ -46,6 +46,8 @@ export default function Header() {
                 <DropdownMenuSubContent>
                   <DropdownMenuItem>Change Language</DropdownMenuItem>
                   <DropdownMenuItem>About</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive">Delete Account</DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
