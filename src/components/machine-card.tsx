@@ -10,6 +10,10 @@ import { Label } from '@/components/ui/label';
 import type { Machine } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Textarea } from './ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 interface MachineCardProps {
   machine: Machine;
@@ -32,6 +36,10 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   const [durationHours, setDurationHours] = useState('0');
   const [durationMinutes, setDurationMinutes] = useState('45');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [reportValue, setReportValue] = useState("");
+  const [warningValue, setWarningValue] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     if (machine.status === 'in-use' && machine.timerEnd) {
@@ -66,6 +74,28 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
     onFinish(machine.id);
   };
   
+  const handleReportSubmit = () => {
+    if (!reportValue) return;
+    console.log(`Report for ${machine.name}: ${reportValue}`);
+    toast({
+      title: "Report Submitted",
+      description: `Your report for "${reportValue}" has been sent.`,
+    });
+    setReportValue("");
+    setIsPopoverOpen(false);
+  };
+
+  const handleWarningSubmit = () => {
+    if (!warningValue) return;
+    console.log(`Warning for ${machine.name}: ${warningValue}`);
+     toast({
+      title: "Warning Submitted",
+      description: `Your warning has been sent.`,
+    });
+    setWarningValue("");
+    setIsPopoverOpen(false);
+  };
+
   const isAvailable = machine.status === 'available';
   const isUserMachine = machine.status === 'in-use' && machine.apartmentUser === currentUser;
   const MachineIcon = machine.type === 'washer' ? WashingMachine : Wind;
@@ -80,25 +110,54 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
       "relative flex flex-col justify-between w-full mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-3 sm:p-4 space-y-3 sm:space-y-4 border",
     )}>
        <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : "bg-orange-500")}></div>
-       <div className="flex justify-between items-start pt-2 sm:pt-4">
+       <div className="flex justify-between items-start pt-2">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
         <div className="flex items-center gap-2">
-          <Popover>
+          <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="h-6 w-6">
                 <Info className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-60">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">Machine Info</h4>
-                <p className="text-sm text-muted-foreground">
-                  ID: {machine.id}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Type: {machine.type.charAt(0).toUpperCase() + machine.type.slice(1)}
-                </p>
-              </div>
+            <PopoverContent className="w-80">
+                <Tabs defaultValue="report" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="report">Report</TabsTrigger>
+                    <TabsTrigger value="warning">Warning</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="report">
+                     <div className="py-4 space-y-4">
+                        <Label>Select an issue to report:</Label>
+                        <RadioGroup value={reportValue} onValueChange={setReportValue}>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Machine not working" id="r1" />
+                            <Label htmlFor="r1">Machine not working</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Machine not draining" id="r2" />
+                            <Label htmlFor="r2">Machine not draining</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Cycle not starting" id="r3" />
+                            <Label htmlFor="r3">Cycle not starting</Label>
+                          </div>
+                        </RadioGroup>
+                        <Button className="w-full" onClick={handleReportSubmit} disabled={!reportValue}>Submit Report</Button>
+                     </div>
+                  </TabsContent>
+                  <TabsContent value="warning">
+                    <div className="py-4 space-y-4">
+                        <Label htmlFor="warning-text">Describe the warning:</Label>
+                        <Textarea 
+                          id="warning-text"
+                          placeholder="e.g., Machine is smelling, Machine not clean"
+                          value={warningValue}
+                          onChange={(e) => setWarningValue(e.target.value)}
+                        />
+                         <Button className="w-full" onClick={handleWarningSubmit} disabled={!warningValue}>Submit Warning</Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
             </PopoverContent>
           </Popover>
           <MachineIcon className={cn("h-6 w-6", iconColor)} />
