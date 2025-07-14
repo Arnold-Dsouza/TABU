@@ -1,11 +1,13 @@
 export type MachineStatus = 'available' | 'in-use' | 'out-of-order';
 
 export interface Report {
+  id: string;
   userId: string;
   issue: string;
 }
 
 export interface Warning {
+  id: string;
   userId: string;
   message: string;
 }

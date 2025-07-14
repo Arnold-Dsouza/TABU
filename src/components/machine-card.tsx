@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert, FileWarning } from 'lucide-react';
+import { WashingMachine, Wind, Timer, User, Info, Flag, AlertTriangle, ShieldAlert, FileWarning, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,8 @@ interface MachineCardProps {
   onFinish: (machineId: string) => void;
   onReport: (machineId: string, issue: string) => void;
   onWarning: (machineId: string, message: string) => void;
+  onResolveReport: (machineId: string, reportId: string) => void;
+  onResolveWarning: (machineId: string, warningId: string) => void;
   canStartNewMachine: boolean;
 }
 
@@ -35,7 +37,7 @@ const formatTime = (totalSeconds: number) => {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-export default function MachineCard({ machine, currentUser, onStart, onFinish, onReport, onWarning, canStartNewMachine }: MachineCardProps) {
+export default function MachineCard({ machine, currentUser, onStart, onFinish, onReport, onWarning, onResolveReport, onResolveWarning, canStartNewMachine }: MachineCardProps) {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [durationHours, setDurationHours] = useState('0');
   const [durationMinutes, setDurationMinutes] = useState('45');
@@ -167,8 +169,15 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                           <div>
                             <h4 className="font-semibold text-sm mb-2 flex items-center"><FileWarning className="h-4 w-4 mr-2 text-red-500" /> Reports ({machine.reports.length})</h4>
                             {machine.reports.length > 0 ? (
-                              <ul className="list-disc pl-5 space-y-1 text-xs text-muted-foreground">
-                                {machine.reports.map((report, index) => <li key={index}>"{report.issue}" by {report.userId}</li>)}
+                              <ul className="space-y-2 text-xs text-muted-foreground">
+                                {machine.reports.map((report) => (
+                                  <li key={report.id} className="flex justify-between items-center">
+                                    <span>"{report.issue}" by {report.userId}</span>
+                                    <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => onResolveReport(machine.id, report.id)}>
+                                      <CheckCircle className="h-3 w-3 mr-1" /> Solved
+                                    </Button>
+                                  </li>
+                                ))}
                               </ul>
                             ) : (<p className="text-xs text-muted-foreground">No reports for this machine.</p>)}
                           </div>
@@ -176,8 +185,15 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                           <div>
                             <h4 className="font-semibold text-sm mb-2 flex items-center"><AlertTriangle className="h-4 w-4 mr-2 text-yellow-500" /> Warnings ({machine.warnings.length})</h4>
                             {machine.warnings.length > 0 ? (
-                               <ul className="list-disc pl-5 space-y-1 text-xs text-muted-foreground">
-                                {machine.warnings.map((warning, index) => <li key={index}>"{warning.message}" by {warning.userId}</li>)}
+                               <ul className="space-y-2 text-xs text-muted-foreground">
+                                {machine.warnings.map((warning) => (
+                                  <li key={warning.id} className="flex justify-between items-center">
+                                    <span>"{warning.message}" by {warning.userId}</span>
+                                     <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => onResolveWarning(machine.id, warning.id)}>
+                                       <CheckCircle className="h-3 w-3 mr-1" /> Solved
+                                    </Button>
+                                  </li>
+                                ))}
                               </ul>
                             ) : (<p className="text-xs text-muted-foreground">No warnings for this machine.</p>)}
                           </div>

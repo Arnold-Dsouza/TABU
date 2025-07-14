@@ -175,17 +175,52 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
         if (machineIndex === -1) throw new Error("Machine not found");
         
         const machine = building.machines[machineIndex];
-        const newReports = [...machine.reports, { userId: currentUser, issue }];
+        const newReport = { id: Date.now().toString(), userId: currentUser, issue };
+        const newReports = [...machine.reports, newReport];
         const newMachines = [...building.machines];
+        const newStatus = newReports.length >= 5 ? 'out-of-order' : machine.status;
+        
         newMachines[machineIndex] = {
           ...machine,
           reports: newReports,
-          status: newReports.length >= 5 ? 'out-of-order' : machine.status,
+          status: newStatus,
         };
         transaction.update(buildingRef, { machines: newMachines });
+        
+        if (newStatus === 'out-of-order') {
+            toast({
+                title: "Machine Out of Order",
+                description: `Machine ${machine.name} has been marked as out-of-order due to multiple reports.`,
+                variant: "destructive"
+            });
+        }
       });
     } catch (error) {
       console.error("Error reporting issue:", error);
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    }
+  };
+  
+  const handleResolveReport = async (machineId: string, reportId: string) => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
+        if (machineIndex === -1) throw new Error("Machine not found");
+        
+        const machine = building.machines[machineIndex];
+        const newReports = machine.reports.filter(r => r.id !== reportId);
+        const newMachines = [...building.machines];
+
+        newMachines[machineIndex] = {
+          ...machine,
+          reports: newReports,
+          status: machine.status === 'out-of-order' && newReports.length < 5 ? 'available' : machine.status,
+        };
+        transaction.update(buildingRef, { machines: newMachines });
+      });
+       toast({ title: "Success", description: "Report has been resolved." });
+    } catch (error) {
+      console.error("Error resolving report:", error);
       toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
     }
   };
@@ -197,7 +232,8 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
         if (machineIndex === -1) throw new Error("Machine not found");
         
         const machine = building.machines[machineIndex];
-        const newWarnings = [...machine.warnings, { userId: currentUser, message }];
+        const newWarning = { id: Date.now().toString(), userId: currentUser, message };
+        const newWarnings = [...machine.warnings, newWarning];
         const newMachines = [...building.machines];
         newMachines[machineIndex] = {
           ...machine,
@@ -207,6 +243,28 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
       });
     } catch (error)      {
       console.error("Error sending warning:", error);
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    }
+  };
+  
+  const handleResolveWarning = async (machineId: string, warningId: string) => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
+        if (machineIndex === -1) throw new Error("Machine not found");
+        
+        const machine = building.machines[machineIndex];
+        const newWarnings = machine.warnings.filter(w => w.id !== warningId);
+        const newMachines = [...building.machines];
+        newMachines[machineIndex] = {
+          ...machine,
+          warnings: newWarnings,
+        };
+        transaction.update(buildingRef, { machines: newMachines });
+      });
+      toast({ title: "Success", description: "Warning has been resolved." });
+    } catch (error) {
+      console.error("Error resolving warning:", error);
       toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
     }
   };
@@ -261,6 +319,8 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
                 onReport={handleReport}
                 onWarning={handleWarning}
                 canStartNewMachine={machinesInUseByUser < 2}
+                onResolveReport={handleResolveReport}
+                onResolveWarning={handleResolveWarning}
               />
             ))}
           </div>
