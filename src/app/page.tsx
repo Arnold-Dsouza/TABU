@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/header';
 import LaundryDashboard from '@/components/laundry-dashboard';
+import FitnessRoom from '@/components/fitness-room';
 import {
   Sidebar,
   SidebarContent,
@@ -22,9 +23,12 @@ import { initialBuildingsData } from '@/lib/data';
 import { Building, Home as HomeIcon, Dumbbell, Globe, Coffee, Utensils, Martini, Users, Smile } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
+type View = 'laundry' | 'fitness' | 'tutor' | 'tea' | 'cafeteria' | 'bar' | 'mentor' | 'seniors';
+
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
   const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [activeView, setActiveView] = useState<View>('laundry');
   const { isMobile, setOpenMobile } = useSidebar();
   const router = useRouter();
 
@@ -39,10 +43,19 @@ function PageContent() {
 
   const handleBuildingSelect = (buildingId: string) => {
     setSelectedBuilding(buildingId);
+    setActiveView('laundry');
     if (isMobile) {
       setOpenMobile(false);
     }
   };
+  
+  const handleViewSelect = (view: View) => {
+    setActiveView(view);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
 
   if (!currentUser) {
     return (
@@ -72,12 +85,12 @@ function PageContent() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarGroup>
-                <SidebarGroupLabel>Buildings</SidebarGroupLabel>
+                <SidebarGroupLabel>Laundry</SidebarGroupLabel>
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
                       onClick={() => handleBuildingSelect('all')}
-                      isActive={selectedBuilding === 'all'}
+                      isActive={activeView === 'laundry' && selectedBuilding === 'all'}
                       tooltip="All Buildings"
                     >
                       <HomeIcon />
@@ -88,7 +101,7 @@ function PageContent() {
                     <SidebarMenuItem key={building.id}>
                       <SidebarMenuButton
                         onClick={() => handleBuildingSelect(building.id)}
-                        isActive={selectedBuilding === building.id}
+                        isActive={activeView === 'laundry' && selectedBuilding === building.id}
                         tooltip={building.name}
                       >
                         <Building />
@@ -104,7 +117,7 @@ function PageContent() {
                     <SidebarGroupLabel>TABU 2</SidebarGroupLabel>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Fitness room">
+                            <SidebarMenuButton tooltip="Fitness room" onClick={() => handleViewSelect('fitness')} isActive={activeView === 'fitness'}>
                                 <Dumbbell />
                                 <span>Fitness room</span>
                             </SidebarMenuButton>
@@ -155,7 +168,8 @@ function PageContent() {
         <div className="flex min-h-screen w-full flex-col bg-background">
           <Header currentUser={currentUser} />
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />
+             {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />}
+             {activeView === 'fitness' && <FitnessRoom />}
           </main>
         </div>
       </SidebarInset>
