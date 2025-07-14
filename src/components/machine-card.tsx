@@ -259,16 +259,26 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
               </div>
           ) : isAvailable ? (
             <div className="flex flex-col items-center justify-center text-center">
-              {machine.reports.length > 0 && (
-                <FileWarning className="h-5 w-5 text-red-500 mb-1" />
-              )}
-              <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
+              <div className="flex items-center gap-2">
+                  {machine.reports.length > 0 && (
+                    <FileWarning className="h-5 w-5 text-red-500" />
+                  )}
+                  {machine.warnings.length > 0 && (
+                    <MessageSquareWarning className="h-5 w-5 text-yellow-500" />
+                  )}
+              </div>
+              <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider mt-1">Available</span>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center text-center text-foreground">
-                {machine.reports.length > 0 && (
-                  <FileWarning className="h-5 w-5 text-red-500 mb-1" />
-                )}
+                <div className="flex items-center gap-2 mb-1">
+                  {machine.reports.length > 0 && (
+                    <FileWarning className="h-5 w-5 text-red-500" />
+                  )}
+                  {machine.warnings.length > 0 && (
+                    <MessageSquareWarning className="h-5 w-5 text-yellow-500" />
+                  )}
+                </div>
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
                 <Timer className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
