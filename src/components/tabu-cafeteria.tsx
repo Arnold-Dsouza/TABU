@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen } from "lucide-react";
+import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
 
