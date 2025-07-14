@@ -27,10 +27,10 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!aptNumber.trim() || aptNumber.length > 5) {
+    if (aptNumber.length !== 5) {
       toast({
         title: 'Error',
-        description: 'Apartment number must be 1-5 digits.',
+        description: 'Apartment number must be exactly 5 digits.',
         variant: 'destructive',
       });
       return;
@@ -96,11 +96,11 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apt-number">Apartment Number (Max 5 digits)</Label>
+              <Label htmlFor="apt-number">Apartment Number (Must be 5 digits)</Label>
               <Input
                 id="apt-number"
                 type="number"
-                placeholder="e.g., 101"
+                placeholder="e.g., 10101"
                 value={aptNumber}
                 onChange={(e) => setAptNumber(e.target.value.slice(0, 5))}
                 required
