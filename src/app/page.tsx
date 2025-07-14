@@ -7,6 +7,7 @@ import Header from '@/components/layout/header';
 import LaundryDashboard from '@/components/laundry-dashboard';
 import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
+import TabuBar from '@/components/tabu-bar';
 import {
   Sidebar,
   SidebarContent,
@@ -145,7 +146,7 @@ function PageContent() {
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Tabu Bar">
+                            <SidebarMenuButton tooltip="Tabu Bar" onClick={() => handleViewSelect('bar')} isActive={activeView === 'bar'}>
                                 <Martini />
                                 <span>Tabu Bar</span>
                             </SidebarMenuButton>
@@ -175,6 +176,7 @@ function PageContent() {
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />}
              {activeView === 'fitness' && <FitnessRoom />}
              {activeView === 'cafeteria' && <TabuCafeteria />}
+             {activeView === 'bar' && <TabuBar />}
           </main>
         </div>
       </SidebarInset>
