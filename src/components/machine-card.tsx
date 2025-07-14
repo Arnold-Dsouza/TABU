@@ -252,13 +252,13 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
           "relative flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
            cardBgColor
         )}>
-          {(machine.reports.length > 0 || machine.warnings.length > 0) && (
+          {(machine.reports.length > 0 || machine.warnings.length > 0) && !isOutOfOrder && (
               <div className="absolute top-3 sm:top-5 flex items-center gap-2">
                   {machine.reports.length > 0 && (
-                      <FileWarning className="h-5 w-5 text-red-500" />
+                      <FileWarning className="h-5 w-5 text-red-500 animate-blink" />
                   )}
                   {machine.warnings.length > 0 && (
-                      <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                      <AlertTriangle className="h-5 w-5 text-yellow-500 animate-blink" />
                   )}
               </div>
           )}
