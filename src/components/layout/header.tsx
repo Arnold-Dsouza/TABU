@@ -25,16 +25,22 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 md:px-6 z-50">
+      <header className="sticky top-0 flex h-16 items-center justify-between gap-4 border-b bg-background/95 backdrop-blur px-4 md:px-6 z-50">
+        {/* Left side */}
         <div className="flex items-center gap-2">
-            <SidebarTrigger />
+          <SidebarTrigger />
+        </div>
+
+        {/* Center */}
+        <div className="flex-1 flex justify-center">
             <a href="#" className="flex items-center gap-2 text-lg font-semibold md:text-base">
                 <WashingMachine className="h-6 w-6 text-primary" />
-                <span className="font-bold font-headline hidden sm:inline">LaundryView</span>
+                <span className="font-bold font-headline">LaundryView</span>
             </a>
         </div>
-        <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <div className="ml-auto flex-1 sm:flex-initial" />
+        
+        {/* Right side */}
+        <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
