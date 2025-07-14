@@ -25,7 +25,11 @@ const initializeTimers = (buildings: Building[]): Building[] => {
   }));
 };
 
-export default function LaundryDashboard() {
+interface LaundryDashboardProps {
+  selectedBuildingId: string;
+}
+
+export default function LaundryDashboard({ selectedBuildingId }: LaundryDashboardProps) {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
@@ -93,10 +97,14 @@ export default function LaundryDashboard() {
     // Render a placeholder or nothing on the server to avoid hydration mismatch
     return null; 
   }
+  
+  const filteredBuildings = selectedBuildingId === 'all'
+    ? buildings
+    : buildings.filter(b => b.id === selectedBuildingId);
 
   return (
     <div className="space-y-8">
-      {buildings.map(building => (
+      {filteredBuildings.map(building => (
         <section key={building.id}>
           <h2 className="text-3xl font-bold tracking-tight mb-4 font-headline">{building.name}</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
