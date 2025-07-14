@@ -76,7 +76,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
 
   return (
     <div className={cn(
-      "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4 border",
+      "relative flex flex-col justify-between w-full mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4 border",
     )}>
        <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : "bg-orange-500")}></div>
        <div className="flex justify-between items-center pt-4">
@@ -85,7 +85,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
       </div>
 
       <div className={cn(
-          "relative flex items-center justify-center aspect-square w-full max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background",
+          "relative flex items-center justify-center aspect-square w-full max-w-[180px] sm:max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background",
           cardColor
       )}>
         <div className={cn(
@@ -93,11 +93,11 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
            cardBgColor
         )}>
           {isAvailable ? (
-            <span className="text-2xl font-bold text-green-600 tracking-wider">Available</span>
+            <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
           ) : (
             <div className="text-center text-foreground">
-              <div className="text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
-                <Timer className="h-5 w-5 lg:h-6 lg:w-6" />
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
+                <Timer className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
               </div>
               <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5 mt-2">
