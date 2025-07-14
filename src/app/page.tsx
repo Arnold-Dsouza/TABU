@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -14,15 +15,24 @@ import {
   SidebarProvider,
   SidebarGroup,
   SidebarGroupLabel,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { initialBuildingsData } from '@/lib/data';
 import { Building, Home as HomeIcon } from 'lucide-react';
 
-export default function Home() {
+function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleBuildingSelect = (buildingId: string) => {
+    setSelectedBuilding(buildingId);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
-    <SidebarProvider>
+    <>
       <Sidebar>
         <SidebarHeader></SidebarHeader>
         <SidebarContent>
@@ -33,7 +43,7 @@ export default function Home() {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton
-                      onClick={() => setSelectedBuilding('all')}
+                      onClick={() => handleBuildingSelect('all')}
                       isActive={selectedBuilding === 'all'}
                       tooltip="All Buildings"
                     >
@@ -44,7 +54,7 @@ export default function Home() {
                   {initialBuildingsData.map((building) => (
                     <SidebarMenuItem key={building.id}>
                       <SidebarMenuButton
-                        onClick={() => setSelectedBuilding(building.id)}
+                        onClick={() => handleBuildingSelect(building.id)}
                         isActive={selectedBuilding === building.id}
                         tooltip={building.name}
                       >
@@ -67,6 +77,14 @@ export default function Home() {
           </main>
         </div>
       </SidebarInset>
+    </>
+  );
+}
+
+export default function Home() {
+  return (
+    <SidebarProvider>
+      <PageContent />
     </SidebarProvider>
   );
 }
