@@ -60,29 +60,29 @@ export default function MachineCard({ machine, onStart, onFinish }: MachineCardP
   return (
     <div className={cn(
       "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-gray-100 dark:bg-gray-800 rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4",
-      isAvailable ? "border-2 border-accent" : "border-2 border-transparent"
+      isAvailable ? "border-2 border-green-500" : "border-2 border-transparent"
     )}>
       {/* Control Panel */}
       <div className="flex justify-between items-center">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
-        <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-accent-foreground" : "text-muted-foreground")} />
+        <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-green-600" : "text-muted-foreground")} />
       </div>
 
       {/* Machine Window */}
       <div className="relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto bg-gray-300 dark:bg-gray-700 rounded-full border-8 border-gray-400 dark:border-gray-600 shadow-inner">
         <div className={cn(
           "flex items-center justify-center w-full h-full rounded-full backdrop-blur-sm",
-          isAvailable ? "bg-accent/80" : "bg-black/70"
+          isAvailable ? "bg-green-500/80" : "bg-orange-500/80"
         )}>
           {isAvailable ? (
-            <span className="text-2xl font-bold text-accent-foreground tracking-wider">Available</span>
+            <span className="text-2xl font-bold text-white tracking-wider">Available</span>
           ) : (
             <div className="text-center text-white">
               <div className="text-4xl lg:text-5xl font-bold font-headline tabular-nums flex items-center justify-center gap-2">
                 <Timer className="h-8 w-8 lg:h-10 lg:w-10" />
                 {formatTime(remainingSeconds)}
               </div>
-              <p className="text-xs text-gray-300 flex items-center justify-center gap-1.5 mt-2">
+              <p className="text-xs text-gray-200 flex items-center justify-center gap-1.5 mt-2">
                 <User className="h-3 w-3" />
                 {machine.apartmentUser}
               </p>
