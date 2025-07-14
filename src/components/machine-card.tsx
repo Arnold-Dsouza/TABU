@@ -69,26 +69,31 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   const isUserMachine = machine.status === 'in-use' && machine.apartmentUser === currentUser;
   const MachineIcon = machine.type === 'washer' ? WashingMachine : Wind;
 
+  const cardColor = isAvailable ? 'border-green-500' : 'border-orange-500';
+  const cardBgColor = isAvailable ? 'bg-green-500/10' : 'bg-orange-500/10';
+  const iconColor = isAvailable ? 'text-green-500' : 'text-orange-500';
+
+
   return (
     <div className={cn(
       "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4 border",
     )}>
-       <div className="absolute top-0 left-0 w-full h-2 bg-primary rounded-t-xl"></div>
+       <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : "bg-orange-500")}></div>
        <div className="flex justify-between items-center pt-4">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
-        <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-accent" : "text-muted-foreground")} />
+        <MachineIcon className={cn("h-6 w-6", iconColor)} />
       </div>
 
       <div className={cn(
-          "relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto rounded-full border-8 shadow-inner bg-background",
-          isAvailable ? "border-green-500" : "border-orange-500"
+          "relative flex items-center justify-center aspect-square w-full max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background",
+          cardColor
       )}>
         <div className={cn(
           "flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
-           isAvailable ? "bg-green-500/20" : "bg-orange-500/20"
+           cardBgColor
         )}>
           {isAvailable ? (
-            <span className="text-2xl font-bold text-accent-foreground tracking-wider">Available</span>
+            <span className="text-2xl font-bold text-green-600 tracking-wider">Available</span>
           ) : (
             <div className="text-center text-foreground">
               <div className="text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">

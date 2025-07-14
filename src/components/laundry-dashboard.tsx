@@ -99,7 +99,7 @@ export default function LaundryDashboard() {
       {buildings.map(building => (
         <section key={building.id}>
           <h2 className="text-3xl font-bold tracking-tight mb-4 font-headline">{building.name}</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {building.machines.map(machine => (
               <MachineCard 
                 key={machine.id} 
