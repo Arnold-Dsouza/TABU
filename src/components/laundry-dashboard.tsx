@@ -2,28 +2,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import type { Building } from '@/lib/types';
-import { initialBuildingsData } from '@/lib/data';
+import type { Building, Machine } from '@/lib/types';
 import MachineCard from './machine-card';
 import { useToast } from "@/hooks/use-toast";
-
-
-const initializeTimers = (buildings: Building[]): Building[] => {
-  const now = Date.now();
-  return buildings.map(building => ({
-    ...building,
-    machines: building.machines.map(machine => {
-      if (machine.status === 'in-use' && machine.timerEnd !== null) {
-        // The data is a duration in ms, not a future timestamp
-        return {
-          ...machine,
-          timerEnd: now + machine.timerEnd, 
-        };
-      }
-      return machine;
-    }),
-  }));
-};
+import { db } from '@/lib/firebase';
+import { collection, onSnapshot, doc, runTransaction, Timestamp } from 'firebase/firestore';
+import { Skeleton } from '../ui/skeleton';
 
 interface LaundryDashboardProps {
   selectedBuildingId: string;
@@ -32,19 +16,43 @@ interface LaundryDashboardProps {
 
 export default function LaundryDashboard({ selectedBuildingId, currentUser }: LaundryDashboardProps) {
   const [buildings, setBuildings] = useState<Building[]>([]);
-  const [isClient, setIsClient] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    setBuildings(initializeTimers(initialBuildingsData));
-    setIsClient(true);
-  }, []);
+    const unsubscribe = onSnapshot(collection(db, 'buildings'), (snapshot) => {
+      const buildingsData: Building[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name,
+          machines: data.machines.map((machine: any) => ({
+            ...machine,
+            // Convert Firestore Timestamps to JS Date objects then to numbers
+            timerEnd: machine.timerEnd instanceof Timestamp ? machine.timerEnd.toMillis() : null,
+          })) as Machine[],
+        };
+      });
+      setBuildings(buildingsData);
+      setIsLoading(false);
+    }, (error) => {
+      console.error("Error fetching buildings:", error);
+      toast({
+        title: "Error",
+        description: "Could not fetch laundry data. Please try again later.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [toast]);
 
   const machinesInUseByUser = buildings
     .flatMap(b => b.machines)
     .filter(m => m.status === 'in-use' && m.apartmentUser === currentUser).length;
 
-  const handleStartMachine = (machineId: string, durationMinutes: number) => {
+  const handleStartMachine = async (machineId: string, durationMinutes: number) => {
     if (machinesInUseByUser >= 2) {
       toast({
         title: "Machine Limit Reached",
@@ -54,87 +62,151 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
       return;
     }
 
-    setBuildings(currentBuildings => {
-      return currentBuildings.map(building => ({
-        ...building,
-        machines: building.machines.map(machine => {
-          if (machine.id === machineId) {
-            return {
-              ...machine,
-              status: 'in-use',
-              timerEnd: Date.now() + durationMinutes * 60 * 1000,
-              apartmentUser: currentUser,
-            };
-          }
-          return machine;
-        }),
-      }));
-    });
+    try {
+      await runTransaction(db, async (transaction) => {
+        const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
+        if (machineIndex === -1) throw new Error("Machine not found");
+
+        const machine = building.machines[machineIndex];
+        if (machine.status !== 'available') {
+          throw new Error("Machine is not available to start.");
+        }
+
+        const newMachines = [...building.machines];
+        newMachines[machineIndex] = {
+          ...machine,
+          status: 'in-use',
+          timerEnd: Date.now() + durationMinutes * 60 * 1000,
+          apartmentUser: currentUser,
+        };
+        transaction.update(buildingRef, { machines: newMachines });
+      });
+    } catch (error) {
+      console.error("Error starting machine:", error);
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    }
   };
 
-  const handleMachineFinish = (machineId: string) => {
-    setBuildings(currentBuildings => {
-      return currentBuildings.map(building => ({
-        ...building,
-        machines: building.machines.map(machine => {
-          if (machine.id === machineId) {
-            return {
-              ...machine,
-              status: 'available',
-              timerEnd: null,
-              apartmentUser: null,
-            };
-          }
-          return machine;
-        }),
-      }));
-    });
+  const handleMachineFinish = async (machineId: string) => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
+        if (machineIndex === -1) throw new Error("Machine not found");
+
+        const newMachines = [...building.machines];
+        newMachines[machineIndex] = {
+          ...newMachines[machineIndex],
+          status: 'available',
+          timerEnd: null,
+          apartmentUser: null,
+        };
+        transaction.update(buildingRef, { machines: newMachines });
+      });
+    } catch (error) {
+      console.error("Error finishing machine:", error);
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    }
   };
 
-  const handleReport = (machineId: string, issue: string) => {
-    setBuildings(currentBuildings => {
-      return currentBuildings.map(building => ({
-        ...building,
-        machines: building.machines.map(machine => {
-          if (machine.id === machineId) {
-            const newReports = [...machine.reports, { userId: currentUser, issue }];
-            return {
-              ...machine,
-              reports: newReports,
-              status: newReports.length >= 5 ? 'out-of-order' : machine.status,
-            };
-          }
-          return machine;
-        }),
-      }));
-    });
+  const handleReport = async (machineId: string, issue: string) => {
+    try {
+      await runTransaction(db, async (transaction) => {
+        const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
+        if (machineIndex === -1) throw new Error("Machine not found");
+        
+        const machine = building.machines[machineIndex];
+        const newReports = [...machine.reports, { userId: currentUser, issue }];
+        const newMachines = [...building.machines];
+        newMachines[machineIndex] = {
+          ...machine,
+          reports: newReports,
+          status: newReports.length >= 5 ? 'out-of-order' : machine.status,
+        };
+        transaction.update(buildingRef, { machines: newMachines });
+      });
+    } catch (error) {
+      console.error("Error reporting issue:", error);
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    }
   };
 
-  const handleWarning = (machineId: string, message: string) => {
-    setBuildings(currentBuildings => {
-      return currentBuildings.map(building => ({
-        ...building,
-        machines: building.machines.map(machine => {
-          if (machine.id === machineId) {
-            return {
-              ...machine,
-              warnings: [...machine.warnings, { userId: currentUser, message }],
-            };
-          }
-          return machine;
-        }),
-      }));
-    });
+  const handleWarning = async (machineId: string, message: string) => {
+     try {
+      await runTransaction(db, async (transaction) => {
+        const { building, buildingRef, machineIndex } = await findMachineLocation(transaction, machineId);
+        if (machineIndex === -1) throw new Error("Machine not found");
+        
+        const machine = building.machines[machineIndex];
+        const newWarnings = [...machine.warnings, { userId: currentUser, message }];
+        const newMachines = [...building.machines];
+        newMachines[machineIndex] = {
+          ...machine,
+          warnings: newWarnings,
+        };
+        transaction.update(buildingRef, { machines: newMachines });
+      });
+    } catch (error) {
+      console.error("Error sending warning:", error);
+      toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
+    }
   };
-  
-  if (!isClient) {
-    // Render a placeholder or nothing on the server to avoid hydration mismatch
-    return null; 
+
+  const findMachineLocation = async (transaction: any, machineId: string) => {
+    let buildingDoc, buildingRef, machineIndex = -1;
+
+    for (const b of buildings) {
+      const tempIndex = b.machines.findIndex(m => m.id === machineId);
+      if (tempIndex !== -1) {
+        buildingRef = doc(db, 'buildings', b.id);
+        const buildingDocSnap = await transaction.get(buildingRef);
+        if (!buildingDocSnap.exists()) {
+            throw new Error(`Building ${b.id} not found in database.`);
+        }
+        buildingDoc = buildingDocSnap.data() as Building;
+        machineIndex = buildingDoc.machines.findIndex(m => m.id === machineId);
+        break;
+      }
+    }
+    
+    if (!buildingDoc || !buildingRef || machineIndex === -1) {
+      throw new Error("Could not find the machine in any building.");
+    }
+    
+    return { building: buildingDoc, buildingRef, machineIndex };
+  };
+
+  if (isLoading) {
+    return (
+       <div className="space-y-8 p-4 md:p-8">
+         <section>
+          <Skeleton className="h-10 w-1/3 mb-4" />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </section>
+      </div>
+    );
   }
-  
+
   const filteredBuildings = selectedBuildingId === 'all'
     ? buildings
     : buildings.filter(b => b.id === selectedBuildingId);
+
+  if (filteredBuildings.length === 0 && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center p-8">
+        <h2 className="text-2xl font-semibold">No Machines Found</h2>
+        <p className="text-muted-foreground mt-2">
+          {selectedBuildingId === 'all' 
+            ? "There are no buildings or machines configured in the database." 
+            : "This building has no machines configured or does not exist."}
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
