@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -12,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 interface MachineCardProps {
   machine: Machine;
+  currentUser: string;
   onStart: (machineId: string, durationMinutes: number) => void;
   onFinish: (machineId: string) => void;
 }
@@ -23,7 +23,7 @@ const formatTime = (totalSeconds: number) => {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-export default function MachineCard({ machine, onStart, onFinish }: MachineCardProps) {
+export default function MachineCard({ machine, currentUser, onStart, onFinish }: MachineCardProps) {
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
   const [durationInput, setDurationInput] = useState('45');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -53,8 +53,13 @@ export default function MachineCard({ machine, onStart, onFinish }: MachineCardP
       setIsDialogOpen(false);
     }
   };
+
+  const handleStopClick = () => {
+    onFinish(machine.id);
+  };
   
   const isAvailable = machine.status === 'available';
+  const isUserMachine = machine.status === 'in-use' && machine.apartmentUser === currentUser;
   const MachineIcon = machine.type === 'washer' ? WashingMachine : Wind;
 
   return (
@@ -92,40 +97,46 @@ export default function MachineCard({ machine, onStart, onFinish }: MachineCardP
       </div>
 
       {/* Action Button */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button className="w-full" disabled={!isAvailable}>
-            Start Cycle
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Start {machine.name}</DialogTitle>
-            <DialogDescription>
-              Set the cycle duration in minutes. The machine will be marked as in-use.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="duration" className="text-right">
-                Duration
-              </Label>
-              <Input
-                id="duration"
-                type="number"
-                value={durationInput}
-                onChange={(e) => setDurationInput(e.target.value)}
-                className="col-span-3"
-                placeholder="e.g., 45"
-              />
+      {isUserMachine ? (
+        <Button className="w-full" variant="destructive" onClick={handleStopClick}>
+          Stop Cycle
+        </Button>
+      ) : (
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="w-full" disabled={!isAvailable}>
+              Start Cycle
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Start {machine.name}</DialogTitle>
+              <DialogDescription>
+                Set the cycle duration in minutes. The machine will be marked as in-use.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="duration" className="text-right">
+                  Duration
+                </Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  value={durationInput}
+                  onChange={(e) => setDurationInput(e.target.value)}
+                  className="col-span-3"
+                  placeholder="e.g., 45"
+                />
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" onClick={handleStartClick}>Start</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button type="submit" onClick={handleStartClick}>Start</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

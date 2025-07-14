@@ -11,9 +11,10 @@ const initializeTimers = (buildings: Building[]): Building[] => {
     ...building,
     machines: building.machines.map(machine => {
       if (machine.status === 'in-use' && machine.timerEnd !== null) {
+        // The data is a duration in ms, not a future timestamp
         return {
           ...machine,
-          timerEnd: now + machine.timerEnd,
+          timerEnd: now + machine.timerEnd, 
         };
       }
       return machine;
@@ -24,6 +25,9 @@ const initializeTimers = (buildings: Building[]): Building[] => {
 export default function LaundryDashboard() {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isClient, setIsClient] = useState(false);
+  
+  // Simulate a logged-in user
+  const currentUser = 'Apt 101';
 
   useEffect(() => {
     setBuildings(initializeTimers(initialBuildingsData));
@@ -40,7 +44,7 @@ export default function LaundryDashboard() {
               ...machine,
               status: 'in-use',
               timerEnd: Date.now() + durationMinutes * 60 * 1000,
-              apartmentUser: 'Apt 101', // Mock user
+              apartmentUser: currentUser,
             };
           }
           return machine;
@@ -83,6 +87,7 @@ export default function LaundryDashboard() {
               <MachineCard 
                 key={machine.id} 
                 machine={machine} 
+                currentUser={currentUser}
                 onStart={handleStartMachine}
                 onFinish={handleMachineFinish}
               />
