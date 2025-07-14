@@ -2,13 +2,14 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { WashingMachine, Wind, Timer, User } from 'lucide-react';
+import { WashingMachine, Wind, Timer, User, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Machine } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 interface MachineCardProps {
   machine: Machine;
@@ -79,9 +80,29 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
       "relative flex flex-col justify-between w-full mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-3 sm:p-4 space-y-3 sm:space-y-4 border",
     )}>
        <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : "bg-orange-500")}></div>
-       <div className="flex justify-between items-center pt-2 sm:pt-4">
+       <div className="flex justify-between items-start pt-2 sm:pt-4">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
-        <MachineIcon className={cn("h-6 w-6", iconColor)} />
+        <div className="flex items-center gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Info className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Machine Info</h4>
+                <p className="text-sm text-muted-foreground">
+                  ID: {machine.id}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Type: {machine.type.charAt(0).toUpperCase() + machine.type.slice(1)}
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <MachineIcon className={cn("h-6 w-6", iconColor)} />
+        </div>
       </div>
 
       <div className={cn(
