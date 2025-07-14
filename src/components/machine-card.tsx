@@ -76,16 +76,16 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
 
   return (
     <div className={cn(
-      "relative flex flex-col justify-between w-full mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4 border",
+      "relative flex flex-col justify-between w-full mx-auto bg-card rounded-xl shadow-md transition-all hover:shadow-lg p-3 sm:p-4 space-y-3 sm:space-y-4 border",
     )}>
        <div className={cn("absolute top-0 left-0 w-full h-2 rounded-t-xl", isAvailable ? "bg-green-500" : "bg-orange-500")}></div>
-       <div className="flex justify-between items-center pt-4">
+       <div className="flex justify-between items-center pt-2 sm:pt-4">
         <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
         <MachineIcon className={cn("h-6 w-6", iconColor)} />
       </div>
 
       <div className={cn(
-          "relative flex items-center justify-center aspect-square w-full max-w-[180px] sm:max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background",
+          "relative flex items-center justify-center aspect-square w-full max-w-[150px] sm:max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background",
           cardColor
       )}>
         <div className={cn(
