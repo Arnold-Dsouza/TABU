@@ -38,7 +38,9 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [reportValue, setReportValue] = useState("");
-  const [warningValue, setWarningValue] = useState("");
+  const [warningSelection, setWarningSelection] = useState("");
+  const [otherWarningValue, setOtherWarningValue] = useState("");
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,13 +88,15 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
   };
 
   const handleWarningSubmit = () => {
-    if (!warningValue) return;
-    console.log(`Warning for ${machine.name}: ${warningValue}`);
+    const finalWarning = warningSelection === 'other' ? otherWarningValue : warningSelection;
+    if (!finalWarning) return;
+    console.log(`Warning for ${machine.name}: ${finalWarning}`);
      toast({
       title: "Warning Submitted",
       description: `Your warning has been sent.`,
     });
-    setWarningValue("");
+    setWarningSelection("");
+    setOtherWarningValue("");
     setIsPopoverOpen(false);
   };
 
@@ -147,14 +151,35 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, c
                   </TabsContent>
                   <TabsContent value="warning">
                     <div className="py-4 space-y-4">
-                        <Label htmlFor="warning-text">Describe the warning:</Label>
-                        <Textarea 
-                          id="warning-text"
-                          placeholder="e.g., Machine is smelling, Machine not clean"
-                          value={warningValue}
-                          onChange={(e) => setWarningValue(e.target.value)}
-                        />
-                         <Button className="w-full" onClick={handleWarningSubmit} disabled={!warningValue}>Submit Warning</Button>
+                        <Label>Select a warning:</Label>
+                        <RadioGroup value={warningSelection} onValueChange={setWarningSelection}>
+                           <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Machine is smelling" id="w1" />
+                            <Label htmlFor="w1">Machine is smelling</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Machine not clean" id="w2" />
+                            <Label htmlFor="w2">Machine not clean</Label>
+                          </div>
+                           <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="other" id="w3" />
+                            <Label htmlFor="w3">Other</Label>
+                          </div>
+                        </RadioGroup>
+                        {warningSelection === 'other' && (
+                           <Textarea 
+                            id="warning-text-other"
+                            placeholder="Please describe the warning..."
+                            value={otherWarningValue}
+                            onChange={(e) => setOtherWarningValue(e.target.value)}
+                          />
+                        )}
+                         <Button 
+                            className="w-full" 
+                            onClick={handleWarningSubmit} 
+                            disabled={!warningSelection || (warningSelection === 'other' && !otherWarningValue)}>
+                              Submit Warning
+                          </Button>
                     </div>
                   </TabsContent>
                 </Tabs>
