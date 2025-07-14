@@ -1,10 +1,9 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import { WashingMachine, Wind, Timer, User } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -59,66 +58,71 @@ export default function MachineCard({ machine, onStart, onFinish }: MachineCardP
   const MachineIcon = machine.type === 'washer' ? WashingMachine : Wind;
 
   return (
-    <Card className={cn(
-      "flex flex-col transition-all shadow-sm hover:shadow-md", 
-      isAvailable && "border-accent/80"
+    <div className={cn(
+      "relative flex flex-col justify-between w-full max-w-sm mx-auto bg-gray-100 dark:bg-gray-800 rounded-xl shadow-md transition-all hover:shadow-lg p-4 space-y-4",
+      isAvailable ? "border-2 border-accent" : "border-2 border-transparent"
     )}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base font-medium font-headline">{machine.name}</CardTitle>
+      {/* Control Panel */}
+      <div className="flex justify-between items-center">
+        <h3 className="font-bold text-lg font-headline">{machine.name}</h3>
         <MachineIcon className={cn("h-6 w-6", isAvailable ? "text-accent-foreground" : "text-muted-foreground")} />
-      </CardHeader>
-      <CardContent className="flex-grow flex items-center justify-center py-4">
-        {isAvailable ? (
-          <Badge variant="outline" className="text-base px-4 py-2 border-accent text-accent-foreground bg-accent/20">Available</Badge>
-        ) : (
-          <div className="space-y-2 text-center">
-            <div className="text-5xl font-bold font-headline tabular-nums flex items-center justify-center gap-2">
-              <Timer className="h-10 w-10 text-primary" />
-              {formatTime(remainingSeconds)}
-            </div>
-            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-              <User className="h-3 w-3" />
-              In use by {machine.apartmentUser}
-            </p>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="w-full" disabled={!isAvailable}>
-              Start Cycle
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Start {machine.name}</DialogTitle>
-              <DialogDescription>
-                Set the cycle duration in minutes. The machine will be marked as in-use.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="duration" className="text-right">
-                  Duration
-                </Label>
-                <Input
-                  id="duration"
-                  type="number"
-                  value={durationInput}
-                  onChange={(e) => setDurationInput(e.target.value)}
-                  className="col-span-3"
-                  placeholder="e.g., 45"
-                />
+      </div>
+
+      {/* Machine Window */}
+      <div className="relative flex items-center justify-center w-48 h-48 lg:w-56 lg:h-56 mx-auto bg-gray-300 dark:bg-gray-700 rounded-full border-8 border-gray-400 dark:border-gray-600 shadow-inner">
+        <div className="flex items-center justify-center w-full h-full bg-black/70 rounded-full backdrop-blur-sm">
+          {isAvailable ? (
+            <span className="text-2xl font-bold text-white tracking-wider">Available</span>
+          ) : (
+            <div className="text-center text-white">
+              <div className="text-4xl lg:text-5xl font-bold font-headline tabular-nums flex items-center justify-center gap-2">
+                <Timer className="h-8 w-8 lg:h-10 lg:w-10" />
+                {formatTime(remainingSeconds)}
               </div>
+              <p className="text-xs text-gray-300 flex items-center justify-center gap-1.5 mt-2">
+                <User className="h-3 w-3" />
+                {machine.apartmentUser}
+              </p>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-              <Button type="submit" onClick={handleStartClick}>Start</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </CardFooter>
-    </Card>
+          )}
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-full" disabled={!isAvailable}>
+            Start Cycle
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Start {machine.name}</DialogTitle>
+            <DialogDescription>
+              Set the cycle duration in minutes. The machine will be marked as in-use.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="duration" className="text-right">
+                Duration
+              </Label>
+              <Input
+                id="duration"
+                type="number"
+                value={durationInput}
+                onChange={(e) => setDurationInput(e.target.value)}
+                className="col-span-3"
+                placeholder="e.g., 45"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" onClick={handleStartClick}>Start</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
