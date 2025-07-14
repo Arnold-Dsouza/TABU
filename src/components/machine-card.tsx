@@ -53,6 +53,8 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
   const hasUserWarned = machine.warnings.some(w => w.userId === currentUser);
   const isOutOfOrder = machine.status === 'out-of-order';
 
+  const onFinishStable = useCallback(onFinish, [onFinish]);
+
   useEffect(() => {
     if (machine.status !== 'in-use' || !machine.timerEnd) {
       setRemainingSeconds(0);
@@ -72,14 +74,14 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
       } else {
         setRemainingSeconds(0);
         if (machine.status === 'in-use') { // Prevent multiple calls
-            onFinish(machine.id);
+            onFinishStable(machine.id);
         }
         clearInterval(intervalId);
       }
     }, 1000);
   
     return () => clearInterval(intervalId);
-  }, [machine.status, machine.timerEnd, machine.id, onFinish]);
+  }, [machine.status, machine.timerEnd, machine.id, onFinishStable]);
 
   const handleStartClick = () => {
     const hours = parseInt(durationHours, 10) || 0;
@@ -285,11 +287,11 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                 <span className="text-lg font-bold tracking-wider mt-1">Out of Order</span>
               </div>
           ) : isAvailable ? (
-            <div className="flex flex-col items-center justify-center text-center">
+             <div className="flex flex-col items-center justify-center text-center h-full">
               <span className="text-xl sm:text-2xl font-bold text-green-600 tracking-wider">Available</span>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center text-center text-foreground pt-1">
+            <div className="flex flex-col items-center justify-center text-center text-foreground h-full pt-1">
               <div className="text-xl sm:text-2xl lg:text-3xl font-bold font-headline tabular-nums flex items-center justify-center gap-1">
                 <Timer className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
                 {formatTime(remainingSeconds)}
