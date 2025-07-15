@@ -1,6 +1,5 @@
-
 {
-  "name": "nextn",
+  "name": "tabu-2",
   "version": "1.0.3",
   "private": true,
   "scripts": {
@@ -14,7 +13,7 @@
     "android": "npx cap run android",
     "ios": "npx cap run ios",
     "cap:sync": "npx cap sync",
-    "cap:init": "npx cap init LaundryApp com.building.laundryapp --web-dir=out",
+    "cap:init": "npx cap init \"TABU 2\" com.tabu2.app --web-dir=out",
     "cap:add:android": "npx cap add android",
     "cap:add:ios": "npx cap add ios"
   },
@@ -65,12 +64,12 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
     "recharts": "^2.15.1",
-    "semver": "^7.6.3",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^6.1.0",
     "@types/node": "^20",
     "@types/react": "^18",

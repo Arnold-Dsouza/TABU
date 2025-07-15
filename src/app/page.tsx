@@ -9,7 +9,6 @@ import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
-import NetworkMentor from '@/components/network-mentor';
 
 import {
   Sidebar,
@@ -25,14 +24,12 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { initialBuildingsData } from '@/lib/data';
-import { Building, Home as HomeIcon, Dumbbell, Coffee, Utensils, Martini, Users, Smile } from 'lucide-react';
+import { Building, Home as HomeIcon, Dumbbell, Coffee, Utensils, Martini } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AppUpdateDialog } from '@/components/app-update-dialog';
-import { useToast } from '@/hooks/use-toast';
 import { checkForUpdates } from '@/lib/update-manager';
 import type { UpdateInfo } from '@/lib/update-manager';
 
-type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar' | 'mentor';
+type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar';
 
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
@@ -40,10 +37,7 @@ function PageContent() {
   const [activeView, setActiveView] = useState<View>('laundry');
   const { isMobile, setOpenMobile } = useSidebar();
   const router = useRouter();
-
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
-  const { toast } = useToast();
 
 
   useEffect(() => {
@@ -56,24 +50,18 @@ function PageContent() {
   }, [router]);
 
   useEffect(() => {
-    // Auto-check for updates on startup
-    const autoCheckForUpdates = async () => {
+    async function check() {
       try {
         const info = await checkForUpdates();
-        if (info.isUpdateAvailable) {
-          setUpdateInfo(info);
-          setIsUpdateDialogOpen(true);
-          toast({
-            title: 'Update Available',
-            description: `A new version (${info.latestVersion}) is ready to be installed.`,
-          });
-        }
+        setUpdateInfo(info);
       } catch (error) {
-        console.warn('Auto update check failed:', error);
+        console.error("Failed to check for updates on startup:", error);
+        // Silently fail on startup check, user can still manually check
+        setUpdateInfo(null);
       }
-    };
-    autoCheckForUpdates();
-  }, [toast]);
+    }
+    check();
+  }, []);
 
   const handleBuildingSelect = (buildingId: string) => {
     setSelectedBuilding(buildingId);
@@ -90,7 +78,7 @@ function PageContent() {
     }
   };
 
-  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar', 'mentor'].includes(activeView);
+  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar'].includes(activeView);
   const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
 
 
@@ -177,12 +165,6 @@ function PageContent() {
                                 <span>Tabu Bar</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Network mentor" onClick={() => handleViewSelect('mentor')} isActive={activeView === 'mentor'}>
-                                <Users />
-                                <span>Network mentor</span>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarMenuItem>
@@ -191,18 +173,16 @@ function PageContent() {
       </Sidebar>
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col bg-background">
-          <Header currentUser={currentUser} title={headerTitle} onUpdateAppClick={() => setIsUpdateDialogOpen(true)} />
+          <Header currentUser={currentUser} title={headerTitle} updateInfo={updateInfo} />
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />}
              {activeView === 'fitness' && <FitnessRoom />}
              {activeView === 'cafeteria' && <TabuCafeteria />}
              {activeView === 'bar' && <TabuBar />}
              {activeView === 'tea' && <TeaRoom />}
-             {activeView === 'mentor' && <NetworkMentor />}
           </main>
         </div>
       </SidebarInset>
-      <AppUpdateDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} initialUpdateInfo={updateInfo} />
     </>
   );
 }

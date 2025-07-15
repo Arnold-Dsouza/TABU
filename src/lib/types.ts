@@ -50,18 +50,6 @@ export interface MenuItem {
   price: string;
 }
 
-export interface Mentor {
-    id: string;
-    name: string;
-    number: string;
-}
-
-export interface MentorBuilding {
-    id: string;
-    building: string;
-    mentors: Mentor[];
-}
-
 export interface PageContent {
   id: string;
   schedule?: ScheduleItem[];
@@ -69,6 +57,5 @@ export interface PageContent {
   passedEvents?: EventItem[];
   specialMenu?: MenuItem[];
   usualMenu?: MenuItem[];
-  mentorData?: MentorBuilding[];
   privatePartiesContact?: string;
 }

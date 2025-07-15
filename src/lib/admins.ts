@@ -11,7 +11,6 @@ interface AdminAccess {
   teaRoom: string[];
   tabuCafeteria: string[];
   tabuBar: string[];
-  networkMentor: string[];
 }
 
 export const adminAccess: AdminAccess = {
@@ -19,5 +18,4 @@ export const adminAccess: AdminAccess = {
   teaRoom: ['42101'],
   tabuCafeteria: ['42101'],
   tabuBar: ['42101'],
-  networkMentor: ['42101'],
 };
