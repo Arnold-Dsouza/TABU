@@ -16,6 +16,8 @@ import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
+import { WaterAnimation } from './water-animation';
+
 
 interface MachineCardProps {
   machine: Machine;
@@ -52,6 +54,7 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
   const hasUserReported = machine.reports.some(r => r.userId === currentUser);
   const hasUserWarned = machine.warnings.some(w => w.userId === currentUser);
   const isOutOfOrder = machine.status === 'out-of-order';
+  const isInUse = machine.status === 'in-use';
 
   const onFinishStable = useCallback(onFinish, [onFinish]);
 
@@ -276,15 +279,16 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
       </div>
 
       <div className={cn(
-          "relative flex items-center justify-center aspect-square w-full max-w-[150px] sm:max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background",
+          "relative flex items-center justify-center aspect-square w-full max-w-[150px] sm:max-w-[224px] mx-auto rounded-full border-8 shadow-inner bg-background overflow-hidden",
           cardColor
       )}>
+        {isInUse && <WaterAnimation />}
         <div className={cn(
           "relative flex items-center justify-center w-[95%] h-[95%] rounded-full backdrop-blur-sm border-4 border-card",
            cardBgColor
         )}>
           {(showReportIconInCircle || machine.warnings.length > 0) && !isOutOfOrder && (
-              <div className="absolute top-3 sm:top-5 flex items-center gap-2">
+              <div className="absolute top-3 sm:top-5 flex items-center gap-2 z-10">
                   {showReportIconInCircle && (
                       <FileWarning className="h-5 w-5 text-red-500 animate-blink" />
                   )}
