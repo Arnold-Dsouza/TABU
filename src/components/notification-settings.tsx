@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -31,6 +31,7 @@ const tabuServices = [
 
 export function NotificationSettings({ open, onOpenChange }: NotificationSettingsProps) {
   const { toast } = useToast();
+  
   // In a real app, these values would come from user preferences storage
   const [laundryNotifs, setLaundryNotifs] = useState<Record<string, boolean>>({
     'bldg-58': false,
@@ -46,6 +47,20 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
     bar: false,
   });
 
+  const [allLaundry, setAllLaundry] = useState(false);
+  const [allTabu, setAllTabu] = useState(false);
+
+  useEffect(() => {
+    const laundryValues = Object.values(laundryNotifs);
+    setAllLaundry(laundryValues.every(v => v) && cycleEndNotif);
+  }, [laundryNotifs, cycleEndNotif]);
+
+  useEffect(() => {
+    const tabuValues = Object.values(tabuNotifs);
+    setAllTabu(tabuValues.every(v => v));
+  }, [tabuNotifs]);
+
+
   const handleLaundryToggle = (buildingId: string) => {
     setLaundryNotifs(prev => ({ ...prev, [buildingId]: !prev[buildingId] }));
   };
@@ -54,6 +69,19 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
     setTabuNotifs(prev => ({ ...prev, [serviceId]: !prev[serviceId] }));
   };
   
+  const handleAllLaundryToggle = (checked: boolean) => {
+      setCycleEndNotif(checked);
+      const newLaundryNotifs: Record<string, boolean> = {};
+      initialBuildingsData.forEach(b => newLaundryNotifs[b.id] = checked);
+      setLaundryNotifs(newLaundryNotifs);
+  };
+
+  const handleAllTabuToggle = (checked: boolean) => {
+      const newTabuNotifs: Record<string, boolean> = {};
+      tabuServices.forEach(s => newTabuNotifs[s.id] = checked);
+      setTabuNotifs(newTabuNotifs);
+  };
+
   const handleSaveChanges = () => {
     // Here you would save the settings to localStorage or a backend service
     console.log('Saving notification settings:', { cycleEndNotif, laundryNotifs, tabuNotifs });
@@ -76,8 +104,15 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
         
         <div className="space-y-6 py-4">
           <div>
-            <h3 className="mb-4 text-lg font-medium">Laundry</h3>
-            <div className="space-y-4">
+             <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium">Laundry</h3>
+                <Switch
+                  id="all-laundry"
+                  checked={allLaundry}
+                  onCheckedChange={handleAllLaundryToggle}
+                />
+            </div>
+            <div className="space-y-4 pl-4 border-l-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="notif-cycle-end" className="flex-1">
                   Notify 5 mins before my cycle ends
@@ -107,8 +142,15 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           <Separator />
 
           <div>
-            <h3 className="mb-4 text-lg font-medium">TABU</h3>
-            <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">TABU</h3>
+              <Switch
+                  id="all-tabu"
+                  checked={allTabu}
+                  onCheckedChange={handleAllTabuToggle}
+                />
+            </div>
+            <div className="space-y-4 pl-4 border-l-2">
                {tabuServices.map(service => (
                 <div key={service.id} className="flex items-center justify-between">
                   <Label htmlFor={`notif-${service.id}`} className="flex-1">
