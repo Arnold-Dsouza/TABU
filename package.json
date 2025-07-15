@@ -1,6 +1,6 @@
 
 {
-  "name": "nextn",
+  "name": "tabu-2",
   "version": "1.0.3",
   "private": true,
   "scripts": {
@@ -14,7 +14,7 @@
     "android": "npx cap run android",
     "ios": "npx cap run ios",
     "cap:sync": "npx cap sync",
-    "cap:init": "npx cap init LaundryApp com.building.laundryapp --web-dir=out",
+    "cap:init": "npx cap init \"TABU 2\" com.tabu2.app --web-dir=out",
     "cap:add:android": "npx cap add android",
     "cap:add:ios": "npx cap add ios"
   },

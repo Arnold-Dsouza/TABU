@@ -2,8 +2,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.building.laundryapp',
-  appName: 'LaundryApp',
+  appId: 'com.tabu2.app',
+  appName: 'TABU 2',
   webDir: 'out',
   // server: {
   //   url: 'http://localhost:9002',

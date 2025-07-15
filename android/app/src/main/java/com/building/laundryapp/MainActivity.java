@@ -1,4 +1,4 @@
-package com.building.laundryapp;
+package com.tabu2.app;
 
 import com.getcapacitor.BridgeActivity;
 

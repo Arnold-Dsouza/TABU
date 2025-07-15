@@ -5,8 +5,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 
 
 export const metadata: Metadata = {
-  title: 'LaundryView',
-  description: 'Real-time laundry room monitoring for your building.',
+  title: 'TABU 2',
+  description: 'Community and services app for residents.',
 };
 
 export default function RootLayout({
