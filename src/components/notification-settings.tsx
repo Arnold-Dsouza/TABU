@@ -169,11 +169,14 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
               </div>
             </AccordionTrigger>
             <AccordionContent>
-               <div className="space-y-4 pt-2 pl-4 border-l-2">
+                <Accordion type="multiple" className="w-full pl-4 border-l-2">
                  {tabuServices.map(service => (
-                  <div key={service.id} className="space-y-3">
-                    <Label className="font-semibold">{service.name}</Label>
-                    <div className="pl-4 space-y-3">
+                  <AccordionItem value={service.id} key={service.id}>
+                    <AccordionTrigger>
+                      <Label className="font-semibold">{service.name}</Label>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="pl-4 space-y-3">
                         <div className="flex items-center justify-between">
                             <Label htmlFor={`notif-${service.id}-opening`} className="font-normal text-muted-foreground">Opening notification</Label>
                             <Switch
@@ -190,11 +193,11 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
                                 onCheckedChange={() => handleTabuToggle(service.id, 'events')}
                             />
                         </div>
-                    </div>
-                    {service.id !== 'bar' && <Separator />}
-                  </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 ))}
-              </div>
+              </Accordion>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
