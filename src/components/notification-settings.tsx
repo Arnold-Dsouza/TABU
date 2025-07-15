@@ -103,7 +103,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           </DialogDescription>
         </DialogHeader>
         
-        <Accordion type="multiple" defaultValue={['laundry', 'tabu2']} className="w-full">
+        <Accordion type="multiple" className="w-full">
           <AccordionItem value="laundry">
             <AccordionTrigger>
               <div className="flex items-center justify-between w-full">
