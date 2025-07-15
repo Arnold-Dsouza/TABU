@@ -108,12 +108,12 @@ export default function FitnessRoom() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
+        <div className="flex flex-col items-center justify-start p-2 md:p-8 gap-6 md:gap-8 w-full">
             <Card className="w-full max-w-2xl shadow-lg relative">
                 {isAdmin && (
                     <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="outline" size="icon" className="absolute top-4 right-4">
+                            <Button variant="outline" size="icon" className="absolute top-2 right-2 md:top-4 md:right-4 h-8 w-8">
                                 <Pencil className="h-4 w-4" />
                                 <span className="sr-only">Edit Details</span>
                             </Button>
@@ -176,34 +176,34 @@ export default function FitnessRoom() {
                 )}
                 <CardHeader className="text-center bg-muted/30">
                     <div className="flex justify-center items-center gap-3 mb-2">
-                        <Dumbbell className="h-10 w-10 text-primary" />
-                        <CardTitle className="text-3xl font-bold font-headline tracking-tight">
+                        <Dumbbell className="h-8 md:h-10 w-8 md:w-10 text-primary" />
+                        <CardTitle className="text-2xl md:text-3xl font-bold font-headline tracking-tight">
                             Fitness Room
                         </CardTitle>
                     </div>
-                    <CardDescription className="text-lg">Opening Hours</CardDescription>
+                    <CardDescription className="text-base md:text-lg">Opening Hours</CardDescription>
                 </CardHeader>
-                <CardContent className="p-6">
-                    <ul className="space-y-4">
+                <CardContent className="p-4 md:p-6">
+                    <ul className="space-y-3">
                         {content.schedule?.map((item) => {
                             const isClosed = item.hours === 'Closed';
                             return (
                                 <li key={item.day} className={cn(
-                                    "flex items-center justify-between p-4 bg-background rounded-lg shadow-sm border border-border/50 transition-all",
+                                    "flex items-center justify-between p-3 md:p-4 bg-background rounded-lg shadow-sm border border-border/50 transition-all",
                                     isClosed ? "opacity-60" : "hover:border-primary/50 hover:bg-muted/50"
                                 )}>
-                                    <div className="flex items-center gap-4">
-                                        <Calendar className={cn("h-6 w-6", isClosed ? "text-muted-foreground" : "text-primary/80")} />
-                                        <span className="text-lg font-medium">{item.day}</span>
-                                    </div>
                                     <div className="flex items-center gap-3">
+                                        <Calendar className={cn("h-5 w-5", isClosed ? "text-muted-foreground" : "text-primary/80")} />
+                                        <span className="text-base md:text-lg font-medium">{item.day}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
                                         {isClosed ? (
-                                            <XCircle className="h-5 w-5 text-muted-foreground" />
+                                            <XCircle className="h-4 w-4 text-muted-foreground" />
                                         ) : (
-                                            <Clock className="h-5 w-5 text-muted-foreground" />
+                                            <Clock className="h-4 w-4 text-muted-foreground" />
                                         )}
                                         <span className={cn(
-                                            "text-lg font-mono",
+                                            "text-base md:text-lg font-mono text-sm",
                                             isClosed ? "text-muted-foreground" : "text-foreground"
                                         )}>
                                             {item.hours}
@@ -216,21 +216,21 @@ export default function FitnessRoom() {
                 </CardContent>
             </Card>
 
-            <Separator className="my-4 w-full max-w-2xl" />
+            <Separator className="my-2 md:my-4 w-full max-w-2xl" />
 
              <Card className="w-full max-w-2xl shadow-lg">
                 <CardHeader>
                     <div className="flex items-center gap-3">
-                         <PartyPopper className="h-8 w-8 text-primary" />
-                        <CardTitle className="text-2xl font-bold font-headline">Upcoming Events</CardTitle>
+                         <PartyPopper className="h-6 md:h-8 w-6 md:w-8 text-primary" />
+                        <CardTitle className="text-xl md:text-2xl font-bold font-headline">Upcoming Events</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ul className="space-y-4">
+                    <ul className="space-y-3">
                         {content.upcomingEvents?.map((event) => (
-                            <li key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-background rounded-lg border border-border/50">
-                                <span className="font-semibold text-lg">{event.title}</span>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 sm:mt-0">
+                            <li key={event.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 md:p-4 bg-background rounded-lg border border-border/50">
+                                <span className="font-semibold text-base md:text-lg">{event.title}</span>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs md:text-sm text-muted-foreground mt-2 sm:mt-0">
                                     <div className="flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {event.date}</div>
                                     <div className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> {event.time}</div>
                                     <div className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {event.location}</div>
@@ -244,8 +244,8 @@ export default function FitnessRoom() {
             <Card className="w-full max-w-2xl shadow-lg opacity-70">
                 <CardHeader>
                     <div className="flex items-center gap-3">
-                        <CalendarOff className="h-8 w-8 text-muted-foreground" />
-                        <CardTitle className="text-2xl font-bold font-headline">Past Events</CardTitle>
+                        <CalendarOff className="h-6 md:h-8 w-6 md:w-8 text-muted-foreground" />
+                        <CardTitle className="text-xl md:text-2xl font-bold font-headline">Past Events</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -253,8 +253,8 @@ export default function FitnessRoom() {
                         {content.passedEvents?.map((event) => (
                             <li key={event.id} className="flex items-center gap-3 text-muted-foreground">
                                 <Check className="h-5 w-5 text-green-500" />
-                                <span className="flex-1">{event.title}</span>
-                                <span className="text-sm">{event.date}</span>
+                                <span className="flex-1 text-sm md:text-base">{event.title}</span>
+                                <span className="text-xs md:text-sm">{event.date}</span>
                             </li>
                         ))}
                     </ul>
@@ -301,3 +301,5 @@ function FitnessRoomSkeleton() {
         </div>
     );
 }
+
+    

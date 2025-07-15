@@ -91,12 +91,12 @@ export default function NetworkMentor() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
+        <div className="flex flex-col items-center justify-start p-2 md:p-8 gap-6 md:gap-8 w-full">
             <Card className="w-full max-w-2xl shadow-lg relative">
                 {isAdmin && (
                     <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button variant="outline" size="icon" className="absolute top-4 right-4">
+                            <Button variant="outline" size="icon" className="absolute top-2 right-2 md:top-4 md:right-4 h-8 w-8">
                                 <Pencil className="h-4 w-4" />
                                 <span className="sr-only">Edit Details</span>
                             </Button>
@@ -128,21 +128,31 @@ export default function NetworkMentor() {
                         </DialogContent>
                     </Dialog>
                 )}
-                <CardHeader className="text-center bg-muted/30">
-                    <div className="flex justify-center items-center gap-3 mb-2"><Users className="h-10 w-10 text-primary" /><CardTitle className="text-3xl font-bold font-headline tracking-tight">Network Mentors</CardTitle></div>
-                    <CardDescription className="text-lg">Your friendly points of contact for network-related issues.</CardDescription>
+                <CardHeader className="text-center bg-muted/30 p-4 md:p-6">
+                    <div className="flex justify-center items-center gap-3 mb-2">
+                        <Users className="h-8 md:h-10 w-8 md:w-10 text-primary" />
+                        <CardTitle className="text-2xl md:text-3xl font-bold font-headline tracking-tight">Network Mentors</CardTitle>
+                    </div>
+                    <CardDescription className="text-base md:text-lg">Your friendly points of contact for network-related issues.</CardDescription>
                 </CardHeader>
-                <CardContent className="p-6">
+                <CardContent className="p-4 md:p-6">
                     <div className="space-y-6">
                         {content.mentorData?.map((building, index) => (
                             <div key={building.id}>
-                                <div className="flex items-center gap-3 mb-4"><Building className="h-6 w-6 text-primary/80" /><h3 className="text-xl font-semibold">{building.building}</h3></div>
-                                <ul className="space-y-3 pl-9">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <Building className="h-5 md:h-6 w-5 md:w-6 text-primary/80" />
+                                    <h3 className="text-lg md:text-xl font-semibold">{building.building}</h3>
+                                </div>
+                                <ul className="space-y-3 pl-8 md:pl-9">
                                     {building.mentors.map((mentor) => (
                                         <li key={mentor.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                            <div className="flex items-center gap-3"><User className="h-5 w-5 text-muted-foreground" /><span className="text-lg">{mentor.name}</span></div>
-                                            <a href={`https://wa.me/${mentor.number}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground mt-1 sm:mt-0 pl-8 sm:pl-0 hover:text-primary transition-colors">
-                                                <WhatsappIcon className="h-5 w-5 text-green-500" /><span>{formatPhoneNumber(mentor.number)}</span>
+                                            <div className="flex items-center gap-3">
+                                                <User className="h-5 w-5 text-muted-foreground" />
+                                                <span className="text-base md:text-lg">{mentor.name}</span>
+                                            </div>
+                                            <a href={`https://wa.me/${mentor.number}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-muted-foreground mt-1 sm:mt-0 pl-8 sm:pl-0 hover:text-primary transition-colors text-sm md:text-base">
+                                                <WhatsappIcon className="h-5 w-5 text-green-500" />
+                                                <span>{formatPhoneNumber(mentor.number)}</span>
                                             </a>
                                         </li>
                                     ))}
@@ -183,3 +193,5 @@ function NetworkMentorSkeleton() {
         </div>
     );
 }
+
+    
