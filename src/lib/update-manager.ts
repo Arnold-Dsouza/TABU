@@ -6,7 +6,6 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import * as semver from 'semver';
 import packageInfo from '../../package.json';
 
-const currentVersion = packageInfo.version;
 const GITHUB_REPO = 'Arnold-Dsouza/TABU';
 
 export interface UpdateInfo {
@@ -17,6 +16,8 @@ export interface UpdateInfo {
 }
 
 export async function checkForUpdates(): Promise<UpdateInfo> {
+  const currentVersion = packageInfo.version;
+
   if (!Capacitor.isNativePlatform()) {
     console.log('Not a native platform, skipping update check.');
     return { isUpdateAvailable: false, currentVersion, latestVersion: null, downloadUrl: null };
