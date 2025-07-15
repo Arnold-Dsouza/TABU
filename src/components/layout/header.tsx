@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from "next-themes";
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow } from 'lucide-react';
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -124,6 +124,10 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{currentUser || 'Guest'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => toast({ title: "Coming Soon!", description: "Notification feature is under development."})}>
+                <Bell className="mr-2" />
+                Notifications
+              </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setIsFeedbackFormOpen(true)}>
                 <MessageSquare className="mr-2" />
                 Feedback
