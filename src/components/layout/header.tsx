@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users, RefreshCw } from 'lucide-react';
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users, Download } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,22 +36,33 @@ import { db } from '@/lib/firebase';
 import { doc, updateDoc, deleteDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
+import { AppUpdateDialog } from '../app-update-dialog';
+import type { UpdateInfo } from '@/lib/update-manager';
+
 
 interface HeaderProps {
   currentUser: string | null;
   title?: string;
-  onUpdateAppClick: () => void;
+  updateInfo?: UpdateInfo | null;
 }
 
-export default function Header({ currentUser, title = 'LaundryView', onUpdateAppClick }: HeaderProps) {
+export default function Header({ currentUser, title = 'LaundryView', updateInfo }: HeaderProps) {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
   const { setTheme } = useTheme();
 
+  useEffect(() => {
+    // If an update is available on load, open the dialog automatically.
+    if (updateInfo?.isUpdateAvailable) {
+      setIsUpdateDialogOpen(true);
+    }
+  }, [updateInfo]);
+  
   useEffect(() => {
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('isLoggedIn', '==', true));
@@ -123,6 +134,12 @@ export default function Header({ currentUser, title = 'LaundryView', onUpdateApp
             <a href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
                 <HeaderIcon className="h-6 w-6 text-primary" />
                 <span className="font-bold font-headline">{title}</span>
+                {updateInfo?.isUpdateAvailable && (
+                  <span className="relative flex h-2 w-2 ml-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  </span>
+                )}
             </a>
         </div>
         
@@ -197,9 +214,15 @@ export default function Header({ currentUser, title = 'LaundryView', onUpdateApp
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
-               <DropdownMenuItem onSelect={onUpdateAppClick}>
-                <RefreshCw className="mr-2" />
+               <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
+                <Download className="mr-2" />
                 Update App
+                {updateInfo?.isUpdateAvailable && (
+                  <span className="relative flex h-2 w-2 ml-auto">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                  </span>
+                )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
@@ -213,6 +236,8 @@ export default function Header({ currentUser, title = 'LaundryView', onUpdateApp
       
       <FeedbackForm open={isFeedbackFormOpen} onOpenChange={setIsFeedbackFormOpen} />
       <NotificationSettings open={isNotificationSettingsOpen} onOpenChange={setIsNotificationSettingsOpen} />
+      <AppUpdateDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} initialUpdateInfo={updateInfo} />
+
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>
