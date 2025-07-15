@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building, User, Phone } from "lucide-react";
+import { Users, Building, User } from "lucide-react";
 import { Separator } from "./ui/separator";
 
 const mentorData = [
@@ -36,6 +36,25 @@ const mentorData = [
     },
 ];
 
+const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...props}
+    >
+        <path d="M16.5 13.5c-1.5-1.5-3-1.5-4.5 0s-1.5 3 0 4.5 3 1.5 4.5 0 1.5-3 0-4.5z" />
+        <path d="M21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c1.62 0 3.14-.44 4.5-1.2L21 21l-1.8-4.5c.76-1.36 1.2-2.88 1.2-4.5z" />
+    </svg>
+);
+
+
 export default function NetworkMentor() {
     return (
         <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
@@ -67,7 +86,7 @@ export default function NetworkMentor() {
                                                 <span className="text-lg">{mentor.name}</span>
                                             </div>
                                             <div className="flex items-center gap-2 text-muted-foreground mt-1 sm:mt-0 pl-8 sm:pl-0">
-                                                <Phone className="h-4 w-4" />
+                                                <WhatsappIcon className="h-5 w-5 text-green-500" />
                                                 <span>{mentor.number}</span>
                                             </div>
                                         </li>
