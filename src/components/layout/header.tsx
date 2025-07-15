@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTheme } from "next-themes";
 import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
@@ -31,6 +30,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FeedbackForm } from '../feedback-form';
 import { NotificationSettings } from '../notification-settings';
+import { AppUpdateDialog } from '../app-update-dialog';
 import { SidebarTrigger } from '../ui/sidebar';
 import { ThemeToggle } from '../theme-toggle';
 import { db } from '@/lib/firebase';
@@ -46,10 +46,10 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
-  const { setTheme } = useTheme();
 
   useEffect(() => {
     const usersRef = collection(db, 'users');
@@ -107,12 +107,6 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
       return parts[0].charAt(0) + parts[1].charAt(0);
     }
     return name.charAt(0);
-  };
-  
-  const handleUpdateClick = () => {
-    // Replace with your GitHub repository URL
-    const repoUrl = "https://github.com/Arnold-Dsouza/TABU/releases";
-    window.open(repoUrl, '_blank');
   };
 
   const HeaderIcon = title === 'TABU 2' ? AppWindow : WashingMachine;
@@ -202,7 +196,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
-               <DropdownMenuItem onSelect={handleUpdateClick}>
+               <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
                 <RefreshCw className="mr-2" />
                 Update App
               </DropdownMenuItem>
@@ -218,6 +212,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
       
       <FeedbackForm open={isFeedbackFormOpen} onOpenChange={setIsFeedbackFormOpen} />
       <NotificationSettings open={isNotificationSettingsOpen} onOpenChange={setIsNotificationSettingsOpen} />
+      <AppUpdateDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} />
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>

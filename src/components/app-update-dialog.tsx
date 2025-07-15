@@ -1,0 +1,143 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { checkForUpdates, downloadUpdate } from '@/lib/update-manager';
+import type { UpdateInfo } from '@/lib/update-manager';
+import { RefreshCw, Download, X } from 'lucide-react';
+
+interface AppUpdateDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function AppUpdateDialog({ open, onOpenChange }: AppUpdateDialogProps) {
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'error'>('idle');
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (open) {
+      handleCheckForUpdates();
+    } else {
+      // Reset state when dialog is closed
+      setStatus('idle');
+      setUpdateInfo(null);
+      setDownloadProgress(0);
+    }
+  }, [open]);
+
+  const handleCheckForUpdates = async () => {
+    setStatus('checking');
+    try {
+      const info = await checkForUpdates();
+      setUpdateInfo(info);
+      setStatus(info.isUpdateAvailable ? 'available' : 'not-available');
+    } catch (error) {
+      console.error('Update check failed:', error);
+      setStatus('error');
+      toast({
+        title: 'Error',
+        description: 'Could not check for updates. Please try again later.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDownloadUpdate = async () => {
+    if (!updateInfo?.downloadUrl) return;
+
+    setStatus('downloading');
+    setDownloadProgress(0);
+
+    try {
+      await downloadUpdate(updateInfo.downloadUrl, (progress) => {
+        setDownloadProgress(progress);
+      });
+      toast({
+        title: 'Download Complete',
+        description: 'The update is ready. Please confirm to install.',
+      });
+      // The installation is prompted by the native layer in downloadUpdate
+      onOpenChange(false); // Close dialog on success
+    } catch (error) {
+      console.error('Download failed:', error);
+      setStatus('error');
+      toast({
+        title: 'Download Failed',
+        description: 'The update could not be downloaded. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const renderContent = () => {
+    switch (status) {
+      case 'checking':
+        return (
+          <div className="flex flex-col items-center justify-center space-y-4 py-8">
+            <RefreshCw className="h-10 w-10 animate-spin text-primary" />
+            <p className="text-muted-foreground">Checking for updates...</p>
+          </div>
+        );
+      case 'available':
+        return (
+          <>
+            <DialogDescription>
+              A new version ({updateInfo?.latestVersion}) is available! You are currently on version {updateInfo?.currentVersion}.
+            </DialogDescription>
+            <DialogFooter className="pt-4">
+              <Button onClick={handleDownloadUpdate}>
+                <Download className="mr-2 h-4 w-4" />
+                Download & Install
+              </Button>
+            </DialogFooter>
+          </>
+        );
+      case 'not-available':
+        return (
+          <DialogDescription>
+            You are on the latest version ({updateInfo?.currentVersion}). No update is available at this time.
+          </DialogDescription>
+        );
+      case 'downloading':
+        return (
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-muted-foreground">Downloading update... {Math.round(downloadProgress)}%</p>
+            <Progress value={downloadProgress} />
+          </div>
+        );
+      case 'error':
+        return (
+          <DialogDescription className="text-destructive">
+            Something went wrong. Please close this window and try again.
+          </DialogDescription>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>App Update</DialogTitle>
+        </DialogHeader>
+        {renderContent()}
+      </DialogContent>
+    </Dialog>
+  );
+}
