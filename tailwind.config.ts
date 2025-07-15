@@ -106,7 +106,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'blink': 'blink 1.5s infinite ease-in-out',
-        'spin-slow': 'spin 5s linear infinite',
+        'spin-slow': 'spin 3s linear infinite',
       },
     },
   },
