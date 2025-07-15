@@ -36,10 +36,7 @@ jobs:
     - name: Build web app
       run: npm run build
 
-    - name: Add Android platform
-      run: npx cap add android
-
-    - name: Sync Capacitor
+    - name: Sync Capacitor (skip adding platform since it exists)
       run: npx cap sync android
 
     - name: Grant execute permission for gradlew
