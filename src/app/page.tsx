@@ -8,6 +8,7 @@ import LaundryDashboard from '@/components/laundry-dashboard';
 import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
+import TeaRoom from '@/components/tea-room';
 import {
   Sidebar,
   SidebarContent,
@@ -134,7 +135,7 @@ function PageContent() {
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Tea Room">
+                            <SidebarMenuButton tooltip="Tea Room" onClick={() => handleViewSelect('tea')} isActive={activeView === 'tea'}>
                                 <Coffee />
                                 <span>Tea Room</span>
                             </SidebarMenuButton>
@@ -177,6 +178,7 @@ function PageContent() {
              {activeView === 'fitness' && <FitnessRoom />}
              {activeView === 'cafeteria' && <TabuCafeteria />}
              {activeView === 'bar' && <TabuBar />}
+             {activeView === 'tea' && <TeaRoom />}
           </main>
         </div>
       </SidebarInset>

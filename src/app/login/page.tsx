@@ -100,7 +100,7 @@ export default function LoginPage() {
               <Input
                 id="apt-number"
                 type="number"
-                placeholder="e.g., 10101"
+                placeholder="e.g., 42101"
                 value={aptNumber}
                 onChange={(e) => setAptNumber(e.target.value.slice(0, 5))}
                 required
