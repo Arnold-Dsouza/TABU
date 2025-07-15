@@ -1,4 +1,3 @@
-
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, DocumentData } from 'firebase/firestore';
 import type { PageContent } from '@/lib/types';
@@ -57,4 +56,13 @@ export function subscribeToPageContent(pageId: string, callback: (data: PageCont
     });
 
     return unsubscribe;
+}
+
+// This function can be called from client components
+export async function updatePageContent(pageId: string, data: PageContent): Promise<void> {
+    if (!pageId) {
+        throw new Error('A pageId is required to update content.');
+    }
+    const docRef = doc(db, 'tabu2Content', pageId);
+    await setDoc(docRef, data, { merge: true });
 }

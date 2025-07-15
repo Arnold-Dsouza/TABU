@@ -1,5 +1,5 @@
 
-'use server';
+'use client';
 
 /**
  * @fileOverview A flow for handling user feedback.
