@@ -27,7 +27,7 @@ import { initialBuildingsData } from '@/lib/data';
 import { Building, Home as HomeIcon, Dumbbell, Coffee, Utensils, Martini, Users, Smile } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar' | 'mentor' | 'seniors';
+type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar' | 'mentor';
 
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
@@ -60,7 +60,7 @@ function PageContent() {
     }
   };
 
-  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar', 'mentor', 'seniors'].includes(activeView);
+  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar', 'mentor'].includes(activeView);
   const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
 
 
@@ -151,12 +151,6 @@ function PageContent() {
                             <SidebarMenuButton tooltip="Network mentor" onClick={() => handleViewSelect('mentor')} isActive={activeView === 'mentor'}>
                                 <Users />
                                 <span>Network mentor</span>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Seniors">
-                                <Smile />
-                                <span>Seniors</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
