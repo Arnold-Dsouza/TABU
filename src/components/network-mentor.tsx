@@ -2,36 +2,36 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building, User } from "lucide-react";
+import { Users, Building, User, Phone } from "lucide-react";
 import { Separator } from "./ui/separator";
 
 const mentorData = [
     {
         building: 'Building 58',
         mentors: [
-            { name: 'Alice Johnson' },
-            { name: 'Bob Williams' },
+            { name: 'Alice Johnson', number: '0123 456 7890' },
+            { name: 'Bob Williams', number: '0123 456 7891' },
         ]
     },
     {
         building: 'Building 60',
         mentors: [
-            { name: 'Charlie Brown' },
-            { name: 'Diana Miller' },
+            { name: 'Charlie Brown', number: '0123 456 7892' },
+            { name: 'Diana Miller', number: '0123 456 7893' },
         ]
     },
     {
         building: 'Building 62',
         mentors: [
-            { name: 'Eve Davis' },
-            { name: 'Frank Garcia' },
+            { name: 'Eve Davis', number: '0123 456 7894' },
+            { name: 'Frank Garcia', number: '0123 456 7895' },
         ]
     },
     {
         building: 'Building 64',
         mentors: [
-            { name: 'Grace Rodriguez' },
-            { name: 'Heidi Martinez' },
+            { name: 'Grace Rodriguez', number: '0123 456 7896' },
+            { name: 'Heidi Martinez', number: '0123 456 7897' },
         ]
     },
 ];
@@ -61,9 +61,15 @@ export default function NetworkMentor() {
                                 </div>
                                 <ul className="space-y-3 pl-9">
                                     {building.mentors.map((mentor) => (
-                                        <li key={mentor.name} className="flex items-center gap-3">
-                                            <User className="h-5 w-5 text-muted-foreground" />
-                                            <span className="text-lg">{mentor.name}</span>
+                                        <li key={mentor.name} className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <User className="h-5 w-5 text-muted-foreground" />
+                                                <span className="text-lg">{mentor.name}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-muted-foreground mt-1 sm:mt-0 pl-8 sm:pl-0">
+                                                <Phone className="h-4 w-4" />
+                                                <span>{mentor.number}</span>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
