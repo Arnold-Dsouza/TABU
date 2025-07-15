@@ -28,19 +28,19 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
     });
 
     if (!response.ok) {
-      throw new Error(`GitHub API request failed: ${response.statusText}`);
+      throw new Error(`Could not fetch releases from GitHub. Status: ${response.statusText}`);
     }
     const release = await response.json();
     const latestVersion = semver.clean(release.tag_name);
     
     if (!latestVersion) {
-        throw new Error('Could not parse latest version from release tag.');
+        throw new Error('Could not parse latest version from the release tag.');
     }
 
     const apkAsset = release.assets?.find((asset: any) => asset.name.endsWith('.apk'));
     
     if (!apkAsset) {
-      throw new Error('No APK found in the latest release.');
+      throw new Error('The latest release does not contain a downloadable APK file.');
     }
 
     const isUpdateAvailable = semver.gt(latestVersion, currentVersion);
@@ -53,6 +53,7 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
     };
   } catch (error) {
     console.error('Error checking for updates:', error);
+    // Re-throw the error so the UI can catch it and display a message
     throw error;
   }
 }

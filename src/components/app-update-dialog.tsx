@@ -27,6 +27,7 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(initialUpdateInfo);
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'error'>('idle');
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('Could not check for updates. Please try again later.');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -42,7 +43,9 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
       setStatus('idle');
       setUpdateInfo(null);
       setDownloadProgress(0);
+      setErrorMessage('Could not check for updates. Please try again later.');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialUpdateInfo]);
 
   const handleCheckForUpdates = async () => {
@@ -52,11 +55,13 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
       setUpdateInfo(info);
       setStatus(info.isUpdateAvailable ? 'available' : 'not-available');
     } catch (error) {
-      console.error('Update check failed:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('Update check failed:', message);
+      setErrorMessage(message);
       setStatus('error');
       toast({
         title: 'Error',
-        description: 'Could not check for updates. Please try again later.',
+        description: message,
         variant: 'destructive',
       });
     }
@@ -80,6 +85,8 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
       onOpenChange(false); // Close dialog on success
     } catch (error) {
       console.error('Download failed:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      setErrorMessage(message);
       setStatus('error');
       toast({
         title: 'Download Failed',
@@ -153,11 +160,12 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
             <DialogHeader>
                 <DialogTitle className="text-destructive">Update Error</DialogTitle>
                 <DialogDescription>
-                Something went wrong. Please close this window and try again.
+                {errorMessage}
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter className="pt-4">
                  <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+                 <Button onClick={handleCheckForUpdates}><RefreshCw className="h-4 w-4 mr-2" />Try Again</Button>
             </DialogFooter>
           </>
         );
