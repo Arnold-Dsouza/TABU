@@ -1,6 +1,4 @@
 
-'use server';
-
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, onSnapshot, DocumentData } from 'firebase/firestore';
 import type { PageContent } from '@/lib/types';
@@ -20,6 +18,7 @@ const initialDataMap: { [key: string]: PageContent } = {
     networkMentor: initialMentorData
 };
 
+// This function can be called from server or client components
 export async function getPageContent(pageId: string): Promise<PageContent> {
     const docRef = doc(db, 'tabu2Content', pageId);
     let docSnap = await getDoc(docRef);
@@ -38,6 +37,7 @@ export async function getPageContent(pageId: string): Promise<PageContent> {
     return docSnap.data() as PageContent;
 }
 
+// This function is intended for client-side use only
 export function subscribeToPageContent(pageId: string, callback: (data: PageContent) => void) {
     const docRef = doc(db, 'tabu2Content', pageId);
     
@@ -57,9 +57,4 @@ export function subscribeToPageContent(pageId: string, callback: (data: PageCont
     });
 
     return unsubscribe;
-}
-
-export async function updatePageContent(pageId: string, data: Partial<PageContent>) {
-    const docRef = doc(db, 'tabu2Content', pageId);
-    await setDoc(docRef, data, { merge: true });
 }

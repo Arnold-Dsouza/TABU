@@ -10,7 +10,8 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { PageContent } from "@/lib/types";
-import { subscribeToPageContent, updatePageContent } from "@/lib/firestore-service";
+import { subscribeToPageContent } from "@/lib/firestore-service";
+import { updatePageContent } from "@/app/actions";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -87,7 +88,7 @@ export default function TabuBar() {
         });
     };
 
-    const handleSimpleFieldChange = (field: keyof PageContent, value: string) => {
+    const handleSimpleFieldChange = (field: 'privatePartiesContact', value: string) => {
         setEditableContent(prev => prev ? { ...prev, [field]: value } : null);
     };
 
@@ -194,4 +195,3 @@ function TabuBarSkeleton() {
         </div>
     );
 }
-
