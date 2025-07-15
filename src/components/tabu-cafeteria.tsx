@@ -2,9 +2,13 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check, Gift } from "lucide-react";
+import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check, Gift, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
+import { adminApartmentNumbers } from "@/lib/admins";
+import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const schedule = [
     { day: 'Wednesday', hours: '5:00 PM - 8:00 PM' },
@@ -38,9 +42,33 @@ const passedEvents = [
 ];
 
 export default function TabuCafeteria() {
+    const [isAdmin, setIsAdmin] = useState(false);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        const user = localStorage.getItem('laundryUser');
+        if (user) {
+            const aptNumber = user.replace('Apt ', '');
+            setIsAdmin(adminApartmentNumbers.includes(aptNumber));
+        }
+    }, []);
+
+    const handleEditClick = () => {
+        toast({
+            title: "Edit Mode",
+            description: "Editing functionality is not yet implemented.",
+        });
+    }
+
     return (
         <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
-            <Card className="w-full max-w-2xl shadow-lg">
+            <Card className="w-full max-w-2xl shadow-lg relative">
+                 {isAdmin && (
+                    <Button onClick={handleEditClick} variant="outline" size="icon" className="absolute top-4 right-4">
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit Details</span>
+                    </Button>
+                )}
                 <CardHeader className="text-center bg-muted/30">
                     <div className="flex justify-center items-center gap-3 mb-2">
                         <Utensils className="h-10 w-10 text-primary" />

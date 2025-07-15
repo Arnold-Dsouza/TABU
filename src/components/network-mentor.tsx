@@ -2,8 +2,12 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Building, User } from "lucide-react";
+import { Users, Building, User, Pencil } from "lucide-react";
 import { Separator } from "./ui/separator";
+import { adminApartmentNumbers } from "@/lib/admins";
+import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const mentorData = [
     {
@@ -55,6 +59,24 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export default function NetworkMentor() {
+    const [isAdmin, setIsAdmin] = useState(false);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        const user = localStorage.getItem('laundryUser');
+        if (user) {
+            const aptNumber = user.replace('Apt ', '');
+            setIsAdmin(adminApartmentNumbers.includes(aptNumber));
+        }
+    }, []);
+
+    const handleEditClick = () => {
+        toast({
+            title: "Edit Mode",
+            description: "Editing functionality is not yet implemented.",
+        });
+    }
+
     // A helper function to format the number for display
     const formatPhoneNumber = (number: string) => {
         return number.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
@@ -62,7 +84,13 @@ export default function NetworkMentor() {
 
     return (
         <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
-            <Card className="w-full max-w-2xl shadow-lg">
+            <Card className="w-full max-w-2xl shadow-lg relative">
+                 {isAdmin && (
+                    <Button onClick={handleEditClick} variant="outline" size="icon" className="absolute top-4 right-4">
+                        <Pencil className="h-4 w-4" />
+                        <span className="sr-only">Edit Details</span>
+                    </Button>
+                )}
                 <CardHeader className="text-center bg-muted/30">
                     <div className="flex justify-center items-center gap-3 mb-2">
                         <Users className="h-10 w-10 text-primary" />
