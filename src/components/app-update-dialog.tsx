@@ -20,24 +20,30 @@ import { RefreshCw, Download, X } from 'lucide-react';
 interface AppUpdateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialUpdateInfo?: UpdateInfo | null;
 }
 
-export function AppUpdateDialog({ open, onOpenChange }: AppUpdateDialogProps) {
-  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }: AppUpdateDialogProps) {
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(initialUpdateInfo);
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'error'>('idle');
   const [downloadProgress, setDownloadProgress] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     if (open) {
-      handleCheckForUpdates();
+      if (initialUpdateInfo?.isUpdateAvailable) {
+        setUpdateInfo(initialUpdateInfo);
+        setStatus('available');
+      } else {
+        handleCheckForUpdates();
+      }
     } else {
       // Reset state when dialog is closed
       setStatus('idle');
       setUpdateInfo(null);
       setDownloadProgress(0);
     }
-  }, [open]);
+  }, [open, initialUpdateInfo]);
 
   const handleCheckForUpdates = async () => {
     setStatus('checking');
@@ -108,9 +114,15 @@ export function AppUpdateDialog({ open, onOpenChange }: AppUpdateDialogProps) {
         );
       case 'not-available':
         return (
-          <DialogDescription>
-            You are on the latest version ({updateInfo?.currentVersion}). No update is available at this time.
-          </DialogDescription>
+          <>
+            <DialogDescription>
+              You are on the latest version ({updateInfo?.currentVersion}). No update is available at this time.
+            </DialogDescription>
+            <DialogFooter>
+                <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+                <Button onClick={handleCheckForUpdates}><RefreshCw className="h-4 w-4 mr-2" />Check Again</Button>
+            </DialogFooter>
+          </>
         );
       case 'downloading':
         return (
@@ -121,9 +133,14 @@ export function AppUpdateDialog({ open, onOpenChange }: AppUpdateDialogProps) {
         );
       case 'error':
         return (
-          <DialogDescription className="text-destructive">
-            Something went wrong. Please close this window and try again.
-          </DialogDescription>
+          <>
+            <DialogDescription className="text-destructive">
+              Something went wrong. Please close this window and try again.
+            </DialogDescription>
+            <DialogFooter>
+                 <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+            </DialogFooter>
+          </>
         );
       default:
         return null;

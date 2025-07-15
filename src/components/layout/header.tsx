@@ -30,26 +30,27 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FeedbackForm } from '../feedback-form';
 import { NotificationSettings } from '../notification-settings';
-import { AppUpdateDialog } from '../app-update-dialog';
 import { SidebarTrigger } from '../ui/sidebar';
 import { ThemeToggle } from '../theme-toggle';
 import { db } from '@/lib/firebase';
 import { doc, updateDoc, deleteDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
 
 interface HeaderProps {
   currentUser: string | null;
   title?: string;
+  onUpdateAppClick: () => void;
 }
 
-export default function Header({ currentUser, title = 'LaundryView' }: HeaderProps) {
+export default function Header({ currentUser, title = 'LaundryView', onUpdateAppClick }: HeaderProps) {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     const usersRef = collection(db, 'users');
@@ -196,7 +197,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
-               <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
+               <DropdownMenuItem onSelect={onUpdateAppClick}>
                 <RefreshCw className="mr-2" />
                 Update App
               </DropdownMenuItem>
@@ -212,7 +213,6 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
       
       <FeedbackForm open={isFeedbackFormOpen} onOpenChange={setIsFeedbackFormOpen} />
       <NotificationSettings open={isNotificationSettingsOpen} onOpenChange={setIsNotificationSettingsOpen} />
-      <AppUpdateDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} />
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>

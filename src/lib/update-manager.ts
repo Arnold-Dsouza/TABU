@@ -3,9 +3,10 @@
 
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import * as semver from 'semver';
+import packageInfo from '../../package.json';
 
-// Manually specify the version from package.json
-const currentVersion = '1.0.1'; 
+const currentVersion = packageInfo.version;
 const GITHUB_REPO = 'Arnold-Dsouza/TABU';
 
 export interface UpdateInfo {
@@ -22,19 +23,27 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
   }
 
   try {
-    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
+    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`, {
+      cache: 'no-store' // Ensure we always get the latest release info
+    });
+
     if (!response.ok) {
       throw new Error(`GitHub API request failed: ${response.statusText}`);
     }
     const release = await response.json();
-    const latestVersion = release.tag_name.replace('v', '');
+    const latestVersion = semver.clean(release.tag_name);
+    
+    if (!latestVersion) {
+        throw new Error('Could not parse latest version from release tag.');
+    }
+
     const apkAsset = release.assets?.find((asset: any) => asset.name.endsWith('.apk'));
     
     if (!apkAsset) {
       throw new Error('No APK found in the latest release.');
     }
 
-    const isUpdateAvailable = latestVersion > currentVersion;
+    const isUpdateAvailable = semver.gt(latestVersion, currentVersion);
     
     return {
       isUpdateAvailable,
@@ -60,40 +69,23 @@ export async function downloadUpdate(
   const fileName = `update-${Date.now()}.apk`;
 
   try {
+    // Unfortunately, the official downloadFile plugin does not support progress events.
+    // We will show an indeterminate progress or simulate it.
+    // For a better UX, a native plugin with progress support would be needed.
+    onProgress(10); // Initial progress
+
     const download = await Filesystem.downloadFile({
       path: fileName,
       url: url,
-      directory: Directory.Cache, // Use Cache directory for temporary files
-      progress: true,
-      
-      // The Filesystem plugin's 'progress' event is not standard, so we can't use it.
-      // We will simulate progress or show an indeterminate loader.
-      // For this example, we will just simulate it.
-      // In a real app, you might use a native plugin that supports progress events.
+      directory: Directory.Cache,
     });
-
-    // Simulate progress as the official plugin doesn't provide real-time feedback
-    onProgress(25);
-    // some delay
-    await new Promise(res => setTimeout(res, 200));
-    onProgress(50);
-    await new Promise(res => setTimeout(res, 200));
-    onProgress(75);
-    await new Promise(res => setTimeout(res, 200));
+    
+    onProgress(100); // Download complete
 
     if (!download.path) {
         throw new Error('File download failed, path is missing.');
     }
-    onProgress(100);
 
-    // The file is downloaded, now we need a way to open it to trigger installation.
-    // The official Capacitor Filesystem API doesn't have a method to "open" a file.
-    // We can't trigger installation directly from web code due to security restrictions.
-    // The recommended approach is to use a community plugin for opening files,
-    // like `@capawesome/capacitor-file-opener`.
-    // Since we've had trouble with plugins, for now, we will log the path
-    // and rely on the user to find it if they are savvy.
-    // THIS IS A LIMITATION we have to accept for now.
     console.log('Update downloaded to:', download.path);
     alert(`Update downloaded. You may need to manually open the file from your device's "Downloads" or "Files" app to install it. Path: ${download.path}`);
 
