@@ -9,7 +9,6 @@ import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
-import NetworkMentor from '@/components/network-mentor';
 
 import {
   Sidebar,
@@ -30,7 +29,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { checkForUpdates } from '@/lib/update-manager';
 import type { UpdateInfo } from '@/lib/update-manager';
 
-type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar' | 'mentor';
+type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar';
 
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
@@ -79,7 +78,7 @@ function PageContent() {
     }
   };
 
-  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar', 'mentor'].includes(activeView);
+  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar'].includes(activeView);
   const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
 
 
@@ -166,12 +165,6 @@ function PageContent() {
                                 <span>Tabu Bar</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Network mentor" onClick={() => handleViewSelect('mentor')} isActive={activeView === 'mentor'}>
-                                <Users />
-                                <span>Network mentor</span>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarMenuItem>
@@ -187,7 +180,6 @@ function PageContent() {
              {activeView === 'cafeteria' && <TabuCafeteria />}
              {activeView === 'bar' && <TabuBar />}
              {activeView === 'tea' && <TeaRoom />}
-             {activeView === 'mentor' && <NetworkMentor />}
           </main>
         </div>
       </SidebarInset>
