@@ -92,21 +92,20 @@ export default {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.2' },
         },
-        'wave': {
-          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
-          '50%': { transform: 'translateY(-10px) rotate(5deg)' },
+        spin: {
+          from: {
+            transform: 'rotate(0deg)',
+          },
+          to: {
+            transform: 'rotate(360deg)',
+          },
         },
-        'wave-reverse': {
-            '0%, 100%': { transform: 'translateY(0) rotate(0deg) scaleX(-1)' },
-            '50%': { transform: 'translateY(-10px) rotate(-5deg) scaleX(-1)' },
-        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'blink': 'blink 1.5s infinite ease-in-out',
-        'wave': 'wave 3s cubic-bezier( 0.36, 0.45, 0.63, 0.53) infinite',
-        'wave-reverse': 'wave-reverse 3s cubic-bezier( 0.36, 0.45, 0.63, 0.53) -.125s infinite',
+        'spin-slow': 'spin 5s linear infinite',
       },
     },
   },
