@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { initialBuildingsData } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface NotificationSettingsProps {
   open: boolean;
@@ -102,72 +103,80 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6 py-4">
-          <div>
-             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Laundry</h3>
+        <Accordion type="multiple" defaultValue={['laundry', 'tabu2']} className="w-full">
+          <AccordionItem value="laundry">
+            <AccordionTrigger>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-lg font-medium">Laundry</span>
                 <Switch
                   id="all-laundry"
                   checked={allLaundry}
                   onCheckedChange={handleAllLaundryToggle}
-                />
-            </div>
-            <div className="space-y-4 pl-4 border-l-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="notif-cycle-end" className="flex-1">
-                  Notify 5 mins before my cycle ends
-                </Label>
-                <Switch
-                  id="notif-cycle-end"
-                  checked={cycleEndNotif}
-                  onCheckedChange={setCycleEndNotif}
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
-              <Separator />
-              {initialBuildingsData.map(building => (
-                <div key={building.id} className="flex items-center justify-between">
-                  <Label htmlFor={`notif-${building.id}`} className="flex-1">
-                    Notify when machine is available in {building.name}
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4 pt-2 pl-4 border-l-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="notif-cycle-end" className="flex-1">
+                    Notify 5 mins before my cycle ends
                   </Label>
                   <Switch
-                    id={`notif-${building.id}`}
-                    checked={laundryNotifs[building.id] || false}
-                    onCheckedChange={() => handleLaundryToggle(building.id)}
+                    id="notif-cycle-end"
+                    checked={cycleEndNotif}
+                    onCheckedChange={setCycleEndNotif}
                   />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">TABU</h3>
-              <Switch
+                <Separator />
+                {initialBuildingsData.map(building => (
+                  <div key={building.id} className="flex items-center justify-between">
+                    <Label htmlFor={`notif-${building.id}`} className="flex-1">
+                      Notify when machine is available in {building.name}
+                    </Label>
+                    <Switch
+                      id={`notif-${building.id}`}
+                      checked={laundryNotifs[building.id] || false}
+                      onCheckedChange={() => handleLaundryToggle(building.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="tabu2">
+            <AccordionTrigger>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-lg font-medium">TABU 2</span>
+                 <Switch
                   id="all-tabu"
                   checked={allTabu}
                   onCheckedChange={handleAllTabuToggle}
+                  onClick={(e) => e.stopPropagation()}
                 />
-            </div>
-            <div className="space-y-4 pl-4 border-l-2">
-               {tabuServices.map(service => (
-                <div key={service.id} className="flex items-center justify-between">
-                  <Label htmlFor={`notif-${service.id}`} className="flex-1">
-                    {service.name} updates & events
-                  </Label>
-                  <Switch
-                    id={`notif-${service.id}`}
-                    checked={tabuNotifs[service.id] || false}
-                    onCheckedChange={() => handleTabuToggle(service.id)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+               <div className="space-y-4 pt-2 pl-4 border-l-2">
+                 {tabuServices.map(service => (
+                  <div key={service.id} className="flex items-center justify-between">
+                    <Label htmlFor={`notif-${service.id}`} className="flex-1">
+                      {service.name} updates & events
+                    </Label>
+                    <Switch
+                      id={`notif-${service.id}`}
+                      checked={tabuNotifs[service.id] || false}
+                      onCheckedChange={() => handleTabuToggle(service.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
-        <DialogFooter className="sm:justify-end">
+        <DialogFooter className="sm:justify-end pt-4">
           <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
