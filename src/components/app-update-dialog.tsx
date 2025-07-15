@@ -93,21 +93,29 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
     switch (status) {
       case 'checking':
         return (
-          <div className="flex flex-col items-center justify-center space-y-4 py-8">
-            <RefreshCw className="h-10 w-10 animate-spin text-primary" />
-            <p className="text-muted-foreground">Checking for updates...</p>
-          </div>
+          <>
+            <DialogHeader>
+                <DialogTitle>Checking for Updates</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center space-y-4 py-8">
+                <RefreshCw className="h-10 w-10 animate-spin text-primary" />
+                <p className="text-muted-foreground">Searching for the latest version...</p>
+            </div>
+          </>
         );
       case 'available':
         return (
           <>
-            <DialogDescription>
-              A new version ({updateInfo?.latestVersion}) is available! You are currently on version {updateInfo?.currentVersion}.
-            </DialogDescription>
+            <DialogHeader>
+                <DialogTitle>Update Available</DialogTitle>
+                <DialogDescription>
+                  A new version ({updateInfo?.latestVersion}) is available! You are currently on version {updateInfo?.currentVersion}.
+                </DialogDescription>
+            </DialogHeader>
             <DialogFooter className="pt-4">
               <Button onClick={handleDownloadUpdate}>
                 <Download className="mr-2 h-4 w-4" />
-                Download & Install
+                Update
               </Button>
             </DialogFooter>
           </>
@@ -115,10 +123,13 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
       case 'not-available':
         return (
           <>
-            <DialogDescription>
-              You are on the latest version ({updateInfo?.currentVersion}). No update is available at this time.
-            </DialogDescription>
-            <DialogFooter>
+            <DialogHeader>
+                <DialogTitle>No Update Available</DialogTitle>
+                <DialogDescription>
+                You are on the latest version ({updateInfo?.currentVersion}).
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="sm:justify-end gap-2 pt-4">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
                 <Button onClick={handleCheckForUpdates}><RefreshCw className="h-4 w-4 mr-2" />Check Again</Button>
             </DialogFooter>
@@ -126,33 +137,42 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
         );
       case 'downloading':
         return (
-          <div className="space-y-4 pt-4">
-            <p className="text-sm text-muted-foreground">Downloading update... {Math.round(downloadProgress)}%</p>
-            <Progress value={downloadProgress} />
-          </div>
+            <>
+            <DialogHeader>
+                <DialogTitle>Downloading Update</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+                <p className="text-sm text-muted-foreground">Downloading update... {Math.round(downloadProgress)}%</p>
+                <Progress value={downloadProgress} />
+            </div>
+            </>
         );
       case 'error':
         return (
           <>
-            <DialogDescription className="text-destructive">
-              Something went wrong. Please close this window and try again.
-            </DialogDescription>
-            <DialogFooter>
+            <DialogHeader>
+                <DialogTitle className="text-destructive">Update Error</DialogTitle>
+                <DialogDescription>
+                Something went wrong. Please close this window and try again.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="pt-4">
                  <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
             </DialogFooter>
           </>
         );
       default:
-        return null;
+         return (
+            <div className="flex flex-col items-center justify-center space-y-4 py-8">
+                <p className="text-muted-foreground">Initializing...</p>
+            </div>
+        );
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>App Update</DialogTitle>
-        </DialogHeader>
         {renderContent()}
       </DialogContent>
     </Dialog>
