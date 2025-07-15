@@ -1,5 +1,5 @@
 
-import type { Building } from './types';
+import type { Building, PageContent } from './types';
 
 export const initialBuildingsData: Building[] = [
   {
@@ -42,3 +42,131 @@ export const initialBuildingsData: Building[] = [
     ],
   },
 ];
+
+
+// Initial Data for TABU 2 Pages
+export const initialFitnessRoomData: PageContent = {
+  id: 'fitnessRoom',
+  schedule: [
+      { day: 'Tuesday', hours: '6:00 PM - 8:00 PM' },
+      { day: 'Friday', hours: '6:00 PM - 8:00 PM' },
+      { day: 'Sunday', hours: '6:00 PM - 8:00 PM' },
+  ],
+  upcomingEvents: [
+      { id: 'event1', title: 'Yoga Session', date: 'August 5, 2024', time: '7:00 PM', location: 'Main Hall' },
+      { id: 'event2', title: 'Cardio Challenge', date: 'August 12, 2024', time: '6:30 PM', location: 'Fitness Room' },
+  ],
+  passedEvents: [
+      { id: 'event3', title: 'Spinning Marathon', date: 'July 20, 2024' },
+      { id: 'event4', title: 'Weightlifting Workshop', date: 'July 15, 2024' },
+  ],
+};
+
+export const initialTeaRoomData: PageContent = {
+  id: 'teaRoom',
+  schedule: [
+      { day: 'Monday', hours: '4:00 PM - 7:00 PM' },
+      { day: 'Thursday', hours: '4:00 PM - 7:00 PM' },
+  ],
+  specialMenu: [
+      { id: 'menu1', name: 'Matcha Latte', price: '€ 3.0' },
+      { id: 'menu2', name: 'Bubble Tea', price: '€ 3.5' },
+      { id: 'menu3', name: 'Scones with Cream', price: '€ 2.5' },
+  ],
+  usualMenu: [
+      { id: 'menu4', name: 'Assam Black Tea', price: '€ 1.5' },
+      { id: 'menu5', name: 'Green Tea', price: '€ 1.5' },
+      { id: 'menu6', name: 'Herbal Infusion', price: '€ 1.5' },
+      { id: 'menu7', name: 'Shortbread Cookies', price: '€ 1' },
+  ],
+  upcomingEvents: [
+      { id: 'event1', title: 'Tea Tasting', date: 'August 22, 2024', time: '5:00 PM', location: 'Tea Room' },
+  ],
+  passedEvents: [
+      { id: 'event2', title: 'High Tea Special', date: 'July 18, 2024' },
+  ],
+  privatePartiesContact: 'us',
+};
+
+export const initialCafeteriaData: PageContent = {
+  id: 'tabuCafeteria',
+  schedule: [
+      { day: 'Wednesday', hours: '5:00 PM - 8:00 PM' },
+      { day: 'Sunday', hours: '5:00 PM - 8:00 PM' },
+  ],
+  specialMenu: [
+      { id: 'menu1', name: 'Mango Cheesecake', price: '€ 2.5' },
+      { id: 'menu2', name: 'Fruit Popsicle Eis', price: '€ 1' },
+      { id: 'menu3', name: 'Spaghetti Icecream', price: '€ 1.5' },
+      { id: 'menu4', name: 'Vanilla Berry Sunday', price: '€ 2' },
+  ],
+  usualMenu: [
+      { id: 'menu5', name: 'Pommes', price: '€ 2 / € 1.5' },
+      { id: 'menu6', name: 'Chicken Wings', price: '2-3 Pcs' },
+      { id: 'menu7', name: 'Iced Coffee Latte', price: '€ 1.5' },
+      { id: 'menu8', name: 'Warm Tea', price: '€ 0.50' },
+      { id: 'menu9', name: 'Desi Chai', price: '€ 1.5' },
+      { id: 'menu10', name: 'Pan Cakes + Berries', price: '€ 2' },
+      { id: 'menu11', name: 'Brownies', price: '1.5 - 2 Pcs' },
+      { id: 'menu12', name: 'Peach ice tea', price: '€ 1' },
+  ],
+  upcomingEvents: [
+      { id: 'event1', title: 'Taco Tuesday', date: 'August 13, 2024', time: '12:00 PM', location: 'Cafeteria' },
+  ],
+  passedEvents: [
+      { id: 'event2', title: 'Pancake Breakfast', date: 'July 9, 2024' },
+  ],
+  privatePartiesContact: 'ABC',
+};
+
+export const initialBarData: PageContent = {
+  id: 'tabuBar',
+  schedule: [
+      { day: 'Friday', hours: '8:00 PM onwards' },
+  ],
+  upcomingEvents: [
+      { id: 'event1', title: 'Karaoke Night', date: 'August 16, 2024', time: '9:00 PM', location: 'Main Bar Area' },
+  ],
+  passedEvents: [
+      { id: 'event2', title: 'Oktoberfest Pre-party', date: 'July 26, 2024' },
+  ],
+  privatePartiesContact: 'XYZ',
+};
+
+export const initialMentorData: PageContent = {
+  id: 'networkMentor',
+  mentorData: [
+    {
+        id: 'bld1',
+        building: 'Building 58',
+        mentors: [
+            { id: 'm1', name: 'Alice Johnson', number: '01234567890' },
+            { id: 'm2', name: 'Bob Williams', number: '01234567891' },
+        ]
+    },
+    {
+        id: 'bld2',
+        building: 'Building 60',
+        mentors: [
+            { id: 'm3', name: 'Charlie Brown', number: '01234567892' },
+            { id: 'm4', name: 'Diana Miller', number: '01234567893' },
+        ]
+    },
+    {
+        id: 'bld3',
+        building: 'Building 62',
+        mentors: [
+            { id: 'm5', name: 'Eve Davis', number: '01234567894' },
+            { id: 'm6', name: 'Frank Garcia', number: '01234567895' },
+        ]
+    },
+    {
+        id: 'bld4',
+        building: 'Building 64',
+        mentors: [
+            { id: 'm7', name: 'Grace Rodriguez', number: '01234567896' },
+            { id: 'm8', name: 'Heidi Martinez', number: '01234567897' },
+        ]
+    },
+  ],
+};
