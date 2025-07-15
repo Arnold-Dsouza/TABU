@@ -10,6 +10,7 @@ import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
 import NetworkMentor from '@/components/network-mentor';
+
 import {
   Sidebar,
   SidebarContent,
