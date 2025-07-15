@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from "next-themes";
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users } from 'lucide-react';
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -108,6 +108,12 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
     }
     return name.charAt(0);
   };
+  
+  const handleUpdateClick = () => {
+    // Replace with your GitHub repository URL
+    const repoUrl = "https://github.com/Arnold-Dsouza/TABU/releases";
+    window.open(repoUrl, '_blank');
+  };
 
   const HeaderIcon = title === 'TABU 2' ? AppWindow : WashingMachine;
 
@@ -196,6 +202,10 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
+               <DropdownMenuItem onSelect={handleUpdateClick}>
+                <RefreshCw className="mr-2" />
+                Update App
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2" />
