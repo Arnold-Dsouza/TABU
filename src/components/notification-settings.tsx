@@ -30,10 +30,14 @@ const tabuServices = [
     { id: 'bar', name: 'Tabu Bar' },
 ];
 
+type TabuNotifSettings = {
+    opening: boolean;
+    events: boolean;
+};
+
 export function NotificationSettings({ open, onOpenChange }: NotificationSettingsProps) {
   const { toast } = useToast();
   
-  // In a real app, these values would come from user preferences storage
   const [laundryNotifs, setLaundryNotifs] = useState<Record<string, boolean>>({
     'bldg-58': false,
     'bldg-60': true,
@@ -41,11 +45,11 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
     'bldg-64': false,
   });
   const [cycleEndNotif, setCycleEndNotif] = useState(true);
-  const [tabuNotifs, setTabuNotifs] = useState<Record<string, boolean>>({
-    fitness: true,
-    tea: false,
-    cafeteria: true,
-    bar: false,
+  const [tabuNotifs, setTabuNotifs] = useState<Record<string, TabuNotifSettings>>({
+    fitness: { opening: true, events: false },
+    tea: { opening: false, events: true },
+    cafeteria: { opening: true, events: true },
+    bar: { opening: false, events: false },
   });
 
   const [allLaundry, setAllLaundry] = useState(false);
@@ -57,7 +61,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
   }, [laundryNotifs, cycleEndNotif]);
 
   useEffect(() => {
-    const tabuValues = Object.values(tabuNotifs);
+    const tabuValues = Object.values(tabuNotifs).flatMap(s => [s.opening, s.events]);
     setAllTabu(tabuValues.every(v => v));
   }, [tabuNotifs]);
 
@@ -66,8 +70,14 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
     setLaundryNotifs(prev => ({ ...prev, [buildingId]: !prev[buildingId] }));
   };
 
-  const handleTabuToggle = (serviceId: string) => {
-    setTabuNotifs(prev => ({ ...prev, [serviceId]: !prev[serviceId] }));
+  const handleTabuToggle = (serviceId: string, type: keyof TabuNotifSettings) => {
+    setTabuNotifs(prev => ({
+        ...prev,
+        [serviceId]: {
+            ...prev[serviceId],
+            [type]: !prev[serviceId][type]
+        }
+    }));
   };
   
   const handleAllLaundryToggle = (checked: boolean) => {
@@ -78,13 +88,14 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
   };
 
   const handleAllTabuToggle = (checked: boolean) => {
-      const newTabuNotifs: Record<string, boolean> = {};
-      tabuServices.forEach(s => newTabuNotifs[s.id] = checked);
+      const newTabuNotifs: Record<string, TabuNotifSettings> = {};
+      tabuServices.forEach(s => {
+        newTabuNotifs[s.id] = { opening: checked, events: checked };
+      });
       setTabuNotifs(newTabuNotifs);
   };
 
   const handleSaveChanges = () => {
-    // Here you would save the settings to localStorage or a backend service
     console.log('Saving notification settings:', { cycleEndNotif, laundryNotifs, tabuNotifs });
     toast({
       title: 'Settings Saved',
@@ -106,7 +117,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
         <Accordion type="multiple" className="w-full">
           <AccordionItem value="laundry">
             <AccordionTrigger>
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full pr-1">
                 <span className="text-lg font-medium">Laundry</span>
                 <Switch
                   id="all-laundry"
@@ -147,7 +158,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           
           <AccordionItem value="tabu2">
             <AccordionTrigger>
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full pr-1">
                 <span className="text-lg font-medium">TABU 2</span>
                  <Switch
                   id="all-tabu"
@@ -160,15 +171,27 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
             <AccordionContent>
                <div className="space-y-4 pt-2 pl-4 border-l-2">
                  {tabuServices.map(service => (
-                  <div key={service.id} className="flex items-center justify-between">
-                    <Label htmlFor={`notif-${service.id}`} className="flex-1">
-                      {service.name} updates & events
-                    </Label>
-                    <Switch
-                      id={`notif-${service.id}`}
-                      checked={tabuNotifs[service.id] || false}
-                      onCheckedChange={() => handleTabuToggle(service.id)}
-                    />
+                  <div key={service.id} className="space-y-3">
+                    <Label className="font-semibold">{service.name}</Label>
+                    <div className="pl-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor={`notif-${service.id}-opening`} className="font-normal text-muted-foreground">Opening notification</Label>
+                            <Switch
+                                id={`notif-${service.id}-opening`}
+                                checked={tabuNotifs[service.id]?.opening || false}
+                                onCheckedChange={() => handleTabuToggle(service.id, 'opening')}
+                            />
+                        </div>
+                         <div className="flex items-center justify-between">
+                            <Label htmlFor={`notif-${service.id}-events`} className="font-normal text-muted-foreground">Events notification</Label>
+                            <Switch
+                                id={`notif-${service.id}-events`}
+                                checked={tabuNotifs[service.id]?.events || false}
+                                onCheckedChange={() => handleTabuToggle(service.id, 'events')}
+                            />
+                        </div>
+                    </div>
+                    {service.id !== 'bar' && <Separator />}
                   </div>
                 ))}
               </div>
