@@ -15,7 +15,7 @@ interface AdminAccess {
 }
 
 export const adminAccess: AdminAccess = {
-  fitnessRoom: ['42102','42103'],
+  fitnessRoom: ['42101'],
   teaRoom: ['42101'],
   tabuCafeteria: ['42101'],
   tabuBar: ['42101'],
