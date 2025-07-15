@@ -9,29 +9,29 @@ const mentorData = [
     {
         building: 'Building 58',
         mentors: [
-            { name: 'Alice Johnson', number: '0123 456 7890' },
-            { name: 'Bob Williams', number: '0123 456 7891' },
+            { name: 'Alice Johnson', number: '01234567890' },
+            { name: 'Bob Williams', number: '01234567891' },
         ]
     },
     {
         building: 'Building 60',
         mentors: [
-            { name: 'Charlie Brown', number: '0123 456 7892' },
-            { name: 'Diana Miller', number: '0123 456 7893' },
+            { name: 'Charlie Brown', number: '01234567892' },
+            { name: 'Diana Miller', number: '01234567893' },
         ]
     },
     {
         building: 'Building 62',
         mentors: [
-            { name: 'Eve Davis', number: '0123 456 7894' },
-            { name: 'Frank Garcia', number: '0123 456 7895' },
+            { name: 'Eve Davis', number: '01234567894' },
+            { name: 'Frank Garcia', number: '01234567895' },
         ]
     },
     {
         building: 'Building 64',
         mentors: [
-            { name: 'Grace Rodriguez', number: '0123 456 7896' },
-            { name: 'Heidi Martinez', number: '0123 456 7897' },
+            { name: 'Grace Rodriguez', number: '01234567896' },
+            { name: 'Heidi Martinez', number: '01234567897' },
         ]
     },
 ];
@@ -49,13 +49,17 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
         strokeLinejoin="round"
         {...props}
     >
-        <path d="M16.5 13.5c-1.5-1.5-3-1.5-4.5 0s-1.5 3 0 4.5 3 1.5 4.5 0 1.5-3 0-4.5z" />
-        <path d="M21 12c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c1.62 0 3.14-.44 4.5-1.2L21 21l-1.8-4.5c.76-1.36 1.2-2.88 1.2-4.5z" />
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
     </svg>
 );
 
 
 export default function NetworkMentor() {
+    // A helper function to format the number for display
+    const formatPhoneNumber = (number: string) => {
+        return number.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+    };
+
     return (
         <div className="flex flex-col items-center justify-start p-4 md:p-8 gap-8 w-full">
             <Card className="w-full max-w-2xl shadow-lg">
@@ -85,10 +89,15 @@ export default function NetworkMentor() {
                                                 <User className="h-5 w-5 text-muted-foreground" />
                                                 <span className="text-lg">{mentor.name}</span>
                                             </div>
-                                            <div className="flex items-center gap-2 text-muted-foreground mt-1 sm:mt-0 pl-8 sm:pl-0">
+                                            <a 
+                                                href={`https://wa.me/${mentor.number}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-2 text-muted-foreground mt-1 sm:mt-0 pl-8 sm:pl-0 hover:text-primary transition-colors"
+                                            >
                                                 <WhatsappIcon className="h-5 w-5 text-green-500" />
-                                                <span>{mentor.number}</span>
-                                            </div>
+                                                <span>{formatPhoneNumber(mentor.number)}</span>
+                                            </a>
                                         </li>
                                     ))}
                                 </ul>
