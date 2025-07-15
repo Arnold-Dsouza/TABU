@@ -2,10 +2,6 @@
 	"appId": "com.tabu2.app",
 	"appName": "TABU 2",
 	"webDir": "out",
-	"server": {
-		"url": "http://localhost:9002",
-		"cleartext": true
-	},
 	"plugins": {
 		"SplashScreen": {
 			"launchShowDuration": 2000,
@@ -26,6 +22,7 @@
 		}
 	},
 	"packageClassList": [
+		"FilesystemPlugin",
 		"PushNotificationsPlugin",
 		"SplashScreenPlugin"
 	]
