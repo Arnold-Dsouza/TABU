@@ -30,6 +30,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FeedbackForm } from '../feedback-form';
+import { NotificationSettings } from '../notification-settings';
 import { SidebarTrigger } from '../ui/sidebar';
 import { ThemeToggle } from '../theme-toggle';
 import { db } from '@/lib/firebase';
@@ -43,6 +44,7 @@ interface HeaderProps {
 
 export default function Header({ currentUser, title = 'LaundryView' }: HeaderProps) {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
+  const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -124,7 +126,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{currentUser || 'Guest'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => toast({ title: "Coming Soon!", description: "Notification feature is under development."})}>
+              <DropdownMenuItem onSelect={() => setIsNotificationSettingsOpen(true)}>
                 <Bell className="mr-2" />
                 Notifications
               </DropdownMenuItem>
@@ -184,6 +186,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
       </header>
       
       <FeedbackForm open={isFeedbackFormOpen} onOpenChange={setIsFeedbackFormOpen} />
+      <NotificationSettings open={isNotificationSettingsOpen} onOpenChange={setIsNotificationSettingsOpen} />
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>
