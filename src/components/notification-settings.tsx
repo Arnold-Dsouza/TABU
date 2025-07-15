@@ -38,6 +38,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
     'bldg-62': false,
     'bldg-64': false,
   });
+  const [cycleEndNotif, setCycleEndNotif] = useState(true);
   const [tabuNotifs, setTabuNotifs] = useState<Record<string, boolean>>({
     fitness: true,
     tea: false,
@@ -55,7 +56,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
   
   const handleSaveChanges = () => {
     // Here you would save the settings to localStorage or a backend service
-    console.log('Saving notification settings:', { laundryNotifs, tabuNotifs });
+    console.log('Saving notification settings:', { cycleEndNotif, laundryNotifs, tabuNotifs });
     toast({
       title: 'Settings Saved',
       description: 'Your notification preferences have been updated.',
@@ -77,6 +78,17 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           <div>
             <h3 className="mb-4 text-lg font-medium">Laundry</h3>
             <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="notif-cycle-end" className="flex-1">
+                  Notify 5 mins before my cycle ends
+                </Label>
+                <Switch
+                  id="notif-cycle-end"
+                  checked={cycleEndNotif}
+                  onCheckedChange={setCycleEndNotif}
+                />
+              </div>
+              <Separator />
               {initialBuildingsData.map(building => (
                 <div key={building.id} className="flex items-center justify-between">
                   <Label htmlFor={`notif-${building.id}`} className="flex-1">
