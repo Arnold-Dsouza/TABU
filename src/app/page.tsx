@@ -24,10 +24,10 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { initialBuildingsData } from '@/lib/data';
-import { Building, Home as HomeIcon, Dumbbell, Globe, Coffee, Utensils, Martini, Users, Smile } from 'lucide-react';
+import { Building, Home as HomeIcon, Dumbbell, Coffee, Utensils, Martini, Users, Smile } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type View = 'laundry' | 'fitness' | 'tutor' | 'tea' | 'cafeteria' | 'bar' | 'mentor' | 'seniors';
+type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar' | 'mentor' | 'seniors';
 
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
@@ -60,7 +60,7 @@ function PageContent() {
     }
   };
 
-  const isTabu2View = ['fitness', 'tutor', 'tea', 'cafeteria', 'bar', 'mentor', 'seniors'].includes(activeView);
+  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar', 'mentor', 'seniors'].includes(activeView);
   const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
 
 
@@ -127,12 +127,6 @@ function PageContent() {
                             <SidebarMenuButton tooltip="Fitness room" onClick={() => handleViewSelect('fitness')} isActive={activeView === 'fitness'}>
                                 <Dumbbell />
                                 <span>Fitness room</span>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="International Tutor">
-                                <Globe />
-                                <span>International Tutor</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
