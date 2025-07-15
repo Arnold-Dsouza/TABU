@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from "next-themes";
 import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell } from 'lucide-react';
@@ -34,7 +34,7 @@ import { NotificationSettings } from '../notification-settings';
 import { SidebarTrigger } from '../ui/sidebar';
 import { ThemeToggle } from '../theme-toggle';
 import { db } from '@/lib/firebase';
-import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { doc, updateDoc, deleteDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
@@ -46,9 +46,23 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
   const { setTheme } = useTheme();
+
+  useEffect(() => {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('isLoggedIn', '==', true));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setOnlineUsersCount(snapshot.size);
+    }, (error) => {
+      console.error("Error fetching online users count:", error);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = async () => {
     if (currentUser) {
@@ -113,6 +127,13 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
         
         <div className="flex items-center gap-4">
           <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <div className="relative flex items-center justify-center h-5 w-5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+            </div>
+            <span className="text-sm font-medium">{onlineUsersCount}</span>
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">

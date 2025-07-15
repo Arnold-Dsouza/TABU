@@ -59,6 +59,7 @@ export default function LoginPage() {
       await setDoc(userRef, { 
         isLoggedIn: true, 
         lastLogin: serverTimestamp(),
+        lastSeen: serverTimestamp(),
         apartmentNumber: aptNumber 
       }, { merge: true });
 
