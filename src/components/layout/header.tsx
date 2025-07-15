@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTheme } from "next-themes";
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell } from 'lucide-react';
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -127,13 +127,6 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
         
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <div className="flex items-center gap-2">
-            <div className="relative flex items-center justify-center h-5 w-5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
-            </div>
-            <span className="text-sm font-medium">{onlineUsersCount}</span>
-          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
@@ -146,6 +139,13 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{currentUser || 'Guest'}</DropdownMenuLabel>
+              <DropdownMenuItem disabled className="focus:bg-transparent text-muted-foreground">
+                  <div className="relative flex items-center justify-center h-2 w-2 mr-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </div>
+                  <span>{onlineUsersCount} Online Users</span>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setIsNotificationSettingsOpen(true)}>
                 <Bell className="mr-2" />
