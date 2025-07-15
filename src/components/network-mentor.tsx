@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Building, User, Pencil } from "lucide-react";
 import { Separator } from "./ui/separator";
-import { adminApartmentNumbers } from "@/lib/admins";
+import { adminAccess } from "@/lib/admins";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -66,7 +66,7 @@ export default function NetworkMentor() {
         const user = localStorage.getItem('laundryUser');
         if (user) {
             const aptNumber = user.replace('Apt ', '');
-            setIsAdmin(adminApartmentNumbers.includes(aptNumber));
+            setIsAdmin(adminAccess.networkMentor.includes(aptNumber));
         }
     }, []);
 

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check, Gift, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
-import { adminApartmentNumbers } from "@/lib/admins";
+import { adminAccess } from "@/lib/admins";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -49,7 +49,7 @@ export default function TabuCafeteria() {
         const user = localStorage.getItem('laundryUser');
         if (user) {
             const aptNumber = user.replace('Apt ', '');
-            setIsAdmin(adminApartmentNumbers.includes(aptNumber));
+            setIsAdmin(adminAccess.tabuCafeteria.includes(aptNumber));
         }
     }, []);
 

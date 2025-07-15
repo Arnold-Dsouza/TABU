@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dumbbell, Calendar, Clock, XCircle, Check, MapPin, PartyPopper, CalendarOff, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
-import { adminApartmentNumbers } from "@/lib/admins";
+import { adminAccess } from "@/lib/admins";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ export default function FitnessRoom() {
         const user = localStorage.getItem('laundryUser');
         if (user) {
             const aptNumber = user.replace('Apt ', '');
-            setIsAdmin(adminApartmentNumbers.includes(aptNumber));
+            setIsAdmin(adminAccess.fitnessRoom.includes(aptNumber));
         }
     }, []);
 
