@@ -9,6 +9,7 @@ import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
+import NetworkMentor from '@/components/network-mentor';
 import {
   Sidebar,
   SidebarContent,
@@ -153,7 +154,7 @@ function PageContent() {
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Network mentor">
+                            <SidebarMenuButton tooltip="Network mentor" onClick={() => handleViewSelect('mentor')} isActive={activeView === 'mentor'}>
                                 <Users />
                                 <span>Network mentor</span>
                             </SidebarMenuButton>
@@ -179,6 +180,7 @@ function PageContent() {
              {activeView === 'cafeteria' && <TabuCafeteria />}
              {activeView === 'bar' && <TabuBar />}
              {activeView === 'tea' && <TeaRoom />}
+             {activeView === 'mentor' && <NetworkMentor />}
           </main>
         </div>
       </SidebarInset>
