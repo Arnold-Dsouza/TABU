@@ -3,6 +3,7 @@
 
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Browser } from '@capacitor/browser';
 import packageInfo from '../../package.json';
 
 const GITHUB_REPO = 'Arnold-Dsouza/TABU';
@@ -93,7 +94,7 @@ export async function downloadUpdate(
     return;
   }
   
-  const fileName = `update-${Date.now()}.apk`;
+  const fileName = `tabu-update-${Date.now()}.apk`;
 
   try {
     onProgress(10); 
@@ -104,17 +105,52 @@ export async function downloadUpdate(
       directory: Directory.Cache,
     });
     
-    onProgress(100);
+    onProgress(90);
 
     if (!download.path) {
         throw new Error('File download failed, path is missing.');
     }
 
     console.log('Update downloaded to:', download.path);
-    alert(`Update downloaded. You may need to manually open the file from your device's "Downloads" or "Files" app to install it. Path: ${download.path}`);
+    
+    onProgress(100);
+
+    // Try to automatically open/install the APK
+    try {
+      if (Capacitor.getPlatform() === 'android') {
+        // For Android, try to open the APK file directly
+        const fileUri = await Filesystem.getUri({
+          directory: Directory.Cache,
+          path: fileName
+        });
+        
+        console.log('Opening APK file:', fileUri.uri);
+        
+        // Use Browser plugin to open the file with system intent
+        await Browser.open({ 
+          url: fileUri.uri,
+          windowName: '_system'
+        });
+        
+        console.log('APK installer should open automatically');
+        
+        // Show success message
+        alert('Update downloaded! The Android installer should open automatically. If not, please check your Downloads folder.');
+        
+      } else {
+        // For other platforms, show manual instructions
+        alert(`Update downloaded to: ${download.path}\n\nPlease install the APK manually from your device's file manager.`);
+      }
+      
+    } catch (openError) {
+      console.log('Could not auto-open APK:', openError);
+      
+      // Final fallback to manual instructions
+      alert(`Update downloaded successfully!\n\nTo install:\n1. Open your device's "Files" or "Downloads" app\n2. Navigate to: ${download.path}\n3. Tap the APK file to install\n\nFile name: ${fileName}`);
+    }
 
   } catch (error) {
-    console.error('Error downloading or installing update:', error);
+    console.error('Error downloading update:', error);
     throw error;
   }
 }
