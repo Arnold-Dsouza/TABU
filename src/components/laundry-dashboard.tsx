@@ -162,11 +162,6 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
           const cycleType = machineId.includes('wash') ? 'wash' : 'dry';
           
           await startLaundryCycle(machineNumber, cycleType, durationMinutes);
-          
-          toast({
-            title: "Timer Started! ⏰",
-            description: `${cycleType === 'wash' ? 'Washing' : 'Drying'} machine ${machineNumber} - ${durationMinutes} minutes. You'll get notified when it's done!`,
-          });
         } catch (notificationError) {
           console.error("Error starting notification timer:", notificationError);
           // Don't fail the whole operation if notifications fail
@@ -344,49 +339,6 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
 
   return (
     <div className="space-y-6">
-      {/* Mobile Notification Status Banner */}
-      {isMobile && (
-        <Card className={`border-l-4 ${isNotificationsEnabled ? 'border-l-green-500 bg-green-50 dark:bg-green-950/20' : 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'}`}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex-shrink-0">
-                  {isNotificationsEnabled ? (
-                    <Bell className="h-5 w-5 text-green-600" />
-                  ) : (
-                    <BellOff className="h-5 w-5 text-yellow-600" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    {isNotificationsEnabled ? (
-                      <>✅ Notifications Enabled - You'll get alerts when your laundry is done!</>
-                    ) : (
-                      <>⚠️ Enable notifications to get laundry completion alerts</>
-                    )}
-                  </p>
-                  {activeTimers.length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      🔄 {activeTimers.length} active timer{activeTimers.length === 1 ? '' : 's'} running
-                    </p>
-                  )}
-                </div>
-              </div>
-              {!isNotificationsEnabled && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={requestNotificationPermissions}
-                  className="flex items-center gap-2"
-                >
-                  <Smartphone className="h-4 w-4" />
-                  Enable
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Buildings and Machines */}
       {filteredBuildings.map(building => (

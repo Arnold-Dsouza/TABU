@@ -85,11 +85,6 @@ export function useLaundryTimer() {
       );
       
       refreshActiveTimers();
-      
-      toast({
-        title: `${cycleType === 'wash' ? 'Washing' : 'Drying'} Timer Started! ⏰`,
-        description: `Machine ${machineNumber} - ${duration} minutes. You'll get notified when it's done!`,
-      });
 
       return timerId;
     } catch (error) {
