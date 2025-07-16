@@ -119,6 +119,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
                   checked={allLaundry}
                   onCheckedChange={handleAllLaundryToggle}
                   aria-label="Toggle all laundry notifications"
+                  disabled
                 />
             </div>
             <AccordionContent>
@@ -131,6 +132,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
                     id="notif-cycle-end"
                     checked={cycleEndNotif}
                     onCheckedChange={setCycleEndNotif}
+                    disabled
                   />
                 </div>
                 <Separator />
@@ -143,6 +145,7 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
                       id={`notif-${building.id}`}
                       checked={laundryNotifs[building.id] || false}
                       onCheckedChange={() => handleLaundryToggle(building.id)}
+                      disabled
                     />
                   </div>
                 ))}
