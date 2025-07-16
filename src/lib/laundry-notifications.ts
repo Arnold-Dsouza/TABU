@@ -68,6 +68,16 @@ class LaundryNotificationService {
 
     this.timers.set(timerId, timer);
 
+    // Try to set native Android timer first (with user choice)
+    try {
+      const useNativeTimer = await this.askUserForNativeTimer(timer);
+      if (useNativeTimer) {
+        await this.setNativeAndroidTimer(timer);
+      }
+    } catch (error) {
+      console.log('Native timer not available or declined:', error);
+    }
+
     // Schedule notification for cycle completion
     await this.scheduleCompletionNotification(timer);
     
@@ -77,6 +87,105 @@ class LaundryNotificationService {
     }
 
     return timerId;
+  }
+
+  private async askUserForNativeTimer(timer: LaundryTimer): Promise<boolean> {
+    return new Promise((resolve) => {
+      // Only ask on Android
+      if (Capacitor.getPlatform() !== 'android') {
+        resolve(false);
+        return;
+      }
+
+      const dialog = document.createElement('div');
+      dialog.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4';
+      dialog.innerHTML = `
+        <div class="bg-background border rounded-lg p-6 max-w-sm w-full space-y-4">
+          <div class="text-center">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-2">Set Timer in Clock App?</h3>
+            <p class="text-sm text-muted-foreground mb-4">
+              Would you like to also set a ${timer.duration}-minute timer in your Android Clock app?
+            </p>
+          </div>
+          
+          <div class="space-y-2">
+            <button id="use-native-btn" class="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+              ⏰ Yes, Open Clock App
+            </button>
+            <button id="skip-native-btn" class="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+              📱 Just Use App Notifications
+            </button>
+          </div>
+          
+          <div class="text-xs text-muted-foreground text-center">
+            You'll still get notifications from TABU when the cycle completes
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(dialog);
+
+      const useNativeBtn = dialog.querySelector('#use-native-btn');
+      const skipNativeBtn = dialog.querySelector('#skip-native-btn');
+
+      const cleanup = () => {
+        document.body.removeChild(dialog);
+      };
+
+      useNativeBtn?.addEventListener('click', () => {
+        cleanup();
+        resolve(true);
+      });
+
+      skipNativeBtn?.addEventListener('click', () => {
+        cleanup();
+        resolve(false);
+      });
+
+      // Auto-skip after 10 seconds
+      setTimeout(() => {
+        if (document.body.contains(dialog)) {
+          cleanup();
+          resolve(false);
+        }
+      }, 10000);
+    });
+  }
+
+  private async setNativeAndroidTimer(timer: LaundryTimer) {
+    if (Capacitor.getPlatform() !== 'android') {
+      throw new Error('Native timer only available on Android');
+    }
+
+    try {
+      // Try to open Android Clock app with timer intent using window.open
+      const timerUrl = `intent://timer/${timer.duration * 60}?message=${encodeURIComponent(`TABU: Machine ${timer.machineNumber} ${timer.cycleType} cycle`)}#Intent;scheme=timer;package=com.google.android.deskclock;end`;
+      
+      // This will try to open the default timer app with the timer set
+      window.open(timerUrl, '_system');
+      
+      console.log(`Attempted to set native Android timer for ${timer.duration} minutes`);
+    } catch (error) {
+      // Fallback: try alternative methods
+      try {
+        // Try Google Clock app specifically
+        const googleClockUrl = `intent://timer/${timer.duration * 60}#Intent;scheme=timer;package=com.google.android.deskclock;S.android.intent.extra.alarm.MESSAGE=TABU Machine ${timer.machineNumber} ${timer.cycleType};end`;
+        window.open(googleClockUrl, '_system');
+      } catch (fallbackError) {
+        // Final fallback: try generic timer intent
+        try {
+          window.open(`timer:${timer.duration * 60}`, '_system');
+        } catch (finalError) {
+          console.log('Could not open native timer app:', finalError);
+          throw finalError;
+        }
+      }
+    }
   }
 
   private async scheduleCompletionNotification(timer: LaundryTimer) {
@@ -90,21 +199,93 @@ class LaundryNotificationService {
             body: `Machine ${timer.machineNumber} has finished the ${timer.cycleType} cycle. Your laundry is ready!`,
             id: notificationId,
             schedule: { at: timer.endTime },
-            sound: 'beep.wav',
+            sound: 'default',
             attachments: undefined,
             actionTypeId: 'LAUNDRY_COMPLETE',
             extra: {
               timerId: timer.id,
               machineNumber: timer.machineNumber,
               cycleType: timer.cycleType
-            }
+            },
+            // Make it behave like a timer notification
+            ongoing: false,
+            autoCancel: false,
+            largeIcon: 'res://drawable/ic_launcher',
+            smallIcon: 'res://drawable/ic_notification'
           }
         ]
       });
 
+      // Also schedule a persistent ongoing notification during the cycle
+      await this.scheduleOngoingTimerNotification(timer);
+
       console.log(`Scheduled completion notification for timer ${timer.id}`);
     } catch (error) {
       console.error('Error scheduling completion notification:', error);
+    }
+  }
+
+  private async scheduleOngoingTimerNotification(timer: LaundryTimer) {
+    const ongoingNotificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000;
+    
+    try {
+      // Create multiple notifications to simulate countdown (like Android timer)
+      const updateIntervals = [1, 5, 10, 15, 30]; // Update at these minute marks
+      
+      for (const minutesFromNow of updateIntervals) {
+        if (minutesFromNow < timer.duration) {
+          const updateTime = new Date(Date.now() + minutesFromNow * 60 * 1000);
+          const remainingMinutes = timer.duration - minutesFromNow;
+          
+          await LocalNotifications.schedule({
+            notifications: [
+              {
+                title: `⏱️ Laundry Timer: ${remainingMinutes}m remaining`,
+                body: `Machine ${timer.machineNumber} - ${timer.cycleType === 'wash' ? 'Washing' : 'Drying'} cycle`,
+                id: ongoingNotificationId + minutesFromNow,
+                schedule: { at: updateTime },
+                sound: undefined,
+                attachments: undefined,
+                extra: {
+                  timerId: timer.id,
+                  machineNumber: timer.machineNumber,
+                  cycleType: timer.cycleType,
+                  isOngoing: true,
+                  remainingMinutes: remainingMinutes
+                },
+                ongoing: true,
+                autoCancel: false
+              }
+            ]
+          });
+        }
+      }
+
+      // Initial ongoing notification
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: `⏱️ Laundry Timer: ${timer.duration}m`,
+            body: `Machine ${timer.machineNumber} - ${timer.cycleType === 'wash' ? 'Washing' : 'Drying'} cycle started`,
+            id: ongoingNotificationId,
+            schedule: { at: new Date(Date.now() + 1000) },
+            sound: undefined,
+            attachments: undefined,
+            extra: {
+              timerId: timer.id,
+              machineNumber: timer.machineNumber,
+              cycleType: timer.cycleType,
+              isOngoing: true
+            },
+            ongoing: true,
+            autoCancel: false
+          }
+        ]
+      });
+
+      console.log(`Scheduled ongoing timer notification for ${timer.id}`);
+    } catch (error) {
+      console.error('Error scheduling ongoing notification:', error);
     }
   }
 
@@ -144,17 +325,27 @@ class LaundryNotificationService {
     try {
       const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000;
       const reminderNotificationId = notificationId + 5000;
+      const ongoingNotificationId = notificationId + 1000;
 
-      // Cancel both completion and reminder notifications
+      // Cancel all related notifications including timer updates
+      const notificationsToCancel = [
+        { id: notificationId }, // Completion
+        { id: reminderNotificationId }, // Reminder
+        { id: ongoingNotificationId }, // Initial ongoing
+      ];
+
+      // Add all timer update notifications
+      const updateIntervals = [1, 5, 10, 15, 30];
+      for (const interval of updateIntervals) {
+        notificationsToCancel.push({ id: ongoingNotificationId + interval });
+      }
+
       await LocalNotifications.cancel({
-        notifications: [
-          { id: notificationId },
-          { id: reminderNotificationId }
-        ]
+        notifications: notificationsToCancel
       });
 
       this.timers.delete(timerId);
-      console.log(`Cancelled timer ${timerId}`);
+      console.log(`Cancelled timer ${timerId} and all related notifications`);
     } catch (error) {
       console.error('Error cancelling timer:', error);
     }
