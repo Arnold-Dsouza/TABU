@@ -14,7 +14,6 @@ export interface LaundryTimer {
 
 class LaundryNotificationService {
   private timers: Map<string, LaundryTimer> = new Map();
-  private countdownIntervals: Map<string, NodeJS.Timeout> = new Map();
   private isInitialized = false;
 
   async initialize() {
@@ -69,19 +68,21 @@ class LaundryNotificationService {
 
     this.timers.set(timerId, timer);
 
-    // Create persistent countdown notification
-    await this.createCountdownNotification(timer);
+    // Show initial start notification
+    await this.showStartNotification(timer);
     
     // Schedule completion notification
     await this.scheduleCompletionNotification(timer);
     
-    // Schedule reminder notification (5 minutes before completion for long cycles)
-    if (duration > 10) {
-      await this.scheduleReminderNotification(timer);
+    // Schedule 5-minute reminder notification (for cycles longer than 5 minutes)
+    if (duration > 5) {
+      await this.schedule5MinuteReminderNotification(timer);
     }
 
-    // Start countdown updater
-    this.startCountdownUpdater(timer);
+    // Schedule 1-minute reminder notification (for cycles longer than 1 minute)
+    if (duration > 1) {
+      await this.schedule1MinuteReminderNotification(timer);
+    }
 
     return timerId;
   }
@@ -93,8 +94,8 @@ class LaundryNotificationService {
       await LocalNotifications.schedule({
         notifications: [
           {
-            title: `${timer.cycleType === 'wash' ? 'Washing' : 'Drying'} Complete! 🧺`,
-            body: `Machine ${timer.machineNumber} has finished the ${timer.cycleType} cycle. Your laundry is ready!`,
+            title: `Machine Cycle Completed! 🧺`,
+            body: `Collect your clothes as soon as possible.`,
             id: notificationId,
             schedule: { at: timer.endTime },
             sound: 'beep.wav',
@@ -115,16 +116,46 @@ class LaundryNotificationService {
     }
   }
 
-  private async scheduleReminderNotification(timer: LaundryTimer) {
-    const reminderTime = new Date(timer.endTime.getTime() - 5 * 60 * 1000); // 5 minutes before
-    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 5000; // Different ID for reminder
+  // Show initial start notification
+  private async showStartNotification(timer: LaundryTimer) {
+    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 100; // Start notification ID
+    const totalTimeText = this.formatTimeDisplay(timer.duration * 60 * 1000); // Convert minutes to milliseconds
 
     try {
       await LocalNotifications.schedule({
         notifications: [
           {
-            title: `${timer.cycleType === 'wash' ? 'Washing' : 'Drying'} Almost Done! ⏰`,
-            body: `Machine ${timer.machineNumber} will finish in 5 minutes. Get ready to collect your laundry!`,
+            title: `Machine Started 🚀`,
+            body: totalTimeText,
+            id: notificationId,
+            schedule: { at: new Date(Date.now() + 100) }, // Show immediately
+            sound: 'default',
+            extra: {
+              timerId: timer.id,
+              machineNumber: timer.machineNumber,
+              cycleType: timer.cycleType,
+              isStart: true
+            }
+          }
+        ]
+      });
+
+      console.log(`Showed start notification for timer ${timer.id}`);
+    } catch (error) {
+      console.error('Error showing start notification:', error);
+    }
+  }
+
+  private async schedule5MinuteReminderNotification(timer: LaundryTimer) {
+    const reminderTime = new Date(timer.endTime.getTime() - 5 * 60 * 1000); // 5 minutes before
+    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 5000; // Different ID for 5-min reminder
+
+    try {
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: `Machine Cycle Almost Done! ⏰`,
+            body: `00:05:00`,
             id: notificationId,
             schedule: { at: reminderTime },
             sound: 'default',
@@ -132,158 +163,44 @@ class LaundryNotificationService {
               timerId: timer.id,
               machineNumber: timer.machineNumber,
               cycleType: timer.cycleType,
-              isReminder: true
+              isReminder5Min: true
             }
           }
         ]
       });
 
-      console.log(`Scheduled reminder notification for timer ${timer.id}`);
+      console.log(`Scheduled 5-minute reminder notification for timer ${timer.id}`);
     } catch (error) {
-      console.error('Error scheduling reminder notification:', error);
+      console.error('Error scheduling 5-minute reminder notification:', error);
     }
   }
 
-  // Create initial countdown notification
-  private async createCountdownNotification(timer: LaundryTimer) {
-    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000; // Countdown notification ID
-    const remainingTime = timer.endTime.getTime() - Date.now();
-    const timeText = this.formatTimeHHMMSS(remainingTime);
+  private async schedule1MinuteReminderNotification(timer: LaundryTimer) {
+    const reminderTime = new Date(timer.endTime.getTime() - 1 * 60 * 1000); // 1 minute before
+    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000; // Different ID for 1-min reminder
 
     try {
       await LocalNotifications.schedule({
         notifications: [
           {
-            title: timeText,
-            body: '', // Empty body to show only timer
+            title: `Machine Cycle Finishing Soon! 🔔`,
+            body: `00:01:00`,
             id: notificationId,
-            schedule: { at: new Date(Date.now() + 1000) }, // Show immediately
-            sound: undefined, // No sound for countdown updates
-            ongoing: true, // Make notification persistent and non-dismissible
+            schedule: { at: reminderTime },
+            sound: 'default',
             extra: {
               timerId: timer.id,
               machineNumber: timer.machineNumber,
               cycleType: timer.cycleType,
-              isCountdown: true
+              isReminder1Min: true
             }
           }
         ]
       });
 
-      console.log(`Created countdown notification for timer ${timer.id}`);
+      console.log(`Scheduled 1-minute reminder notification for timer ${timer.id}`);
     } catch (error) {
-      console.error('Error creating countdown notification:', error);
-    }
-  }
-
-  // Format time in HH:MM:SS format
-  private formatTimeHHMMSS(milliseconds: number): string {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  // Update countdown notification with remaining time
-  private async updateCountdownNotification(timer: LaundryTimer) {
-    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000;
-    const remainingTime = timer.endTime.getTime() - Date.now();
-    
-    if (remainingTime <= 0) {
-      // Timer finished, remove countdown notification
-      await this.cancelCountdownNotification(timer.id);
-      return;
-    }
-
-    const timeText = this.formatTimeHHMMSS(remainingTime);
-
-    try {
-      // Update notification without cancelling (to prevent flicker)
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: timeText,
-            body: '', // Empty body to show only timer
-            id: notificationId,
-            schedule: { at: new Date(Date.now() + 100) }, // Show almost immediately
-            sound: undefined,
-            ongoing: true, // Keep notification persistent and non-dismissible
-            extra: {
-              timerId: timer.id,
-              machineNumber: timer.machineNumber,
-              cycleType: timer.cycleType,
-              isCountdown: true
-            }
-          }
-        ]
-      });
-    } catch (error) {
-      console.error('Error updating countdown notification:', error);
-    }
-  }
-
-  // Start countdown updater interval
-  private startCountdownUpdater(timer: LaundryTimer) {
-    // Clear any existing interval for this timer
-    const existingInterval = this.countdownIntervals.get(timer.id);
-    if (existingInterval) {
-      clearInterval(existingInterval);
-    }
-
-    // Update every 10 seconds for better accuracy with HH:MM:SS format
-    const updateInterval = setInterval(() => {
-      const remainingTime = timer.endTime.getTime() - Date.now();
-      
-      if (remainingTime <= 0) {
-        // Timer finished
-        clearInterval(updateInterval);
-        this.countdownIntervals.delete(timer.id);
-        this.cancelCountdownNotification(timer.id);
-        return;
-      }
-
-      this.updateCountdownNotification(timer);
-      
-      // Switch to faster updates in the last 5 minutes for better precision
-      if (remainingTime <= 5 * 60 * 1000) { // Last 5 minutes
-        clearInterval(updateInterval);
-        this.startFastCountdownUpdater(timer);
-      }
-    }, 10000); // Update every 10 seconds
-
-    this.countdownIntervals.set(timer.id, updateInterval);
-  }
-
-  // Fast countdown updater for last 5 minutes
-  private startFastCountdownUpdater(timer: LaundryTimer) {
-    const updateInterval = setInterval(() => {
-      const remainingTime = timer.endTime.getTime() - Date.now();
-      
-      if (remainingTime <= 0) {
-        clearInterval(updateInterval);
-        this.countdownIntervals.delete(timer.id);
-        this.cancelCountdownNotification(timer.id);
-        return;
-      }
-
-      this.updateCountdownNotification(timer);
-    }, 1000); // Update every second for precise countdown
-
-    this.countdownIntervals.set(timer.id, updateInterval);
-  }
-
-  // Cancel countdown notification
-  private async cancelCountdownNotification(timerId: string) {
-    const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000 + 1000;
-    
-    try {
-      await LocalNotifications.cancel({
-        notifications: [{ id: notificationId }]
-      });
-    } catch (error) {
-      console.error('Error cancelling countdown notification:', error);
+      console.error('Error scheduling 1-minute reminder notification:', error);
     }
   }
 
@@ -293,24 +210,19 @@ class LaundryNotificationService {
 
     try {
       const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000;
-      const reminderNotificationId = notificationId + 5000;
-      const countdownNotificationId = notificationId + 1000;
+      const startNotificationId = notificationId + 100;
+      const reminder5MinNotificationId = notificationId + 5000;
+      const reminder1MinNotificationId = notificationId + 1000;
 
       // Cancel all notifications for this timer
       await LocalNotifications.cancel({
         notifications: [
-          { id: notificationId },
-          { id: reminderNotificationId },
-          { id: countdownNotificationId }
+          { id: notificationId }, // Completion notification
+          { id: startNotificationId }, // Start notification (if still showing)
+          { id: reminder5MinNotificationId }, // 5-minute reminder
+          { id: reminder1MinNotificationId } // 1-minute reminder
         ]
       });
-
-      // Clear countdown interval
-      const interval = this.countdownIntervals.get(timerId);
-      if (interval) {
-        clearInterval(interval);
-        this.countdownIntervals.delete(timerId);
-      }
 
       this.timers.delete(timerId);
       console.log(`Cancelled timer ${timerId}`);
@@ -369,6 +281,16 @@ class LaundryNotificationService {
     } catch (error) {
       console.error('Error scheduling snooze notification:', error);
     }
+  }
+
+  // Format time for display in HH:MM:SS format
+  private formatTimeDisplay(milliseconds: number): string {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 
   // Get all active timers
