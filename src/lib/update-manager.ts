@@ -103,7 +103,7 @@ export async function downloadUpdate(
     const download = await Filesystem.downloadFile({
       path: fileName,
       url: url,
-      directory: Directory.Documents, // Downloads folder
+      directory: Directory.Documents,
     });
     
     onProgress(90);
@@ -113,42 +113,10 @@ export async function downloadUpdate(
     }
 
     console.log('Update downloaded to:', download.path);
-    
     onProgress(100);
 
-    // Try to automatically open/install the APK
-    try {
-      if (Capacitor.getPlatform() === 'android') {
-        // For Android, try to open the APK file directly
-        const fileUri = await Filesystem.getUri({
-          directory: Directory.Documents,
-          path: fileName
-        });
-        
-        console.log('Opening APK file:', fileUri.uri);
-        
-        // Use Browser plugin to open the file with system intent
-        await Browser.open({ 
-          url: fileUri.uri,
-          windowName: '_system'
-        });
-        
-        console.log('APK installer should open automatically');
-        
-        // Show success message with Downloads folder location
-        alert(`Update downloaded to Downloads folder!\n\nFile: ${fileName}\n\nThe Android installer should open automatically. If not, check your Downloads folder and tap the APK file.`);
-        
-      } else {
-        // For other platforms, show manual instructions
-        alert(`Update downloaded to Downloads folder: ${fileName}\n\nPlease install the APK manually from your Downloads folder.`);
-      }
-      
-    } catch (openError) {
-      console.log('Could not auto-open APK:', openError);
-      
-      // Final fallback to manual instructions with Downloads folder info
-      alert(`Update downloaded successfully to your Downloads folder!\n\nFile name: ${fileName}\n\nTo install:\n1. Open your "Downloads" folder\n2. Find and tap: ${fileName}\n3. Follow the installation prompts`);
-    }
+    // Simple success message - let user handle installation manually
+    alert(`✅ Update downloaded successfully!\n\nFile: ${fileName}\nLocation: Downloads folder\n\nTo install: Open your Downloads folder and tap the APK file.`);
 
   } catch (error) {
     console.error('Error downloading update:', error);
