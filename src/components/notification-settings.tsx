@@ -110,17 +110,17 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
         
         <Accordion type="multiple" className="w-full">
           <AccordionItem value="laundry">
-            <AccordionTrigger>
-              <div className="flex items-center justify-between w-full pr-1">
-                <span className="text-lg font-medium">Laundry</span>
+            <div className="flex items-center justify-between w-full">
+                <AccordionTrigger className="flex-1 pr-2">
+                    <span className="text-lg font-medium">Laundry</span>
+                </AccordionTrigger>
                 <Switch
                   id="all-laundry"
                   checked={allLaundry}
                   onCheckedChange={handleAllLaundryToggle}
-                  onClick={(e) => e.stopPropagation()}
+                  aria-label="Toggle all laundry notifications"
                 />
-              </div>
-            </AccordionTrigger>
+            </div>
             <AccordionContent>
               <div className="space-y-4 pt-2 pl-4 border-l-2">
                 <div className="flex items-center justify-between">
@@ -151,17 +151,17 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
           </AccordionItem>
           
           <AccordionItem value="tabu2">
-            <AccordionTrigger>
-              <div className="flex items-center justify-between w-full pr-1">
-                <span className="text-lg font-medium">TABU 2</span>
-                 <Switch
+            <div className="flex items-center justify-between w-full">
+                <AccordionTrigger className="flex-1 pr-2">
+                    <span className="text-lg font-medium">TABU 2</span>
+                </AccordionTrigger>
+                <Switch
                   id="all-tabu"
                   checked={allTabu}
                   onCheckedChange={handleAllTabuToggle}
-                  onClick={(e) => e.stopPropagation()}
+                  aria-label="Toggle all TABU 2 notifications"
                 />
-              </div>
-            </AccordionTrigger>
+            </div>
             <AccordionContent>
                 <Accordion type="multiple" className="w-full pl-4 border-l-2">
                  {tabuServices.map(service => (
