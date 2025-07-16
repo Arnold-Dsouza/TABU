@@ -76,7 +76,7 @@ export function AppUpdateDialog({ open, onOpenChange, initialUpdateInfo = null }
     try {
       await downloadUpdate(updateInfo.downloadUrl, (progress) => {
         setDownloadProgress(progress);
-      }, updateInfo.latestVersion || undefined);
+      });
       toast({
         title: 'Download Complete',
         description: 'The update is ready. Please confirm to install.',
