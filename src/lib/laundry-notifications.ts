@@ -155,7 +155,7 @@ class LaundryNotificationService {
         notifications: [
           {
             title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
-            body: `Time remaining: ${timeText}`,
+            body: timeText,
             id: notificationId,
             schedule: { at: new Date(Date.now() + 1000) }, // Show immediately
             sound: undefined, // No sound for countdown updates
@@ -208,7 +208,7 @@ class LaundryNotificationService {
         notifications: [
           {
             title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
-            body: `Time remaining: ${timeText}`,
+            body: timeText,
             id: notificationId,
             schedule: { at: new Date(Date.now() + 100) }, // Show almost immediately
             sound: undefined,
