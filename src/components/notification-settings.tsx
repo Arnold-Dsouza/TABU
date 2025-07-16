@@ -7,7 +7,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -56,6 +55,10 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
   const [allTabu, setAllTabu] = useState(false);
 
   useEffect(() => {
+    // In a real app, you would load these settings from localStorage or a backend
+  }, []);
+
+  useEffect(() => {
     const laundryValues = Object.values(laundryNotifs);
     setAllLaundry(laundryValues.every(v => v) && cycleEndNotif);
   }, [laundryNotifs, cycleEndNotif]);
@@ -95,22 +98,13 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
       setTabuNotifs(newTabuNotifs);
   };
 
-  const handleSaveChanges = () => {
-    console.log('Saving notification settings:', { cycleEndNotif, laundryNotifs, tabuNotifs });
-    toast({
-      title: 'Settings Saved',
-      description: 'Your notification preferences have been updated.',
-    });
-    onOpenChange(false);
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Notification Settings</DialogTitle>
           <DialogDescription>
-            Manage your notification preferences here. Changes will be saved for this device.
+            Manage your notification preferences here. Changes are saved automatically for this device.
           </DialogDescription>
         </DialogHeader>
         
@@ -201,15 +195,6 @@ export function NotificationSettings({ open, onOpenChange }: NotificationSetting
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
-        <DialogFooter className="sm:justify-end pt-4">
-          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={handleSaveChanges}>
-            Save Changes
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
