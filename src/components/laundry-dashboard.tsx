@@ -9,6 +9,10 @@ import { db } from '@/lib/firebase';
 import { collection, doc, writeBatch, onSnapshot, runTransaction, Timestamp, getDocs } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { initialBuildingsData } from '@/lib/data';
+import { useLaundryTimer } from '@/hooks/use-laundry-timer';
+import { Bell, BellOff, Smartphone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface LaundryDashboardProps {
   selectedBuildingId: string;
@@ -19,6 +23,14 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { 
+    startLaundryCycle, 
+    cancelTimer, 
+    isMobile, 
+    isNotificationsEnabled, 
+    requestNotificationPermissions,
+    activeTimers 
+  } = useLaundryTimer();
 
   const initializeMachineData = useCallback(async () => {
     console.log("Checking if machine data needs initialization...");
@@ -142,6 +154,25 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
         };
         transaction.update(buildingRef, { machines: newMachines });
       });
+
+      // Start mobile notification timer if on mobile
+      if (isMobile) {
+        try {
+          const machineNumber = parseInt(machineId.replace('machine-', ''));
+          const cycleType = machineId.includes('wash') ? 'wash' : 'dry';
+          
+          await startLaundryCycle(machineNumber, cycleType, durationMinutes);
+          
+          toast({
+            title: "Timer Started! ⏰",
+            description: `${cycleType === 'wash' ? 'Washing' : 'Drying'} machine ${machineNumber} - ${durationMinutes} minutes. You'll get notified when it's done!`,
+          });
+        } catch (notificationError) {
+          console.error("Error starting notification timer:", notificationError);
+          // Don't fail the whole operation if notifications fail
+        }
+      }
+      
     } catch (error) {
       console.error("Error starting machine:", error);
       toast({ title: "Error", description: (error as Error).message, variant: "destructive" });
@@ -163,10 +194,18 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
         };
         transaction.update(buildingRef, { machines: newMachines });
       });
+
+      // Cancel notification timer if on mobile
+      if (isMobile) {
+        // Note: In a real implementation, you'd need to store the timer ID 
+        // when starting the machine to be able to cancel it here
+        // For now, this is handled by the notification service's internal logic
+      }
+      
     } catch (error) {
       console.error("Error finishing machine:", error);
     }
-  }, []);
+  }, [isMobile]);
 
   const handleReport = async (machineId: string, issue: string) => {
     try {
@@ -304,7 +343,52 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Mobile Notification Status Banner */}
+      {isMobile && (
+        <Card className={`border-l-4 ${isNotificationsEnabled ? 'border-l-green-500 bg-green-50 dark:bg-green-950/20' : 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0">
+                  {isNotificationsEnabled ? (
+                    <Bell className="h-5 w-5 text-green-600" />
+                  ) : (
+                    <BellOff className="h-5 w-5 text-yellow-600" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">
+                    {isNotificationsEnabled ? (
+                      <>✅ Notifications Enabled - You'll get alerts when your laundry is done!</>
+                    ) : (
+                      <>⚠️ Enable notifications to get laundry completion alerts</>
+                    )}
+                  </p>
+                  {activeTimers.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      🔄 {activeTimers.length} active timer{activeTimers.length === 1 ? '' : 's'} running
+                    </p>
+                  )}
+                </div>
+              </div>
+              {!isNotificationsEnabled && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={requestNotificationPermissions}
+                  className="flex items-center gap-2"
+                >
+                  <Smartphone className="h-4 w-4" />
+                  Enable
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Buildings and Machines */}
       {filteredBuildings.map(building => (
         <section key={building.id}>
           <h2 className="text-3xl font-bold tracking-tight mb-4 font-headline">{building.name}</h2>

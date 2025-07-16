@@ -7,7 +7,6 @@
 			"launchShowDuration": 2000,
 			"launchAutoHide": true,
 			"backgroundColor": "#ffffffff",
-			"androidSplashResourceName": "splash",
 			"androidScaleType": "CENTER_CROP",
 			"showSpinner": false,
 			"splashFullScreen": true,
@@ -23,6 +22,7 @@
 	},
 	"packageClassList": [
 		"FilesystemPlugin",
+		"LocalNotificationsPlugin",
 		"PushNotificationsPlugin",
 		"SplashScreenPlugin"
 	]
