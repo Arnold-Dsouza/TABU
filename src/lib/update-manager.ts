@@ -7,6 +7,24 @@ import packageInfo from '../../package.json';
 
 const GITHUB_REPO = 'Arnold-Dsouza/TABU';
 
+// Semantic version comparison function
+function compareVersions(version1: string, version2: string): number {
+  const v1Parts = version1.split('.').map(Number);
+  const v2Parts = version2.split('.').map(Number);
+  
+  const maxLength = Math.max(v1Parts.length, v2Parts.length);
+  
+  for (let i = 0; i < maxLength; i++) {
+    const v1Part = v1Parts[i] || 0;
+    const v2Part = v2Parts[i] || 0;
+    
+    if (v1Part > v2Part) return 1;
+    if (v1Part < v2Part) return -1;
+  }
+  
+  return 0;
+}
+
 export interface UpdateInfo {
   isUpdateAvailable: boolean;
   currentVersion: string;
@@ -51,8 +69,8 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
       throw new Error('The latest release does not contain a downloadable APK file.');
     }
 
-    // Simple string comparison for versions. For more complex scenarios, a semver library is better.
-    const isUpdateAvailable = latestVersion > currentVersion;
+    // Proper semantic version comparison
+    const isUpdateAvailable = compareVersions(latestVersion, currentVersion) > 0;
     
     return {
       isUpdateAvailable,

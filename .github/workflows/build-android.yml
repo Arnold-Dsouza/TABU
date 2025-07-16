@@ -57,19 +57,41 @@ jobs:
         ./gradlew assembleDebug
 
     - name: Rename APK
-      run: mv android/app/build/outputs/apk/debug/app-debug.apk app-debug.apk
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        mv android/app/build/outputs/apk/debug/app-debug.apk tabu-v${VERSION}.apk
 
     - name: Get package version
       id: package-version
       run: echo "version=v$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
+    - name: Check if release exists
+      id: check-release
+      run: |
+        VERSION=$(node -p "require('./package.json').version")
+        if gh release view "v${VERSION}" >/dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create GitHub Release
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' && steps.check-release.outputs.exists == 'false'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.package-version.outputs.version }}
         name: Release ${{ steps.package-version.outputs.version }}
-        files: app-debug.apk
+        files: tabu-v*.apk
+        body: |
+          ## What's Changed
+          - Auto-generated release for version ${{ steps.package-version.outputs.version }}
+          
+          ## Installation
+          1. Download the APK file below
+          2. Enable "Install from unknown sources" in your Android settings
+          3. Install the APK
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -77,4 +99,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: app-debug-apk
-        path: app-debug.apk
+        path: tabu-v*.apk
