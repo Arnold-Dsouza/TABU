@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { laundryNotificationService, LaundryTimer } from '@/lib/laundry-notifications';
+import { useAndroidTimer } from '@/lib/android-timer-service';
 import { useToast } from '@/hooks/use-toast';
 import { Capacitor } from '@capacitor/core';
 
@@ -10,6 +11,7 @@ export function useLaundryTimer() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { isAndroid, startTimer: startNativeTimer, openClockApp } = useAndroidTimer();
 
   // Initialize the service and check permissions
   useEffect(() => {
@@ -78,19 +80,54 @@ export function useLaundryTimer() {
 
     setIsLoading(true);
     try {
+      // Start the notification timer
       const timerId = await laundryNotificationService.startLaundryCycle(
         machineNumber,
         cycleType,
         duration
       );
       
-      refreshActiveTimers();
+      // Also start native Android timer if available
+      if (isAndroid) {
+        const label = `Machine ${machineNumber} - ${cycleType === 'wash' ? 'Washing' : 'Drying'}`;
+        const nativeTimerStarted = await startNativeTimer(duration, label);
+        
+        if (nativeTimerStarted) {
+          toast({
+            title: `${cycleType === 'wash' ? 'Washing' : 'Drying'} Timer Started! ⏰`,
+            description: `Machine ${machineNumber} - ${duration} minutes. Both app notification and Android timer are set!`,
+          });
+        } else {
+          // Native timer failed, offer to open clock app
+          toast({
+            title: `${cycleType === 'wash' ? 'Washing' : 'Drying'} Timer Started! ⏰`,
+            description: `Machine ${machineNumber} - ${duration} minutes. App notification set.`,
+          });
+          
+          // Optionally show a separate toast for opening clock app
+          setTimeout(() => {
+            toast({
+              title: "Open Clock App? 🕐",
+              description: "Tap to set a native Android timer too.",
+              action: (
+                <button 
+                  onClick={() => openClockApp()}
+                  className="bg-primary text-primary-foreground px-3 py-1 rounded text-sm"
+                >
+                  Open Clock
+                </button>
+              )
+            });
+          }, 1000);
+        }
+      } else {
+        toast({
+          title: `${cycleType === 'wash' ? 'Washing' : 'Drying'} Timer Started! ⏰`,
+          description: `Machine ${machineNumber} - ${duration} minutes. You'll get notified when it's done!`,
+        });
+      }
       
-      toast({
-        title: `${cycleType === 'wash' ? 'Washing' : 'Drying'} Timer Started! ⏰`,
-        description: `Machine ${machineNumber} - ${duration} minutes. You'll get notified when it's done!`,
-      });
-
+      refreshActiveTimers();
       return timerId;
     } catch (error) {
       console.error('Error starting laundry cycle:', error);
@@ -184,6 +221,7 @@ export function useLaundryTimer() {
     isNotificationsEnabled,
     isLoading,
     isMobile,
+    isAndroid,
     
     // Actions
     startLaundryCycle,
@@ -191,6 +229,7 @@ export function useLaundryTimer() {
     handleTimerComplete,
     requestNotificationPermissions,
     refreshActiveTimers,
+    openClockApp,
     
     // Utilities
     getRemainingTime,
