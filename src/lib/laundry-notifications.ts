@@ -147,14 +147,15 @@ class LaundryNotificationService {
   // Create initial countdown notification
   private async createCountdownNotification(timer: LaundryTimer) {
     const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000; // Countdown notification ID
-    const remainingMinutes = Math.ceil((timer.endTime.getTime() - Date.now()) / (1000 * 60));
+    const remainingTime = timer.endTime.getTime() - Date.now();
+    const timeText = this.formatTimeHHMMSS(remainingTime);
 
     try {
       await LocalNotifications.schedule({
         notifications: [
           {
             title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
-            body: `${remainingMinutes} minutes remaining`,
+            body: `Time remaining: ${timeText}`,
             id: notificationId,
             schedule: { at: new Date(Date.now() + 1000) }, // Show immediately
             sound: undefined, // No sound for countdown updates
@@ -174,6 +175,16 @@ class LaundryNotificationService {
     }
   }
 
+  // Format time in HH:MM:SS format
+  private formatTimeHHMMSS(milliseconds: number): string {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
   // Update countdown notification with remaining time
   private async updateCountdownNotification(timer: LaundryTimer) {
     const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000;
@@ -185,17 +196,7 @@ class LaundryNotificationService {
       return;
     }
 
-    const remainingMinutes = Math.ceil(remainingTime / (1000 * 60));
-    const remainingSeconds = Math.ceil((remainingTime % (1000 * 60)) / 1000);
-
-    let timeText = '';
-    if (remainingMinutes > 1) {
-      timeText = `${remainingMinutes} minutes remaining`;
-    } else if (remainingMinutes === 1) {
-      timeText = `${remainingSeconds} seconds remaining`;
-    } else {
-      timeText = `${remainingSeconds} seconds remaining`;
-    }
+    const timeText = this.formatTimeHHMMSS(remainingTime);
 
     try {
       // Cancel old notification and create new one with updated time
@@ -207,7 +208,7 @@ class LaundryNotificationService {
         notifications: [
           {
             title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
-            body: timeText,
+            body: `Time remaining: ${timeText}`,
             id: notificationId,
             schedule: { at: new Date(Date.now() + 100) }, // Show almost immediately
             sound: undefined,
@@ -233,7 +234,7 @@ class LaundryNotificationService {
       clearInterval(existingInterval);
     }
 
-    // Update every 30 seconds for minutes, every 5 seconds for last minute
+    // Update every 10 seconds for better accuracy with HH:MM:SS format
     const updateInterval = setInterval(() => {
       const remainingTime = timer.endTime.getTime() - Date.now();
       
@@ -247,17 +248,17 @@ class LaundryNotificationService {
 
       this.updateCountdownNotification(timer);
       
-      // Switch to faster updates in the last minute
-      if (remainingTime <= 60 * 1000) { // Last minute
+      // Switch to faster updates in the last 5 minutes for better precision
+      if (remainingTime <= 5 * 60 * 1000) { // Last 5 minutes
         clearInterval(updateInterval);
         this.startFastCountdownUpdater(timer);
       }
-    }, 30000); // Update every 30 seconds
+    }, 10000); // Update every 10 seconds
 
     this.countdownIntervals.set(timer.id, updateInterval);
   }
 
-  // Fast countdown updater for last minute
+  // Fast countdown updater for last 5 minutes
   private startFastCountdownUpdater(timer: LaundryTimer) {
     const updateInterval = setInterval(() => {
       const remainingTime = timer.endTime.getTime() - Date.now();
@@ -270,7 +271,7 @@ class LaundryNotificationService {
       }
 
       this.updateCountdownNotification(timer);
-    }, 5000); // Update every 5 seconds
+    }, 1000); // Update every second for precise countdown
 
     this.countdownIntervals.set(timer.id, updateInterval);
   }
