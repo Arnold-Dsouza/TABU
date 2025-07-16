@@ -14,6 +14,7 @@ export interface LaundryTimer {
 
 class LaundryNotificationService {
   private timers: Map<string, LaundryTimer> = new Map();
+  private countdownIntervals: Map<string, NodeJS.Timeout> = new Map();
   private isInitialized = false;
 
   async initialize() {
@@ -68,13 +69,19 @@ class LaundryNotificationService {
 
     this.timers.set(timerId, timer);
 
-    // Schedule notification for cycle completion
+    // Create persistent countdown notification
+    await this.createCountdownNotification(timer);
+    
+    // Schedule completion notification
     await this.scheduleCompletionNotification(timer);
     
     // Schedule reminder notification (5 minutes before completion for long cycles)
     if (duration > 10) {
       await this.scheduleReminderNotification(timer);
     }
+
+    // Start countdown updater
+    this.startCountdownUpdater(timer);
 
     return timerId;
   }
@@ -137,6 +144,150 @@ class LaundryNotificationService {
     }
   }
 
+  // Create initial countdown notification
+  private async createCountdownNotification(timer: LaundryTimer) {
+    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000; // Countdown notification ID
+    const remainingMinutes = Math.ceil((timer.endTime.getTime() - Date.now()) / (1000 * 60));
+
+    try {
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
+            body: `${remainingMinutes} minutes remaining`,
+            id: notificationId,
+            schedule: { at: new Date(Date.now() + 1000) }, // Show immediately
+            sound: undefined, // No sound for countdown updates
+            extra: {
+              timerId: timer.id,
+              machineNumber: timer.machineNumber,
+              cycleType: timer.cycleType,
+              isCountdown: true
+            }
+          }
+        ]
+      });
+
+      console.log(`Created countdown notification for timer ${timer.id}`);
+    } catch (error) {
+      console.error('Error creating countdown notification:', error);
+    }
+  }
+
+  // Update countdown notification with remaining time
+  private async updateCountdownNotification(timer: LaundryTimer) {
+    const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000;
+    const remainingTime = timer.endTime.getTime() - Date.now();
+    
+    if (remainingTime <= 0) {
+      // Timer finished, remove countdown notification
+      await this.cancelCountdownNotification(timer.id);
+      return;
+    }
+
+    const remainingMinutes = Math.ceil(remainingTime / (1000 * 60));
+    const remainingSeconds = Math.ceil((remainingTime % (1000 * 60)) / 1000);
+
+    let timeText = '';
+    if (remainingMinutes > 1) {
+      timeText = `${remainingMinutes} minutes remaining`;
+    } else if (remainingMinutes === 1) {
+      timeText = `${remainingSeconds} seconds remaining`;
+    } else {
+      timeText = `${remainingSeconds} seconds remaining`;
+    }
+
+    try {
+      // Cancel old notification and create new one with updated time
+      await LocalNotifications.cancel({
+        notifications: [{ id: notificationId }]
+      });
+
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
+            body: timeText,
+            id: notificationId,
+            schedule: { at: new Date(Date.now() + 100) }, // Show almost immediately
+            sound: undefined,
+            extra: {
+              timerId: timer.id,
+              machineNumber: timer.machineNumber,
+              cycleType: timer.cycleType,
+              isCountdown: true
+            }
+          }
+        ]
+      });
+    } catch (error) {
+      console.error('Error updating countdown notification:', error);
+    }
+  }
+
+  // Start countdown updater interval
+  private startCountdownUpdater(timer: LaundryTimer) {
+    // Clear any existing interval for this timer
+    const existingInterval = this.countdownIntervals.get(timer.id);
+    if (existingInterval) {
+      clearInterval(existingInterval);
+    }
+
+    // Update every 30 seconds for minutes, every 5 seconds for last minute
+    const updateInterval = setInterval(() => {
+      const remainingTime = timer.endTime.getTime() - Date.now();
+      
+      if (remainingTime <= 0) {
+        // Timer finished
+        clearInterval(updateInterval);
+        this.countdownIntervals.delete(timer.id);
+        this.cancelCountdownNotification(timer.id);
+        return;
+      }
+
+      this.updateCountdownNotification(timer);
+      
+      // Switch to faster updates in the last minute
+      if (remainingTime <= 60 * 1000) { // Last minute
+        clearInterval(updateInterval);
+        this.startFastCountdownUpdater(timer);
+      }
+    }, 30000); // Update every 30 seconds
+
+    this.countdownIntervals.set(timer.id, updateInterval);
+  }
+
+  // Fast countdown updater for last minute
+  private startFastCountdownUpdater(timer: LaundryTimer) {
+    const updateInterval = setInterval(() => {
+      const remainingTime = timer.endTime.getTime() - Date.now();
+      
+      if (remainingTime <= 0) {
+        clearInterval(updateInterval);
+        this.countdownIntervals.delete(timer.id);
+        this.cancelCountdownNotification(timer.id);
+        return;
+      }
+
+      this.updateCountdownNotification(timer);
+    }, 5000); // Update every 5 seconds
+
+    this.countdownIntervals.set(timer.id, updateInterval);
+  }
+
+  // Cancel countdown notification
+  private async cancelCountdownNotification(timerId: string) {
+    const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000 + 1000;
+    
+    try {
+      await LocalNotifications.cancel({
+        notifications: [{ id: notificationId }]
+      });
+    } catch (error) {
+      console.error('Error cancelling countdown notification:', error);
+    }
+  }
+
   async cancelTimer(timerId: string) {
     const timer = this.timers.get(timerId);
     if (!timer) return;
@@ -144,14 +295,23 @@ class LaundryNotificationService {
     try {
       const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000;
       const reminderNotificationId = notificationId + 5000;
+      const countdownNotificationId = notificationId + 1000;
 
-      // Cancel both completion and reminder notifications
+      // Cancel all notifications for this timer
       await LocalNotifications.cancel({
         notifications: [
           { id: notificationId },
-          { id: reminderNotificationId }
+          { id: reminderNotificationId },
+          { id: countdownNotificationId }
         ]
       });
+
+      // Clear countdown interval
+      const interval = this.countdownIntervals.get(timerId);
+      if (interval) {
+        clearInterval(interval);
+        this.countdownIntervals.delete(timerId);
+      }
 
       this.timers.delete(timerId);
       console.log(`Cancelled timer ${timerId}`);

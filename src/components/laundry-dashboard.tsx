@@ -27,11 +27,9 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
     startLaundryCycle, 
     cancelTimer, 
     isMobile, 
-    isAndroid,
     isNotificationsEnabled, 
     requestNotificationPermissions,
-    activeTimers,
-    openClockApp
+    activeTimers 
   } = useLaundryTimer();
 
   const initializeMachineData = useCallback(async () => {
@@ -367,11 +365,6 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
                       <>⚠️ Enable notifications to get laundry completion alerts</>
                     )}
                   </p>
-                  {isAndroid && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      🤖 Android native timers available - will open Clock app automatically
-                    </p>
-                  )}
                   {activeTimers.length > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
                       🔄 {activeTimers.length} active timer{activeTimers.length === 1 ? '' : 's'} running
@@ -379,29 +372,17 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
                   )}
                 </div>
               </div>
-              <div className="flex gap-2">
-                {!isNotificationsEnabled && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={requestNotificationPermissions}
-                    className="flex items-center gap-2"
-                  >
-                    <Smartphone className="h-4 w-4" />
-                    Enable
-                  </Button>
-                )}
-                {isAndroid && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openClockApp()}
-                    className="flex items-center gap-2"
-                  >
-                    🕐 Clock App
-                  </Button>
-                )}
-              </div>
+              {!isNotificationsEnabled && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={requestNotificationPermissions}
+                  className="flex items-center gap-2"
+                >
+                  <Smartphone className="h-4 w-4" />
+                  Enable
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
