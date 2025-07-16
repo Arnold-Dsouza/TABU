@@ -87,14 +87,15 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
 
 export async function downloadUpdate(
   url: string,
-  onProgress: (progress: number) => void
+  onProgress: (progress: number) => void,
+  version?: string
 ): Promise<void> {
   if (!Capacitor.isNativePlatform()) {
     console.error('Cannot download update on a non-native platform.');
     return;
   }
   
-  const fileName = `tabu-update-${Date.now()}.apk`;
+  const fileName = `tabu-v${version || 'latest'}.apk`;
 
   try {
     onProgress(10); 
@@ -102,7 +103,7 @@ export async function downloadUpdate(
     const download = await Filesystem.downloadFile({
       path: fileName,
       url: url,
-      directory: Directory.Cache,
+      directory: Directory.Documents, // Downloads folder
     });
     
     onProgress(90);
@@ -120,7 +121,7 @@ export async function downloadUpdate(
       if (Capacitor.getPlatform() === 'android') {
         // For Android, try to open the APK file directly
         const fileUri = await Filesystem.getUri({
-          directory: Directory.Cache,
+          directory: Directory.Documents,
           path: fileName
         });
         
@@ -134,19 +135,19 @@ export async function downloadUpdate(
         
         console.log('APK installer should open automatically');
         
-        // Show success message
-        alert('Update downloaded! The Android installer should open automatically. If not, please check your Downloads folder.');
+        // Show success message with Downloads folder location
+        alert(`Update downloaded to Downloads folder!\n\nFile: ${fileName}\n\nThe Android installer should open automatically. If not, check your Downloads folder and tap the APK file.`);
         
       } else {
         // For other platforms, show manual instructions
-        alert(`Update downloaded to: ${download.path}\n\nPlease install the APK manually from your device's file manager.`);
+        alert(`Update downloaded to Downloads folder: ${fileName}\n\nPlease install the APK manually from your Downloads folder.`);
       }
       
     } catch (openError) {
       console.log('Could not auto-open APK:', openError);
       
-      // Final fallback to manual instructions
-      alert(`Update downloaded successfully!\n\nTo install:\n1. Open your device's "Files" or "Downloads" app\n2. Navigate to: ${download.path}\n3. Tap the APK file to install\n\nFile name: ${fileName}`);
+      // Final fallback to manual instructions with Downloads folder info
+      alert(`Update downloaded successfully to your Downloads folder!\n\nFile name: ${fileName}\n\nTo install:\n1. Open your "Downloads" folder\n2. Find and tap: ${fileName}\n3. Follow the installation prompts`);
     }
 
   } catch (error) {
