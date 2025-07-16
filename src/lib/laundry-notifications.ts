@@ -154,8 +154,8 @@ class LaundryNotificationService {
       await LocalNotifications.schedule({
         notifications: [
           {
-            title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
-            body: timeText,
+            title: timeText,
+            body: '', // Empty body to show only timer
             id: notificationId,
             schedule: { at: new Date(Date.now() + 1000) }, // Show immediately
             sound: undefined, // No sound for countdown updates
@@ -204,8 +204,8 @@ class LaundryNotificationService {
       await LocalNotifications.schedule({
         notifications: [
           {
-            title: `${timer.cycleType === 'wash' ? '🧺 Washing' : '🌪️ Drying'} - Machine ${timer.machineNumber}`,
-            body: timeText,
+            title: timeText,
+            body: '', // Empty body to show only timer
             id: notificationId,
             schedule: { at: new Date(Date.now() + 100) }, // Show almost immediately
             sound: undefined,
