@@ -159,6 +159,7 @@ class LaundryNotificationService {
             id: notificationId,
             schedule: { at: new Date(Date.now() + 1000) }, // Show immediately
             sound: undefined, // No sound for countdown updates
+            ongoing: true, // Make notification persistent and non-dismissible
             extra: {
               timerId: timer.id,
               machineNumber: timer.machineNumber,
@@ -199,11 +200,7 @@ class LaundryNotificationService {
     const timeText = this.formatTimeHHMMSS(remainingTime);
 
     try {
-      // Cancel old notification and create new one with updated time
-      await LocalNotifications.cancel({
-        notifications: [{ id: notificationId }]
-      });
-
+      // Update notification without cancelling (to prevent flicker)
       await LocalNotifications.schedule({
         notifications: [
           {
@@ -212,6 +209,7 @@ class LaundryNotificationService {
             id: notificationId,
             schedule: { at: new Date(Date.now() + 100) }, // Show almost immediately
             sound: undefined,
+            ongoing: true, // Keep notification persistent and non-dismissible
             extra: {
               timerId: timer.id,
               machineNumber: timer.machineNumber,
