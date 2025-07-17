@@ -58,14 +58,15 @@ export default function SignUpPage() {
               <Input id="email" name="email" type="email" placeholder="m@example.com" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="apartment">Apartment Number (4 digits)</Label>
+              <Label htmlFor="apartment">Apartment Number (5 digits)</Label>
               <Input
                 id="apartment"
                 name="apartment"
-                type="number"
-                placeholder="e.g., 4210"
-                pattern="\\d{4}"
-                title="Apartment number must be exactly 4 digits."
+                type="text"
+                inputMode="numeric"
+                placeholder="e.g., 42101"
+                pattern="\d{5}"
+                title="Apartment number must be exactly 5 digits."
                 required
               />
             </div>
