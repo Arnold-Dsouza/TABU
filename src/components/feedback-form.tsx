@@ -51,7 +51,7 @@ export function FeedbackForm({ open, onOpenChange }: FeedbackFormProps) {
   async function onSubmit(values: FeedbackFormValues) {
     setIsSubmitting(true);
     try {
-      const response = await fetch('https://formsubmit.co/YOUR_EMAIL_HERE', {
+      const response = await fetch('https://formsubmit.co/testjuly1998@gmail.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

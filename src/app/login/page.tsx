@@ -11,7 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +28,18 @@ export default function LoginPage() {
     const password = formData.get('password') as string;
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Update user status to logged in
+      try {
+        await updateDoc(doc(db, 'users', userCredential.user.uid), {
+          isLoggedIn: true,
+          lastLoginAt: new Date(),
+        });
+      } catch (firestoreError) {
+        console.error('Error updating user login status:', firestoreError);
+      }
+      
       toast({
         title: 'Success',
         description: 'Whats up how are you doing today',

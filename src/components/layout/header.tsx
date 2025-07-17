@@ -67,6 +67,19 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
   }, []);
 
   const handleLogout = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        // Update user status to logged out
+        await updateDoc(doc(db, 'users', user.uid), {
+          isLoggedIn: false,
+          lastLogoutAt: new Date(),
+        });
+      } catch (error) {
+        console.error('Error updating user logout status:', error);
+      }
+    }
+    
     await auth.signOut();
     router.push('/login');
   };

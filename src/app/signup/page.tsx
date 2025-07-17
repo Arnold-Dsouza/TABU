@@ -39,6 +39,7 @@ export default function SignUpPage() {
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         email: userCredential.user.email,
         apartmentNumber: apartment,
+        isLoggedIn: false, // Initially false, they need to login after setting password
         createdAt: new Date(),
       });
       
