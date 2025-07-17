@@ -32,21 +32,18 @@ import { FeedbackForm } from '../feedback-form';
 import { NotificationSettings } from '../notification-settings';
 import { SidebarTrigger } from '../ui/sidebar';
 import { ThemeToggle } from '../theme-toggle';
-import { db } from '@/lib/firebase';
+import { db, auth } from '@/lib/firebase';
 import { doc, updateDoc, deleteDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
-import { AppUpdateDialog } from '../app-update-dialog';
-import type { UpdateInfo } from '@/lib/update-manager';
 
 
 interface HeaderProps {
   currentUser: string | null;
   title?: string;
-  updateInfo?: UpdateInfo | null;
 }
 
-export default function Header({ currentUser, title = 'LaundryView', updateInfo }: HeaderProps) {
+export default function Header({ currentUser, title = 'LaundryView' }: HeaderProps) {
   const [isFeedbackFormOpen, setIsFeedbackFormOpen] = useState(false);
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
@@ -57,18 +54,12 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
   const { setTheme } = useTheme();
 
   useEffect(() => {
-    // If an update is available on load, open the dialog automatically.
-    if (updateInfo?.isUpdateAvailable) {
-      setIsUpdateDialogOpen(true);
-    }
-  }, [updateInfo]);
-  
-  useEffect(() => {
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('isLoggedIn', '==', true));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setOnlineUsersCount(snapshot.size);
+      // This part might need to be re-evaluated with Firebase Auth
+      // setOnlineUsersCount(snapshot.size); 
     }, (error) => {
       console.error("Error fetching online users count:", error);
     });
@@ -77,48 +68,35 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
   }, []);
 
   const handleLogout = async () => {
-    if (currentUser) {
-      const aptNumber = currentUser.replace('Apt ', '');
-      const userRef = doc(db, 'users', `apt-${aptNumber}`);
-      try {
-        await updateDoc(userRef, { isLoggedIn: false });
-      } catch (error) {
-        console.error("Error logging out user:", error);
-      }
-    }
-    localStorage.removeItem('laundryUser');
+    await auth.signOut();
     router.push('/login');
   };
 
   const handleDeleteAccount = async () => {
-    if (!currentUser) return;
-    const aptNumber = currentUser.replace('Apt ', '');
-    const userRef = doc(db, 'users', `apt-${aptNumber}`);
+    const user = auth.currentUser;
+    if (!user) return;
+    
     try {
-      await deleteDoc(userRef);
+      await deleteDoc(doc(db, 'users', user.uid));
+      await user.delete();
       toast({
         title: "Account Deleted",
-        description: "Your account has been successfully deleted.",
+        description: "Your account has been permanently deleted.",
       });
-      localStorage.removeItem('laundryUser');
       router.push('/login');
     } catch (error) {
       console.error("Error deleting account:", error);
       toast({
         title: "Error",
-        description: "Could not delete account. Please try again.",
+        description: "Could not delete account. Please re-authenticate and try again.",
         variant: "destructive",
       });
     }
   };
 
-  const getInitials = (name: string | null) => {
-    if (!name) return 'U';
-    const parts = name.split(' ');
-    if (parts.length > 1) {
-      return parts[0].charAt(0) + parts[1].charAt(0);
-    }
-    return name.charAt(0);
+  const getInitials = (email: string | null) => {
+    if (!email) return 'U';
+    return email.charAt(0).toUpperCase();
   };
 
   const HeaderIcon = title === 'TABU 2' ? AppWindow : WashingMachine;
@@ -134,12 +112,6 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
             <a href="/" className="flex items-center gap-2 text-lg font-semibold md:text-base">
                 <HeaderIcon className="h-6 w-6 text-primary" />
                 <span className="font-bold font-headline">{title}</span>
-                {updateInfo?.isUpdateAvailable && (
-                  <span className="relative flex h-2 w-2 ml-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                  </span>
-                )}
             </a>
         </div>
         
@@ -157,13 +129,6 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>{currentUser || 'Guest'}</DropdownMenuLabel>
-              <DropdownMenuItem disabled className="focus:bg-transparent text-muted-foreground">
-                  <div className="relative flex items-center justify-center h-2 w-2 mr-2">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </div>
-                  <span>{onlineUsersCount} Online Users</span>
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setIsNotificationSettingsOpen(true)}>
                 <Bell className="mr-2" />
@@ -214,16 +179,6 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
-               <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
-                <Download className="mr-2" />
-                Update App
-                {updateInfo?.isUpdateAvailable && (
-                  <span className="relative flex h-2 w-2 ml-auto">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                  </span>
-                )}
-              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2" />
@@ -236,8 +191,6 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
       
       <FeedbackForm open={isFeedbackFormOpen} onOpenChange={setIsFeedbackFormOpen} />
       <NotificationSettings open={isNotificationSettingsOpen} onOpenChange={setIsNotificationSettingsOpen} />
-      <AppUpdateDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen} initialUpdateInfo={updateInfo} />
-
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>
@@ -245,7 +198,7 @@ export default function Header({ currentUser, title = 'LaundryView', updateInfo 
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              account and all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

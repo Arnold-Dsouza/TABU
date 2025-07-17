@@ -9,33 +9,33 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { WashingMachine } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { loginAction } from '../auth/actions';
+import { signUpAction } from '../auth/actions';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Logging in...' : 'Login'}
+      {pending ? 'Creating Account...' : 'Create Account'}
     </Button>
   );
 }
 
-export default function LoginPage() {
-  const [state, formAction] = useFormState(loginAction, { success: false, message: '' });
+export default function SignUpPage() {
+  const [state, formAction] = useFormState(signUpAction, { success: false, message: '' });
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
     if (state.message) {
       toast({
-        title: state.success ? 'Success' : 'Error',
+        title: state.success ? 'Success!' : 'Error',
         description: state.message,
         variant: state.success ? 'default' : 'destructive',
       });
       if (state.success) {
-        router.push('/');
+        router.push('/login');
       }
     }
   }, [state, router, toast]);
@@ -46,34 +46,36 @@ export default function LoginPage() {
         <form action={formAction}>
           <CardHeader className="text-center">
             <div className="flex justify-center items-center gap-2 mb-2">
-              <WashingMachine className="h-8 w-8 text-primary" />
+              <UserPlus className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold font-headline">TABU 2</span>
             </div>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access your account</CardDescription>
+            <CardTitle>Create an Account</CardTitle>
+            <CardDescription>Enter your details to get started</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
+              <Input id="email" name="email" type="email" placeholder="m@example.com" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
+              <Label htmlFor="apartment">Apartment Number (4 digits)</Label>
+              <Input
+                id="apartment"
+                name="apartment"
+                type="number"
+                placeholder="e.g., 4210"
+                pattern="\\d{4}"
+                title="Apartment number must be exactly 4 digits."
+                required
+              />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <SubmitButton />
             <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{' '}
-              <Link href="/signup" className="underline hover:text-primary">
-                Sign up
+              Already have an account?{' '}
+              <Link href="/login" className="underline hover:text-primary">
+                Login
               </Link>
             </p>
           </CardFooter>

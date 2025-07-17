@@ -9,6 +9,8 @@ import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
+import { auth } from '@/lib/firebase';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 import {
   Sidebar,
@@ -26,42 +28,24 @@ import {
 import { initialBuildingsData } from '@/lib/data';
 import { Building, Home as HomeIcon, Dumbbell, Coffee, Utensils, Martini } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { checkForUpdates } from '@/lib/update-manager';
-import type { UpdateInfo } from '@/lib/update-manager';
 
 type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar';
 
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<View>('laundry');
   const { isMobile, setOpenMobile } = useSidebar();
   const router = useRouter();
-  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
-
+  const [user, loading] = useAuthState(auth);
+  
+  const currentUserApartment = "Temp Apt"; // We can fetch this from firestore if needed
 
   useEffect(() => {
-    const user = localStorage.getItem('laundryUser');
-    if (!user) {
+    if (!loading && !user) {
       router.push('/login');
-    } else {
-      setCurrentUser(user);
     }
-  }, [router]);
+  }, [user, loading, router]);
 
-  useEffect(() => {
-    async function check() {
-      try {
-        const info = await checkForUpdates();
-        setUpdateInfo(info);
-      } catch (error) {
-        console.error("Failed to check for updates on startup:", error);
-        // Silently fail on startup check, user can still manually check
-        setUpdateInfo(null);
-      }
-    }
-    check();
-  }, []);
 
   const handleBuildingSelect = (buildingId: string) => {
     setSelectedBuilding(buildingId);
@@ -82,7 +66,7 @@ function PageContent() {
   const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
 
 
-  if (!currentUser) {
+  if (loading || !user) {
     return (
       <div className="flex min-h-screen w-full flex-col bg-background p-4 md:p-8">
         <Skeleton className="h-16 w-full mb-4" />
@@ -173,9 +157,9 @@ function PageContent() {
       </Sidebar>
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col bg-background">
-          <Header currentUser={currentUser} title={headerTitle} updateInfo={updateInfo} />
+          <Header currentUser={user?.email} title={headerTitle} />
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-             {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUser} />}
+             {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUserApartment} />}
              {activeView === 'fitness' && <FitnessRoom />}
              {activeView === 'cafeteria' && <TabuCafeteria />}
              {activeView === 'bar' && <TabuBar />}
