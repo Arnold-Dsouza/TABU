@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,7 @@ function SubmitButton() {
 }
 
 export default function LoginPage() {
-  const [state, formAction] = useFormState(loginAction, { success: false, message: '' });
+  const [state, formAction] = useActionState(loginAction, { success: false, message: '' });
   const router = useRouter();
   const { toast } = useToast();
 
@@ -47,7 +47,7 @@ export default function LoginPage() {
           <CardHeader className="text-center">
             <div className="flex justify-center items-center gap-2 mb-2">
               <WashingMachine className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold font-headline">TABU 2</span>
+              <span className="text-2xl font-bold font-headline">LaundryView</span>
             </div>
             <CardTitle>Welcome Back</CardTitle>
             <CardDescription>Enter your credentials to access your account</CardDescription>
