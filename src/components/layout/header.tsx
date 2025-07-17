@@ -58,8 +58,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
     const q = query(usersRef, where('isLoggedIn', '==', true));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      // This part might need to be re-evaluated with Firebase Auth
-      // setOnlineUsersCount(snapshot.size); 
+      setOnlineUsersCount(snapshot.size); 
     }, (error) => {
       console.error("Error fetching online users count:", error);
     });
@@ -126,7 +125,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src="https://placehold.co/100x100.png" alt="User" data-ai-hint="person portrait" />
+                  <AvatarImage src="/tabu.jpg" alt="User" />
                   <AvatarFallback>{getInitials(currentUser)}</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>
@@ -134,6 +133,12 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel className="text-center">{currentUser ? `Room ${currentUser}` : 'Guest'}</DropdownMenuLabel>
+              <div className="px-2 py-1 text-center">
+                <div className="flex items-center justify-center gap-2 text-sm text-green-600 dark:text-green-400">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-medium">{onlineUsersCount} users online today</span>
+                </div>
+              </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setIsNotificationSettingsOpen(true)}>
                 <Bell className="mr-2" />
