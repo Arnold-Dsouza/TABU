@@ -1,4 +1,4 @@
-name: Build Mobile Apps (Android & iOS)
+name: 🚀 Build TABU 2 Mobile Apps
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    name: Build Android APK
+    name: 📱 Build Android APK
 
     steps:
     - name: Checkout code
@@ -69,7 +69,7 @@ jobs:
 
   build-ios:
     runs-on: macos-latest
-    name: Build iOS App
+    name: 🍎 Build iOS App
 
     steps:
     - name: Checkout code
@@ -127,7 +127,7 @@ jobs:
     needs: [build-android, build-ios]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    name: Create Release
+    name: 🎉 Create Release
 
     steps:
     - name: Checkout code
@@ -172,8 +172,8 @@ jobs:
           ### 📲 Installation:
           - **Android**: Download and install the APK file
           - **iOS**: Requires Xcode for installation (development build)
-          
-          Built with ❤️ using Capacitor, Next.js, and Firebase.
+
+          Built by Arnold Dsouza with ❤️ using Capacitor, Next.js, and Firebase.
         files: |
           tabu2-android.apk
         draft: false
