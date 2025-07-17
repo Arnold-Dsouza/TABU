@@ -15,10 +15,7 @@
     "cap:sync": "npx cap sync",
     "cap:init": "npx cap init \"TABU 2\" com.tabu2.app --web-dir=out",
     "cap:add:android": "npx cap add android",
-    "cap:add:ios": "npx cap add ios",
-    "ios:build": "npm run build && npx cap sync ios",
-    "ios:prepare": "npm run ios:build && echo 'iOS build ready - push to GitHub to build!'",
-    "release": "npm version patch && git push origin main --tags"
+    "cap:add:ios": "npx cap add ios"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",

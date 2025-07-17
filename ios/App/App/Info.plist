@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>TABU 2</string>
+	<string>LaundryApp</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -48,9 +48,6 @@
   <key>UIBackgroundModes</key>
   <array>
     <string>remote-notification</string>
-    <string>background-processing</string>
   </array>
-  <key>NSUserNotificationsUsageDescription</key>
-  <string>TABU 2 needs notification access to alert you about laundry status and other important updates.</string>
 </dict>
 </plist>
