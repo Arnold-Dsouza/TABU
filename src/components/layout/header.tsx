@@ -359,7 +359,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4 text-left">
               <div>
-                <p className="font-semibold">Version 1.1.3</p>
+                <p className="font-semibold">Version 1.1.4</p>
               </div>
               
               <div>
