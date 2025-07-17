@@ -50,9 +50,10 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'uptodate' | 'available' | 'error'>('uptodate');
-  const [latestVersion, setLatestVersion] = useState('1.1.2');
+  const [latestVersion, setLatestVersion] = useState('1.1.3');
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
   const [downloadUrl, setDownloadUrl] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
@@ -115,6 +116,62 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
       });
     } finally {
       setIsCheckingUpdates(false);
+    }
+  };
+
+  const handleDownloadAndInstall = async () => {
+    if (!downloadUrl) return;
+    
+    setIsDownloading(true);
+    
+    try {
+      // Create a download link with proper filename
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `TABU-2-v${latestVersion}.apk`;
+      
+      // For mobile browsers, try to trigger download to Downloads folder
+      if (/Android/i.test(navigator.userAgent)) {
+        // Android device - try to download and show installation guide
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Download Started! 📱",
+          description: `TABU-2-v${latestVersion}.apk is downloading to your Downloads folder`,
+        });
+        
+        // Show detailed installation instructions
+        setTimeout(() => {
+          toast({
+            title: "Installation Steps 📋",
+            description: "1. Open Downloads folder\n2. Tap the APK file\n3. Allow installation from unknown sources\n4. Install to update your app",
+            duration: 10000,
+          });
+        }, 2000);
+        
+      } else {
+        // Desktop browser - regular download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "APK Downloaded! 💻",
+          description: "Transfer to your Android device and install",
+        });
+      }
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download Failed ❌",
+        description: "Please try downloading from GitHub releases page",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -354,13 +411,17 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
                     </p>
                     {downloadUrl && (
                       <div className="p-3 bg-muted rounded-md">
-                        <p className="text-sm font-medium mb-2">📥 Download Instructions:</p>
+                        <p className="text-sm font-medium mb-2">📥 Smart Download & Install:</p>
                         <ol className="text-xs space-y-1 text-muted-foreground">
-                          <li>1. Download the new APK file</li>
-                          <li>2. Allow installation from unknown sources</li>
-                          <li>3. Install over your current app</li>
-                          <li>4. Your data will be preserved</li>
+                          <li>1. Click "Download & Install" below</li>
+                          <li>2. APK will download to your Downloads folder</li>
+                          <li>3. Tap the downloaded file to install</li>
+                          <li>4. Allow "Install from unknown sources" if prompted</li>
+                          <li>5. Install over current app (data preserved)</li>
                         </ol>
+                        <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs">
+                          💡 <strong>Tip:</strong> Look for "TABU-2-v{latestVersion}.apk" in your Downloads folder
+                        </div>
                       </div>
                     )}
                   </div>
@@ -374,8 +435,8 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
               
               <div>
                 <p className="text-sm text-muted-foreground">
-                  💡 <strong>APK Updates:</strong> New versions are released on GitHub. 
-                  Updates preserve your login and settings.
+                  💡 <strong>APK Updates:</strong> Downloads save to your Downloads folder. 
+                  Simply tap the APK file to install and update your app automatically.
                 </p>
               </div>
               
@@ -407,16 +468,35 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             </Button>
             {updateStatus === 'available' && downloadUrl && (
               <Button 
+                onClick={handleDownloadAndInstall}
+                disabled={isDownloading}
+                className="w-full sm:w-auto"
+              >
+                {isDownloading ? (
+                  <>
+                    <Download className="mr-2 h-4 w-4 animate-bounce" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download & Install v{latestVersion}
+                  </>
+                )}
+              </Button>
+            )}
+            {updateStatus === 'available' && (
+              <Button 
                 asChild
+                variant="outline"
                 className="w-full sm:w-auto"
               >
                 <a 
-                  href={downloadUrl} 
+                  href="https://github.com/Arnold-Dsouza/TABU/releases/latest" 
                   target="_blank" 
                   rel="noopener noreferrer"
                 >
-                  <Download className="mr-2 h-4 w-4" />
-                  Download v{latestVersion}
+                  🌐 View on GitHub
                 </a>
               </Button>
             )}
