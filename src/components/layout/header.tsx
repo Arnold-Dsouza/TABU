@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users, Download } from 'lucide-react';
+import { LogOut, Settings, Trash2, WashingMachine, MessageSquare, Languages, Sun, Moon, Laptop, AppWindow, Bell, Users, Download, Info, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +48,11 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
   const [isNotificationSettingsOpen, setIsNotificationSettingsOpen] = useState(false);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [isAboutDialogOpen, setIsAboutDialogOpen] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<'checking' | 'uptodate' | 'available' | 'error'>('uptodate');
+  const [latestVersion, setLatestVersion] = useState('1.1.2');
+  const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState('');
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
@@ -65,6 +70,53 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
 
     return () => unsubscribe();
   }, []);
+
+  const checkForUpdates = async () => {
+    setIsCheckingUpdates(true);
+    setUpdateStatus('checking');
+    
+    try {
+      // Check GitHub releases for latest APK version
+      const response = await fetch('https://api.github.com/repos/Arnold-Dsouza/TABU/releases/latest');
+      const data = await response.json();
+      
+      if (data.tag_name) {
+        const latestVer = data.tag_name.replace('v', '');
+        setLatestVersion(latestVer);
+        
+        // Find APK download URL
+        const apkAsset = data.assets?.find((asset: any) => 
+          asset.name.includes('.apk') || asset.name.includes('android')
+        );
+        
+        if (apkAsset) {
+          setDownloadUrl(apkAsset.browser_download_url);
+        }
+        
+        // Compare versions (current APK version vs latest)
+        const currentVer = '1.1.2';
+        if (latestVer !== currentVer) {
+          setUpdateStatus('available');
+          toast({
+            title: "Update Available! 🎉",
+            description: `Version ${latestVer} is ready to download`,
+          });
+        } else {
+          setUpdateStatus('uptodate');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for updates:', error);
+      setUpdateStatus('error');
+      toast({
+        title: "Update Check Failed",
+        description: "Could not check for updates. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingUpdates(false);
+    }
+  };
 
   const handleLogout = async () => {
     const user = auth.currentUser;
@@ -202,6 +254,14 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
+              <DropdownMenuItem onSelect={() => setIsAboutDialogOpen(true)}>
+                <Info className="mr-2" />
+                About
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
+                <RefreshCw className="mr-2" />
+                Check for Updates
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2" />
@@ -228,6 +288,143 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90">
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isAboutDialogOpen} onOpenChange={setIsAboutDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Info className="h-5 w-5" />
+              About TABU 2
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4 text-left">
+              <div>
+                <p className="font-semibold">Version 1.1.2</p>
+              </div>
+              
+              <div>
+                <p className="font-semibold mb-2">Privacy & Data</p>
+                <p className="text-sm">
+                  Your privacy is our priority. TABU 2 does not collect, store, or share any personal data beyond what's necessary for app functionality. All data stays secure and private.
+                </p>
+              </div>
+              
+              <div className="pt-2 border-t">
+                <p className="text-sm text-muted-foreground text-center">
+                  Made with ❤️ by Arnold Dsouza
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setIsAboutDialogOpen(false)}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <RefreshCw className={`h-5 w-5 ${isCheckingUpdates ? 'animate-spin' : ''}`} />
+              Check for Updates
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4 text-left">
+              <div>
+                <p className="font-semibold mb-2">Current Version: 1.1.2</p>
+                {updateStatus === 'checking' && (
+                  <p className="text-sm text-blue-600 dark:text-blue-400">
+                    Checking for updates... 🔄
+                  </p>
+                )}
+                {updateStatus === 'uptodate' && (
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    You are running the latest version! 🎉
+                  </p>
+                )}
+                {updateStatus === 'available' && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-orange-600 dark:text-orange-400">
+                      📱 New version {latestVersion} is available!
+                    </p>
+                    {downloadUrl && (
+                      <div className="p-3 bg-muted rounded-md">
+                        <p className="text-sm font-medium mb-2">📥 Download Instructions:</p>
+                        <ol className="text-xs space-y-1 text-muted-foreground">
+                          <li>1. Download the new APK file</li>
+                          <li>2. Allow installation from unknown sources</li>
+                          <li>3. Install over your current app</li>
+                          <li>4. Your data will be preserved</li>
+                        </ol>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {updateStatus === 'error' && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    ❌ Error checking for updates. Please try again later.
+                  </p>
+                )}
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  💡 <strong>APK Updates:</strong> New versions are released on GitHub. 
+                  Updates preserve your login and settings.
+                </p>
+              </div>
+              
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground text-center">
+                  Last checked: {new Date().toLocaleString()}
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={checkForUpdates}
+              disabled={isCheckingUpdates}
+              className="w-full sm:w-auto"
+            >
+              {isCheckingUpdates ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Checking...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Check Now
+                </>
+              )}
+            </Button>
+            {updateStatus === 'available' && downloadUrl && (
+              <Button 
+                asChild
+                className="w-full sm:w-auto"
+              >
+                <a 
+                  href={downloadUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Download v{latestVersion}
+                </a>
+              </Button>
+            )}
+            <AlertDialogAction 
+              onClick={() => setIsUpdateDialogOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Close
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
