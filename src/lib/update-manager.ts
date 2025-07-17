@@ -159,8 +159,6 @@ export async function downloadUpdate(
         await openFileForInstallation(fileUri.uri);
       } else if (userChoice === 'locate') {
         await showFileLocation(fileName);
-      } else if (userChoice === 'share') {
-        await shareUpdateFile(fileUri.uri, fileName);
       }
       // 'later' option doesn't need any action - just creates the persistent badge
       if (userChoice === 'later') {

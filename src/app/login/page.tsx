@@ -1,8 +1,7 @@
 
 'use client';
 
-import { useEffect, useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -11,39 +10,48 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { WashingMachine } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { loginAction } from '../auth/actions';
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? 'Logging in...' : 'Login'}
-    </Button>
-  );
-}
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function LoginPage() {
-  const [state, formAction] = useActionState(loginAction, { success: false, message: '' });
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (state.message) {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       toast({
-        title: state.success ? 'Success' : 'Error',
-        description: state.message,
-        variant: state.success ? 'default' : 'destructive',
+        title: 'Success',
+        description: 'Login successful!',
       });
-      if (state.success) {
-        router.push('/');
+      router.push('/');
+    } catch (error: any) {
+      let message = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/invalid-credential') {
+        message = 'Invalid email or password.';
       }
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [state, router, toast]);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm">
-        <form action={formAction}>
+        <form onSubmit={handleSubmit}>
           <CardHeader className="text-center">
             <div className="flex justify-center items-center gap-2 mb-2">
               <WashingMachine className="h-8 w-8 text-primary" />
@@ -61,15 +69,24 @@ export default function LoginPage() {
                 type="email"
                 placeholder="m@example.com"
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
+              <Input 
+                id="password" 
+                name="password" 
+                type="password" 
+                required 
+                disabled={isLoading}
+              />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
-            <SubmitButton />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'Login'}
+            </Button>
             <p className="text-sm text-center text-muted-foreground">
               Don't have an account?{' '}
               <Link href="/signup" className="underline hover:text-primary">

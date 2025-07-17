@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Building, Machine } from '@/lib/types';
-import MachineCard from './machine-card';
+import MachineCard from '@/components/machine-card';
 import { useToast } from "@/hooks/use-toast";
 import { db } from '@/lib/firebase';
 import { collection, doc, writeBatch, onSnapshot, runTransaction, Timestamp, getDocs } from 'firebase/firestore';

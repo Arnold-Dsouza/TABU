@@ -41,8 +41,14 @@ function PageContent() {
   const currentUserApartment = "Temp Apt"; // We can fetch this from firestore if needed
 
   useEffect(() => {
+    // Only redirect if we're sure the user is not authenticated and loading is complete
     if (!loading && !user) {
-      router.push('/login');
+      // Add a small delay to ensure auth state is properly synchronized
+      const timer = setTimeout(() => {
+        router.push('/login');
+      }, 100);
+      
+      return () => clearTimeout(timer);
     }
   }, [user, loading, router]);
 
