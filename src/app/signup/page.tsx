@@ -73,7 +73,7 @@ export default function SignUpPage() {
           <CardHeader className="text-center">
             <div className="flex justify-center items-center gap-2 mb-2">
               <UserPlus className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold font-headline">LaundryView</span>
+              <span className="text-2xl font-bold font-headline">TABU 2</span>
             </div>
             <CardTitle>Create an Account</CardTitle>
             <CardDescription>Enter your details to get started</CardDescription>
@@ -85,7 +85,7 @@ export default function SignUpPage() {
                 id="email" 
                 name="email" 
                 type="email" 
-                placeholder="m@example.com" 
+                placeholder="abc@gmail.com" 
                 required 
                 disabled={isLoading}
               />
