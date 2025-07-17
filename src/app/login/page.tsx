@@ -30,7 +30,7 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: 'Success',
-        description: 'Login successful!',
+        description: 'Whats up how are you doing today',
       });
       router.push('/');
     } catch (error: any) {

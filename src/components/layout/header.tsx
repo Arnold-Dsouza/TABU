@@ -94,9 +94,14 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
     }
   };
 
-  const getInitials = (email: string | null) => {
-    if (!email) return 'U';
-    return email.charAt(0).toUpperCase();
+  const getInitials = (identifier: string | null) => {
+    if (!identifier) return 'U';
+    // If it's a 5-digit apartment number, use first 2 digits
+    if (/^\d{5}$/.test(identifier)) {
+      return identifier.substring(0, 2);
+    }
+    // Otherwise use first character (for email or other formats)
+    return identifier.charAt(0).toUpperCase();
   };
 
   const HeaderIcon = title === 'TABU 2' ? AppWindow : WashingMachine;
@@ -128,7 +133,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{currentUser || 'Guest'}</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-center">{currentUser ? `Room ${currentUser}` : 'Guest'}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => setIsNotificationSettingsOpen(true)}>
                 <Bell className="mr-2" />

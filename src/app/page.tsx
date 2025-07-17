@@ -9,8 +9,9 @@ import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
 import {
   Sidebar,
@@ -34,11 +35,12 @@ type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar';
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
   const [activeView, setActiveView] = useState<View>('laundry');
+  const [userApartment, setUserApartment] = useState<string>('');
   const { isMobile, setOpenMobile } = useSidebar();
   const router = useRouter();
   const [user, loading] = useAuthState(auth);
   
-  const currentUserApartment = "Temp Apt"; // We can fetch this from firestore if needed
+  const currentUserApartment = userApartment || "Temp Apt"; // Use fetched apartment or fallback
 
   useEffect(() => {
     // Only redirect if we're sure the user is not authenticated and loading is complete
@@ -51,6 +53,25 @@ function PageContent() {
       return () => clearTimeout(timer);
     }
   }, [user, loading, router]);
+
+  // Fetch user's apartment number from Firestore
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setUserApartment(userData.apartmentNumber || '');
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
 
 
   const handleBuildingSelect = (buildingId: string) => {
@@ -163,7 +184,7 @@ function PageContent() {
       </Sidebar>
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col bg-background">
-          <Header currentUser={user?.email} title={headerTitle} />
+          <Header currentUser={userApartment} title={headerTitle} />
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUserApartment} />}
              {activeView === 'fitness' && <FitnessRoom />}
