@@ -124,16 +124,15 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
     setOtherWarningValue("");
     setIsPopoverOpen(false);
   };
-
   const hasFiveSameReports = (reports: Report[]): boolean => {
-    if (reports.length < 5) {
+    if (reports.length < 2) {
       return false;
     }
     const issueCounts = reports.reduce((acc: { [key: string]: number }, report) => {
       acc[report.issue] = (acc[report.issue] || 0) + 1;
       return acc;
     }, {});
-    return Object.values(issueCounts).some(count => count >= 5);
+    return Object.values(issueCounts).some(count => count >= 2);
   };
 
   const showReportIconInCircle = hasFiveSameReports(machine.reports);
@@ -234,6 +233,22 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                             <RadioGroupItem value="Cycle not starting" id={`${machine.id}-r3`} />
                             <Label htmlFor={`${machine.id}-r3`}>Cycle not starting</Label>
                           </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Water not filling" id={`${machine.id}-r4`} />
+                            <Label htmlFor={`${machine.id}-r4`}>Water not filling</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Excessive noise/vibration" id={`${machine.id}-r5`} />
+                            <Label htmlFor={`${machine.id}-r5`}>Excessive noise/vibration</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Door won't open/close" id={`${machine.id}-r6`} />
+                            <Label htmlFor={`${machine.id}-r6`}>Door won't open/close</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Display/controls not working" id={`${machine.id}-r7`} />
+                            <Label htmlFor={`${machine.id}-r7`}>Display/controls not working</Label>
+                          </div>
                         </RadioGroup>
                         <Button className="w-full" onClick={handleReportSubmit} disabled={!reportValue || hasUserReported}>{hasUserReported ? "Already Reported" : "Submit Report"}</Button>
                      </div>
@@ -250,9 +265,25 @@ export default function MachineCard({ machine, currentUser, onStart, onFinish, o
                             <RadioGroupItem value="Machine not clean" id={`${machine.id}-w2`} />
                             <Label htmlFor={`${machine.id}-w2`}>Machine not clean</Label>
                           </div>
-                           <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="other" id={`${machine.id}-w3`} />
-                            <Label htmlFor={`${machine.id}-w3`}>Other</Label>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Lint buildup" id={`${machine.id}-w3`} />
+                            <Label htmlFor={`${machine.id}-w3`}>Lint buildup</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Soap residue remaining" id={`${machine.id}-w4`} />
+                            <Label htmlFor={`${machine.id}-w4`}>Soap residue remaining</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Water spots/stains" id={`${machine.id}-w5`} />
+                            <Label htmlFor={`${machine.id}-w5`}>Water spots/stains</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Door seal needs cleaning" id={`${machine.id}-w6`} />
+                            <Label htmlFor={`${machine.id}-w6`}>Door seal needs cleaning</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="other" id={`${machine.id}-w7`} />
+                            <Label htmlFor={`${machine.id}-w7`}>Other</Label>
                           </div>
                         </RadioGroup>
                         {warningSelection === 'other' && (
