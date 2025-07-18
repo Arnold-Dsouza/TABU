@@ -95,7 +95,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
         }
         
         // Compare versions (current APK version vs latest)
-        const currentVer = '1.1.5';
+        const currentVer = '1.1.6';
         if (latestVer !== currentVer) {
           setUpdateStatus('available');
           toast({
@@ -359,7 +359,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4 text-left">
               <div>
-                <p className="font-semibold">Version 1.1.5</p>
+                <p className="font-semibold">Version 1.1.6</p>
               </div>
               
               <div>
@@ -393,7 +393,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-4 text-left">
               <div>
-                <p className="font-semibold mb-2">Current Version: 1.1.5</p>
+                <p className="font-semibold mb-2">Current Version: 1.1.6</p>
                 {updateStatus === 'checking' && (
                   <p className="text-sm text-blue-600 dark:text-blue-400">
                     Checking for updates... 🔄

@@ -95,7 +95,7 @@ function PageContent() {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-screen w-full flex-col bg-background p-4 md:p-8">
+      <div className="flex min-h-svh w-full flex-col bg-background p-4 md:p-8">
         <Skeleton className="h-16 w-full mb-4" />
         <div className="flex gap-8">
           <Skeleton className="hidden md:block w-64 h-[calc(100vh-100px)]" />
@@ -183,7 +183,7 @@ function PageContent() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <div className="flex min-h-screen w-full flex-col bg-background">
+        <div className="flex min-h-svh w-full flex-col bg-background">
           <Header currentUser={userApartment} title={headerTitle} />
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUserApartment} />}
