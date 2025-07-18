@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Utensils, Calendar, Clock, XCircle, MapPin, PartyPopper, CalendarOff, BookOpen, Check, Gift, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./ui/separator";
-import { adminAccess } from "@/lib/admins";
+import { useAdminAccess } from "@/lib/use-admin-access";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -19,19 +19,13 @@ import { Skeleton } from "./ui/skeleton";
 const PAGE_ID = 'tabuCafeteria';
 
 export default function TabuCafeteria() {
-    const [isAdmin, setIsAdmin] = useState(false);
+    const { isAdmin, userApartment } = useAdminAccess('tabuCafeteria');
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [content, setContent] = useState<PageContent | null>(null);
     const [editableContent, setEditableContent] = useState<PageContent | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
-        const user = localStorage.getItem('laundryUser');
-        if (user) {
-            const aptNumber = user.replace('Apt ', '');
-            setIsAdmin(adminAccess.tabuCafeteria.includes(aptNumber));
-        }
-
         const unsubscribe = subscribeToPageContent(PAGE_ID, (data) => {
             setContent(data);
             setEditableContent(JSON.parse(JSON.stringify(data)));

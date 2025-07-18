@@ -86,3 +86,57 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile app specific styles */
+@media (max-width: 768px) {
+  /* Remove white line at bottom on mobile devices */
+  html, body {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    background-color: hsl(var(--background)) !important;
+    overflow-x: hidden;
+  }
+  
+  /* Handle safe area insets for mobile devices */
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: hsl(var(--background));
+  }
+  
+  /* Ensure main content fills the viewport */
+  #__next {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background-color: hsl(var(--background));
+  }
+}
+
+/* Capacitor specific styles */
+.capacitor-app, 
+body.capacitor-app {
+  /* Remove any default margins/padding that might cause white lines */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: hsl(var(--background)) !important;
+    overflow-x: hidden;
+  }
+  
+  /* Handle the bottom navigation area */
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+    background-color: hsl(var(--background));
+  }
+  
+  /* Force background color throughout the app */
+  * {
+    background-color: inherit;
+  }
+}
+
+/* Android specific navigation bar styling */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

@@ -11,11 +11,18 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "android": "npx cap run android",
+    "android:open": "npx cap open android",
+    "android:build": "cd android && .\\gradlew assembleDebug",
+    "android:release": "cd android && .\\gradlew assembleRelease",
+    "android:install": "cd android && .\\gradlew installDebug",
     "ios": "npx cap run ios",
+    "ios:open": "npx cap open ios",
     "cap:sync": "npx cap sync",
     "cap:init": "npx cap init \"TABU 2\" com.tabu2.app --web-dir=out",
     "cap:add:android": "npx cap add android",
-    "cap:add:ios": "npx cap add ios"
+    "cap:add:ios": "npx cap add ios",
+    "mobile:sync": "npm run build && npx cap sync",
+    "mobile:build": "npm run mobile:sync && npm run android:build"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",

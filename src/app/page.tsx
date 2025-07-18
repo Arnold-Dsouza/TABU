@@ -12,6 +12,7 @@ import TeaRoom from '@/components/tea-room';
 import { auth, db } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { initializeMobileApp } from '@/lib/mobile-utils';
 
 import {
   Sidebar,
@@ -41,6 +42,11 @@ function PageContent() {
   const [user, loading] = useAuthState(auth);
   
   const currentUserApartment = userApartment || "Temp Apt"; // Use fetched apartment or fallback
+
+  // Initialize mobile app settings
+  useEffect(() => {
+    initializeMobileApp();
+  }, []);
 
   useEffect(() => {
     // Only redirect if we're sure the user is not authenticated and loading is complete
@@ -95,7 +101,7 @@ function PageContent() {
 
   if (loading || !user) {
     return (
-      <div className="flex min-h-svh w-full flex-col bg-background p-4 md:p-8">
+      <div className="flex min-h-screen w-full flex-col bg-background p-4 md:p-8">
         <Skeleton className="h-16 w-full mb-4" />
         <div className="flex gap-8">
           <Skeleton className="hidden md:block w-64 h-[calc(100vh-100px)]" />
@@ -183,9 +189,9 @@ function PageContent() {
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
-        <div className="flex min-h-svh w-full flex-col bg-background">
+        <div className="flex min-h-screen min-h-[100dvh] w-full flex-col bg-background">
           <Header currentUser={userApartment} title={headerTitle} />
-          <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+          <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 pb-[env(safe-area-inset-bottom)]">
              {activeView === 'laundry' && <LaundryDashboard selectedBuildingId={selectedBuilding} currentUser={currentUserApartment} />}
              {activeView === 'fitness' && <FitnessRoom />}
              {activeView === 'cafeteria' && <TabuCafeteria />}
