@@ -3,11 +3,24 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/theme-provider';
-
+import PWAClientWrapper from '@/components/pwa-client-wrapper';
 
 export const metadata: Metadata = {
   title: 'TABU 2',
   description: 'Community and services app for residents.',
+  manifest: '/manifest.webmanifest',
+  themeColor: '#000000',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'TABU 2',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    viewportFit: 'cover',
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +41,15 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"></link>
+        
+        {/* Apple touch icons for iOS PWA */}
+        <link rel="apple-touch-icon" href="/icons/icon-192.webp" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-192.webp" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.webp" />
+        <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192.webp" />
+        
+        {/* iOS splash screens */}
+        <link rel="apple-touch-startup-image" href="/icons/icon-512.webp" />
       </head>
       <body className="font-body antialiased h-full min-h-screen bg-background" suppressHydrationWarning>
         <ThemeProvider
@@ -38,6 +60,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster />
+          <PWAClientWrapper />
         </ThemeProvider>
       </body>
     </html>
