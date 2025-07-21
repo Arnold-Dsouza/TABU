@@ -45,21 +45,7 @@ export default class IOSPWANotificationService {
     
     try {
       // Register service worker
-      this.serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js', {
-        scope: '/'
-      });
-      
-      // Make sure service worker is ready
-      if (this.serviceWorkerRegistration.installing) {
-        console.log('Service worker installing');
-        await new Promise<void>((resolve) => {
-          this.serviceWorkerRegistration?.installing?.addEventListener('statechange', (e) => {
-            if (e.target && (e.target as ServiceWorker).state === 'activated') {
-              resolve();
-            }
-          });
-        });
-      }
+      this.serviceWorkerRegistration = await navigator.serviceWorker.register('/pwa-ios/service-worker.js');
       
       // Request permission
       const permission = await Notification.requestPermission();
@@ -153,21 +139,11 @@ export default class IOSPWANotificationService {
         body: 'This is a test notification from TABU',
         icon: '/tabu.jpg',
         badge: '/icons/icon-96.webp',
-        vibrate: [200, 100, 200], // Add vibration for devices that support it
-        tag: 'tabu-test-notification', // Group similar notifications
-        renotify: true, // Notify user if there's a new notification with the same tag
-        requireInteraction: true, // Keep notification visible until user interacts with it
         ...options
       };
       
-      // Use the service worker to show a notification if available
-      if (this.serviceWorkerRegistration) {
-        await this.serviceWorkerRegistration.showNotification(title, mergedOptions);
-      } else {
-        // Fallback to regular Notification API
-        new Notification(title, mergedOptions);
-      }
-      
+      // For iOS PWA, we use the regular Notification API
+      new Notification(title, mergedOptions);
       return true;
     } catch (error) {
       console.error('Error sending test notification:', error);
