@@ -38,15 +38,18 @@ export default function RootLayout({
         <meta name="theme-color" content="#000000" />
         <meta name="msapplication-navbutton-color" content="#000000" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="apple-mobile-web-app-title" content="TABU" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet"></link>
         
         {/* Apple touch icons for iOS PWA */}
-        <link rel="apple-touch-icon" href="/icons/icon-192.webp" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-192.webp" />
         <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192.webp" />
         <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-192.webp" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.webp" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.webp" />
         
         {/* iOS splash screens */}
         <link rel="apple-touch-startup-image" href="/icons/icon-512.webp" />
