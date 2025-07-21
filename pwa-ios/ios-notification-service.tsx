@@ -44,10 +44,13 @@ export default class IOSPWANotificationService {
     }
     
     try {
-      // Register service worker
-      this.serviceWorkerRegistration = await navigator.serviceWorker.register('/pwa-ios/service-worker.js');
+      // Register service worker - directly in the root for better iOS compatibility
+      this.serviceWorkerRegistration = await navigator.serviceWorker.register('/service-worker.js', {
+        scope: '/'
+      });
+      console.log('iOS PWA service worker registered successfully');
       
-      // Request permission
+      // Request permission - explicitly show the browser permission dialog
       const permission = await Notification.requestPermission();
       
       if (permission === 'granted') {
@@ -142,8 +145,16 @@ export default class IOSPWANotificationService {
         ...options
       };
       
-      // For iOS PWA, we use the regular Notification API
-      new Notification(title, mergedOptions);
+      // Use the service worker to show a notification if available
+      if (this.serviceWorkerRegistration) {
+        await this.serviceWorkerRegistration.showNotification(title, mergedOptions);
+        console.log('Sent notification via service worker');
+      } else {
+        // Fallback to regular Notification API
+        new Notification(title, mergedOptions);
+        console.log('Sent notification via Notification API');
+      }
+      
       return true;
     } catch (error) {
       console.error('Error sending test notification:', error);

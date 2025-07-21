@@ -14,6 +14,12 @@ const ServiceWorkerRegistration = dynamic(
   { ssr: false }
 );
 
+// Dynamically import the iOS notification permission prompt
+const IOSNotificationPermissionPrompt = dynamic(
+  () => import('@/components/ios-notification-permission-prompt'),
+  { ssr: false }
+);
+
 export default function PWAClientComponents() {
   const [mounted, setMounted] = useState(false);
 
@@ -29,6 +35,7 @@ export default function PWAClientComponents() {
     <>
       <PWAInstallPrompt />
       <ServiceWorkerRegistration />
+      <IOSNotificationPermissionPrompt />
     </>
   );
 }
