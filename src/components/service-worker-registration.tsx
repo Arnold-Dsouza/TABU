@@ -6,7 +6,8 @@ export function ServiceWorkerRegistration() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/pwa-ios/service-worker.js')
+        // Fix: Ensure the path is correct and file is being served correctly
+        navigator.serviceWorker.register('/service-worker.js')
           .then((registration) => {
             console.log('Service Worker registered with scope:', registration.scope);
           })
