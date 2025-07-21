@@ -15,42 +15,76 @@ export interface LaundryTimer {
 class LaundryNotificationService {
   private timers: Map<string, LaundryTimer> = new Map();
   private isInitialized = false;
+  private isIOS = false;
+  private isPWA = false;
 
   async initialize() {
-    if (this.isInitialized || !Capacitor.isNativePlatform()) {
+    // Check if on iOS PWA
+    if (typeof window !== 'undefined') {
+      this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      this.isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                   (window.navigator as any).standalone === true;
+    }
+
+    // If not on a native platform but on iOS PWA, we'll use web notifications
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      try {
+        if ('Notification' in window) {
+          const permission = await Notification.requestPermission();
+          if (permission === 'granted') {
+            console.log('Web notification permissions granted for iOS PWA');
+            this.isInitialized = true;
+            return;
+          } else {
+            console.warn('Web notification permissions denied for iOS PWA');
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing web notifications for iOS PWA:', error);
+      }
       return;
     }
 
-    try {
-      // Request permission for notifications
-      const permission = await LocalNotifications.requestPermissions();
-      
-      if (permission.display === 'granted') {
-        console.log('Notification permissions granted');
-        this.isInitialized = true;
+    // Standard Capacitor initialization for native platforms
+    if (!this.isInitialized && Capacitor.isNativePlatform()) {
+      try {
+        // Request permission for notifications
+        const permission = await LocalNotifications.requestPermissions();
         
-        // Listen for notification actions
-        LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-          console.log('Notification action performed:', notification);
-          this.handleNotificationAction(notification);
-        });
+        if (permission.display === 'granted') {
+          console.log('Notification permissions granted');
+          this.isInitialized = true;
+          
+          // Listen for notification actions
+          LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
+            console.log('Notification action performed:', notification);
+            this.handleNotificationAction(notification);
+          });
 
-        // Listen for notification received (when app is in foreground)
-        LocalNotifications.addListener('localNotificationReceived', (notification) => {
-          console.log('Notification received:', notification);
-        });
+          // Listen for notification received (when app is in foreground)
+          LocalNotifications.addListener('localNotificationReceived', (notification) => {
+            console.log('Notification received:', notification);
+          });
 
-      } else {
-        console.warn('Notification permissions denied');
+        } else {
+          console.warn('Notification permissions denied');
+        }
+      } catch (error) {
+        console.error('Error initializing notifications:', error);
       }
-    } catch (error) {
-      console.error('Error initializing notifications:', error);
     }
   }
 
   async startLaundryCycle(machineNumber: number, cycleType: 'wash' | 'dry', duration: number): Promise<string> {
+    // Make sure we're initialized
     if (!this.isInitialized) {
       await this.initialize();
+    }
+
+    // If not initialized and not on an iOS PWA, return early
+    if (!this.isInitialized && !(this.isIOS && this.isPWA)) {
+      console.warn('Notifications not initialized or not supported on this platform');
+      return `laundry-${machineNumber}-${cycleType}-${Date.now()}`;
     }
 
     const timerId = `laundry-${machineNumber}-${cycleType}-${Date.now()}`;
@@ -90,29 +124,65 @@ class LaundryNotificationService {
   private async scheduleCompletionNotification(timer: LaundryTimer) {
     const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000; // Convert to number
 
-    try {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: `Machine Cycle Completed! 🧺`,
-            body: `Collect your clothes as soon as possible.`,
-            id: notificationId,
-            schedule: { at: timer.endTime },
-            sound: 'beep.wav',
-            attachments: undefined,
-            actionTypeId: 'LAUNDRY_COMPLETE',
-            extra: {
-              timerId: timer.id,
-              machineNumber: timer.machineNumber,
-              cycleType: timer.cycleType
+    // For iOS PWA, we use a different approach since LocalNotifications API is not available
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      try {
+        // For PWA on iOS, we need to use setTimeout and web Notifications
+        const timeUntilEnd = timer.endTime.getTime() - Date.now();
+        
+        if (timeUntilEnd > 0) {
+          setTimeout(() => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+              const notification = new Notification(`Machine Cycle Completed! 🧺`, {
+                body: `Collect your clothes as soon as possible.`,
+                icon: '/tabu.jpg',
+                badge: '/icons/icon-96.webp',
+                tag: `laundry-${timer.id}`
+              });
+              
+              notification.onclick = () => {
+                window.focus();
+                notification.close();
+                // Handle the notification click (mark as collected)
+                this.onLaundryCollected?.(timer.id);
+              };
+              
+              console.log(`Showed completion notification for timer ${timer.id} via Web Notifications`);
             }
-          }
-        ]
-      });
+          }, timeUntilEnd);
+        }
+      } catch (error) {
+        console.error('Error scheduling web notification for iOS PWA:', error);
+      }
+      return;
+    }
 
-      console.log(`Scheduled completion notification for timer ${timer.id}`);
-    } catch (error) {
-      console.error('Error scheduling completion notification:', error);
+    // For native platforms, use Capacitor LocalNotifications
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: `Machine Cycle Completed! 🧺`,
+              body: `Collect your clothes as soon as possible.`,
+              id: notificationId,
+              schedule: { at: timer.endTime },
+              sound: 'beep.wav',
+              attachments: undefined,
+              actionTypeId: 'LAUNDRY_COMPLETE',
+              extra: {
+                timerId: timer.id,
+                machineNumber: timer.machineNumber,
+                cycleType: timer.cycleType
+              }
+            }
+          ]
+        });
+
+        console.log(`Scheduled completion notification for timer ${timer.id} via Capacitor`);
+      } catch (error) {
+        console.error('Error scheduling completion notification:', error);
+      }
     }
   }
 
@@ -121,28 +191,50 @@ class LaundryNotificationService {
     const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 100; // Start notification ID
     const totalTimeText = this.formatTimeDisplay(timer.duration * 60 * 1000); // Convert minutes to milliseconds
 
-    try {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: `Machine Started 🚀`,
+    // For iOS PWA, we use web notifications
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      try {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const notification = new Notification(`Machine Started 🚀`, {
             body: totalTimeText,
-            id: notificationId,
-            schedule: { at: new Date(Date.now() + 100) }, // Show immediately
-            sound: 'default',
-            extra: {
-              timerId: timer.id,
-              machineNumber: timer.machineNumber,
-              cycleType: timer.cycleType,
-              isStart: true
-            }
-          }
-        ]
-      });
+            icon: '/tabu.jpg',
+            badge: '/icons/icon-96.webp',
+            tag: `laundry-start-${timer.id}`
+          });
+          
+          console.log(`Showed start notification for timer ${timer.id} via Web Notifications`);
+        }
+      } catch (error) {
+        console.error('Error showing start web notification for iOS PWA:', error);
+      }
+      return;
+    }
 
-      console.log(`Showed start notification for timer ${timer.id}`);
-    } catch (error) {
-      console.error('Error showing start notification:', error);
+    // For native platforms, use Capacitor LocalNotifications
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: `Machine Started 🚀`,
+              body: totalTimeText,
+              id: notificationId,
+              schedule: { at: new Date(Date.now() + 100) }, // Show immediately
+              sound: 'default',
+              extra: {
+                timerId: timer.id,
+                machineNumber: timer.machineNumber,
+                cycleType: timer.cycleType,
+                isStart: true
+              }
+            }
+          ]
+        });
+
+        console.log(`Showed start notification for timer ${timer.id} via Capacitor`);
+      } catch (error) {
+        console.error('Error showing start notification:', error);
+      }
     }
   }
 
@@ -150,28 +242,56 @@ class LaundryNotificationService {
     const reminderTime = new Date(timer.endTime.getTime() - 5 * 60 * 1000); // 5 minutes before
     const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 5000; // Different ID for 5-min reminder
 
-    try {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: `Machine Cycle Almost Done! ⏰`,
-            body: `00:05:00`,
-            id: notificationId,
-            schedule: { at: reminderTime },
-            sound: 'default',
-            extra: {
-              timerId: timer.id,
-              machineNumber: timer.machineNumber,
-              cycleType: timer.cycleType,
-              isReminder5Min: true
+    // For iOS PWA, we use setTimeout and web notifications
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      try {
+        const timeUntilReminder = reminderTime.getTime() - Date.now();
+        
+        if (timeUntilReminder > 0) {
+          setTimeout(() => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification(`Machine Cycle Almost Done! ⏰`, {
+                body: `00:05:00 - Your laundry will be done in 5 minutes`,
+                icon: '/tabu.jpg',
+                badge: '/icons/icon-96.webp',
+                tag: `laundry-5min-${timer.id}`
+              });
+              
+              console.log(`Showed 5-minute reminder for timer ${timer.id} via Web Notifications`);
             }
-          }
-        ]
-      });
+          }, timeUntilReminder);
+        }
+      } catch (error) {
+        console.error('Error scheduling 5-minute web reminder for iOS PWA:', error);
+      }
+      return;
+    }
 
-      console.log(`Scheduled 5-minute reminder notification for timer ${timer.id}`);
-    } catch (error) {
-      console.error('Error scheduling 5-minute reminder notification:', error);
+    // For native platforms, use Capacitor LocalNotifications
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: `Machine Cycle Almost Done! ⏰`,
+              body: `00:05:00`,
+              id: notificationId,
+              schedule: { at: reminderTime },
+              sound: 'default',
+              extra: {
+                timerId: timer.id,
+                machineNumber: timer.machineNumber,
+                cycleType: timer.cycleType,
+                isReminder5Min: true
+              }
+            }
+          ]
+        });
+
+        console.log(`Scheduled 5-minute reminder notification for timer ${timer.id} via Capacitor`);
+      } catch (error) {
+        console.error('Error scheduling 5-minute reminder notification:', error);
+      }
     }
   }
 
@@ -179,28 +299,56 @@ class LaundryNotificationService {
     const reminderTime = new Date(timer.endTime.getTime() - 1 * 60 * 1000); // 1 minute before
     const notificationId = parseInt(timer.id.replace(/\D/g, '')) % 10000 + 1000; // Different ID for 1-min reminder
 
-    try {
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            title: `Machine Cycle Finishing Soon! 🔔`,
-            body: `00:01:00`,
-            id: notificationId,
-            schedule: { at: reminderTime },
-            sound: 'default',
-            extra: {
-              timerId: timer.id,
-              machineNumber: timer.machineNumber,
-              cycleType: timer.cycleType,
-              isReminder1Min: true
+    // For iOS PWA, we use setTimeout and web notifications
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      try {
+        const timeUntilReminder = reminderTime.getTime() - Date.now();
+        
+        if (timeUntilReminder > 0) {
+          setTimeout(() => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+              new Notification(`Machine Cycle Finishing Soon! 🔔`, {
+                body: `00:01:00 - Your laundry will be done in 1 minute`,
+                icon: '/tabu.jpg',
+                badge: '/icons/icon-96.webp',
+                tag: `laundry-1min-${timer.id}`
+              });
+              
+              console.log(`Showed 1-minute reminder for timer ${timer.id} via Web Notifications`);
             }
-          }
-        ]
-      });
+          }, timeUntilReminder);
+        }
+      } catch (error) {
+        console.error('Error scheduling 1-minute web reminder for iOS PWA:', error);
+      }
+      return;
+    }
 
-      console.log(`Scheduled 1-minute reminder notification for timer ${timer.id}`);
-    } catch (error) {
-      console.error('Error scheduling 1-minute reminder notification:', error);
+    // For native platforms, use Capacitor LocalNotifications
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              title: `Machine Cycle Finishing Soon! 🔔`,
+              body: `00:01:00`,
+              id: notificationId,
+              schedule: { at: reminderTime },
+              sound: 'default',
+              extra: {
+                timerId: timer.id,
+                machineNumber: timer.machineNumber,
+                cycleType: timer.cycleType,
+                isReminder1Min: true
+              }
+            }
+          ]
+        });
+
+        console.log(`Scheduled 1-minute reminder notification for timer ${timer.id} via Capacitor`);
+      } catch (error) {
+        console.error('Error scheduling 1-minute reminder notification:', error);
+      }
     }
   }
 
@@ -208,26 +356,37 @@ class LaundryNotificationService {
     const timer = this.timers.get(timerId);
     if (!timer) return;
 
-    try {
-      const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000;
-      const startNotificationId = notificationId + 100;
-      const reminder5MinNotificationId = notificationId + 5000;
-      const reminder1MinNotificationId = notificationId + 1000;
-
-      // Cancel all notifications for this timer
-      await LocalNotifications.cancel({
-        notifications: [
-          { id: notificationId }, // Completion notification
-          { id: startNotificationId }, // Start notification (if still showing)
-          { id: reminder5MinNotificationId }, // 5-minute reminder
-          { id: reminder1MinNotificationId } // 1-minute reminder
-        ]
-      });
-
+    // For iOS PWA, we can't cancel scheduled notifications directly
+    // We can only remove the timer from our list so future timeouts won't show notifications
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
       this.timers.delete(timerId);
-      console.log(`Cancelled timer ${timerId}`);
-    } catch (error) {
-      console.error('Error cancelling timer:', error);
+      console.log(`Removed timer ${timerId} from tracking (iOS PWA)`);
+      return;
+    }
+
+    // For native platforms, use Capacitor LocalNotifications
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const notificationId = parseInt(timerId.replace(/\D/g, '')) % 10000;
+        const startNotificationId = notificationId + 100;
+        const reminder5MinNotificationId = notificationId + 5000;
+        const reminder1MinNotificationId = notificationId + 1000;
+
+        // Cancel all notifications for this timer
+        await LocalNotifications.cancel({
+          notifications: [
+            { id: notificationId }, // Completion notification
+            { id: startNotificationId }, // Start notification (if still showing)
+            { id: reminder5MinNotificationId }, // 5-minute reminder
+            { id: reminder1MinNotificationId } // 1-minute reminder
+          ]
+        });
+
+        this.timers.delete(timerId);
+        console.log(`Cancelled timer ${timerId} via Capacitor`);
+      } catch (error) {
+        console.error('Error cancelling timer:', error);
+      }
     }
   }
 
@@ -314,22 +473,49 @@ class LaundryNotificationService {
 
   // Check if notifications are enabled
   async areNotificationsEnabled(): Promise<boolean> {
-    try {
-      const permission = await LocalNotifications.checkPermissions();
-      return permission.display === 'granted';
-    } catch {
+    // For iOS PWA
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      if ('Notification' in window) {
+        return Notification.permission === 'granted';
+      }
       return false;
     }
+    
+    // For native platforms
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const permission = await LocalNotifications.checkPermissions();
+        return permission.display === 'granted';
+      } catch {
+        return false;
+      }
+    }
+    
+    return false;
   }
 
   // Request notification permissions
   async requestNotificationPermissions(): Promise<boolean> {
-    try {
-      const permission = await LocalNotifications.requestPermissions();
-      return permission.display === 'granted';
-    } catch {
+    // For iOS PWA
+    if (!Capacitor.isNativePlatform() && this.isIOS && this.isPWA) {
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        return permission === 'granted';
+      }
       return false;
     }
+    
+    // For native platforms
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const permission = await LocalNotifications.requestPermissions();
+        return permission.display === 'granted';
+      } catch {
+        return false;
+      }
+    }
+    
+    return false;
   }
 }
 

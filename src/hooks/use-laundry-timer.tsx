@@ -14,8 +14,18 @@ export function useLaundryTimer() {
   // Initialize the service and check permissions
   useEffect(() => {
     const initializeService = async () => {
-      if (!Capacitor.isNativePlatform()) {
-        console.log('Not on mobile, notifications not available');
+      // Check if running on iOS PWA
+      const isIOS = typeof window !== 'undefined' && 
+                    /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+                    !(window as any).MSStream;
+      const isPWA = typeof window !== 'undefined' && 
+                   (window.matchMedia('(display-mode: standalone)').matches || 
+                    (window.navigator as any).standalone === true);
+      const isIOSPWA = isIOS && isPWA;
+
+      // Allow iOS PWA or native platforms
+      if (!Capacitor.isNativePlatform() && !isIOSPWA) {
+        console.log('Not on mobile or iOS PWA, notifications not available');
         return;
       }
 
@@ -55,10 +65,20 @@ export function useLaundryTimer() {
     cycleType: 'wash' | 'dry',
     duration: number
   ): Promise<string | null> => {
-    if (!Capacitor.isNativePlatform()) {
+    // Check if running on iOS PWA
+    const isIOS = typeof window !== 'undefined' && 
+                  /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+                  !(window as any).MSStream;
+    const isPWA = typeof window !== 'undefined' && 
+                 (window.matchMedia('(display-mode: standalone)').matches || 
+                  (window.navigator as any).standalone === true);
+    const isIOSPWA = isIOS && isPWA;
+
+    // Allow launching on iOS PWA
+    if (!Capacitor.isNativePlatform() && !isIOSPWA) {
       toast({
         title: "Notifications Not Available",
-        description: "Timer notifications only work on mobile devices.",
+        description: "Timer notifications only work on mobile devices or iOS PWA.",
         variant: "destructive"
       });
       return null;
@@ -170,8 +190,15 @@ export function useLaundryTimer() {
     return `${mins}m`;
   }, [getRemainingTime]);
 
-  // Check if running on mobile
-  const isMobile = Capacitor.isNativePlatform();
+  // Check if running on mobile or iOS PWA
+  const isIOS = typeof window !== 'undefined' && 
+                /iPad|iPhone|iPod/.test(navigator.userAgent) && 
+                !(window as any).MSStream;
+  const isPWA = typeof window !== 'undefined' && 
+               (window.matchMedia('(display-mode: standalone)').matches || 
+                (window.navigator as any).standalone === true);
+  const isIOSPWA = isIOS && isPWA;
+  const isMobile = Capacitor.isNativePlatform() || isIOSPWA;
 
   return {
     // State
