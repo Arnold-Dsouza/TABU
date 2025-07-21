@@ -5,7 +5,7 @@ This project has been successfully set up! 🎉
 ## Project Overview
 - **Framework**: Next.js 15.3.3 with TypeScript
 - **UI Framework**: Tailwind CSS + Radix UI components
-- **Mobile**: Capacitor for iOS/Android development
+- **Mobile**: Capacitor for Android development
 - **Database**: Firebase Firestore
 - **AI Integration**: Google Genkit with Gemini 2.0 Flash
 - **State Management**: React Hook Form with Zod validation
@@ -42,7 +42,6 @@ GOOGLE_GENAI_API_KEY=your_google_ai_api_key
 - `npm run start` - Start production server
 - `npm run genkit:dev` - Start Genkit AI development
 - `npm run android` - Run on Android (requires setup)
-- `npm run ios` - Run on iOS (requires setup)
 
 ### 4. Development Server
 The development server is now running at: http://localhost:9002
@@ -52,7 +51,6 @@ If you plan to develop for mobile:
 ```bash
 npm run cap:sync  # Sync web assets to native projects
 npm run android   # Run on Android
-npm run ios       # Run on iOS
 ```
 
 ## Project Structure
@@ -60,7 +58,7 @@ npm run ios       # Run on iOS
 - `src/components/` - Reusable UI components
 - `src/lib/` - Utilities, Firebase config, types
 - `src/ai/` - AI/Genkit configuration and flows
-- `android/` & `ios/` - Mobile app configurations
+- `android/` - Mobile app configurations
 
 ## Security Note 🔒
 Remember to:

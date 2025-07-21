@@ -14,7 +14,6 @@ The `npx cap sync` command is now working correctly. Here's what was fixed:
 - ✅ Android sync working perfectly
 - ✅ Web assets copied to Android project
 - ✅ Capacitor plugins configured
-- ⚠️ iOS sync needs Podfile setup (normal for Windows development)
 
 ## Available Commands
 
@@ -28,18 +27,14 @@ npm run build              # Build for production (creates 'out' directory)
 ```bash
 npx cap sync              # Sync web assets to native projects
 npx cap sync android      # Sync only Android
-npx cap sync ios          # Sync only iOS
 
 npx cap run android       # Build and run on Android device/emulator
-npx cap run ios           # Build and run on iOS device/simulator (macOS only)
 ```
 
 ### Capacitor Management
 ```bash
 npx cap add android       # Add Android platform (already done)
-npx cap add ios           # Add iOS platform (already done)
 npx cap open android      # Open Android project in Android Studio
-npx cap open ios          # Open iOS project in Xcode (macOS only)
 ```
 
 ## Development Workflow
@@ -68,11 +63,6 @@ If you want to test on mobile while developing:
 - Install Android Studio
 - Set up an Android device or emulator
 - Run `npx cap run android`
-
-### iOS Development (macOS only)
-- Install Xcode
-- Run `pod install` in the ios/App directory
-- Run `npx cap run ios`
 
 ## Architecture Changes Made
 

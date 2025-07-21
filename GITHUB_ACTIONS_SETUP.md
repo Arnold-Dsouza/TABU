@@ -2,7 +2,7 @@
 
 ## ✅ What's Configured
 
-Your TABU 2 project now has **complete automated builds** for both Android and iOS platforms using GitHub Actions!
+Your TABU 2 project now has **complete automated builds** for Android platform using GitHub Actions!
 
 ## 📋 GitHub Actions Workflows
 
@@ -11,15 +11,8 @@ Your TABU 2 project now has **complete automated builds** for both Android and i
 - ✅ Creates GitHub releases
 - ✅ Uploads artifacts
 
-### 2. **ios-build.yml** (New)
-- ✅ Builds iOS app on macOS runners
-- ✅ Handles Xcode and CocoaPods
-- ✅ Creates iOS build artifacts
-
-### 3. **build-mobile-apps.yml** (New - Recommended)
-- ✅ **Unified workflow** for both platforms
-- ✅ Parallel builds (faster)
-- ✅ Combined releases
+### 2. **build-mobile-apps.yml** (New - Recommended)
+- ✅ **Unified workflow** for Android platform
 - ✅ Better organization
 
 ## 🔄 How It Works

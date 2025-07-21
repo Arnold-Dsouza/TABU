@@ -1,4 +1,4 @@
-name: 🚀 Build TABU 2 Mobile Apps
+name: 🚀 Build TABU 2 Mobile App
 
 on:
   push:
@@ -67,64 +67,8 @@ jobs:
         name: tabu2-android-apk
         path: tabu2-android.apk
 
-  build-ios:
-    runs-on: macos-latest
-    name: 🍎 Build iOS App
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: latest-stable
-
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Build web app
-      env:
-        NEXT_PUBLIC_FIREBASE_API_KEY: "AIzaSyBuazs1eTTu92mY828B0tx1k8-6FQ2-11c"
-        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "laundry-3024d.firebaseapp.com"
-        NEXT_PUBLIC_FIREBASE_PROJECT_ID: "laundry-3024d"
-        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "laundry-3024d.firebasestorage.app"
-        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "57247892501"
-        NEXT_PUBLIC_FIREBASE_APP_ID: "1:57247892501:web:f8967e02ea63f106d5fa1c"
-      run: npm run build
-
-    - name: Sync Capacitor iOS
-      run: npx cap sync ios
-
-    - name: Install CocoaPods dependencies
-      run: |
-        cd ios/App
-        pod install
-
-    - name: Build iOS app for Device
-      run: |
-        cd ios/App
-        xcodebuild -workspace App.xcworkspace \
-          -scheme App \
-          -configuration Debug \
-          -destination 'generic/platform=iOS' \
-          -derivedDataPath build/ \
-          build CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
-
-    - name: Upload iOS build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: tabu2-ios-build
-        path: ios/App/build/
-
   create-release:
-    needs: [build-android, build-ios]
+    needs: [build-android]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     name: 🎉 Create Release
@@ -138,12 +82,6 @@ jobs:
       with:
         name: tabu2-android-apk
         path: ./
-
-    - name: Download iOS build
-      uses: actions/download-artifact@v4
-      with:
-        name: tabu2-ios-build
-        path: ./ios-build/
 
     - name: Get package version
       id: package-version
@@ -159,7 +97,6 @@ jobs:
           
           ### 📱 What's Included:
           - **Android APK**: Ready to install on Android devices
-          - **iOS Build**: Build artifacts for iOS development
           
           ### 🚀 Features:
           - Custom TABU 2 branding and icons
@@ -171,7 +108,6 @@ jobs:
           
           ### 📲 Installation:
           - **Android**: Download and install the APK file
-          - **iOS**: Requires Xcode for installation (unsigned development build for devices)
 
           Built by Arnold Dsouza with ❤️ using Capacitor, Next.js, and Firebase.
         files: |
