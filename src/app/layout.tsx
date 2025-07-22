@@ -4,6 +4,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/theme-provider';
 import PWAClientWrapper from '@/components/pwa-client-wrapper';
+import AndroidPushNotificationInitializer from '@/components/android-push-notification-initializer';
+import { Capacitor } from '@capacitor/core';
 
 export const metadata: Metadata = {
   title: 'TABU 2',
