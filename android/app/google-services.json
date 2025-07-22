@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "57247892501",
+    "project_id": "laundry-3024d",
+    "storage_bucket": "laundry-3024d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57247892501:android:2c280e34df027839d5fa1c",
+        "android_client_info": {
+          "package_name": "com.tabu2.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiN9Dc5XCpuyCbsjrlPnP2lrGMFfkZUfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
