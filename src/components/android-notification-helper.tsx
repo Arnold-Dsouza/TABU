@@ -10,6 +10,7 @@ export default function AndroidPWANotificationHelper() {
   const [isPWA, setIsPWA] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<PermissionState | null>(null);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -18,20 +19,26 @@ export default function AndroidPWANotificationHelper() {
       setIsAndroid(/Android/i.test(navigator.userAgent));
       
       // Check if this is running as a PWA
-      setIsPWA(
-        window.matchMedia('(display-mode: standalone)').matches || 
-        window.navigator.standalone === true
-      );
+      const isPwaCheck = window.matchMedia('(display-mode: standalone)').matches || 
+        (window.navigator as any).standalone === true;
+      setIsPWA(isPwaCheck);
       
       // Check notification permission
       if ('Notification' in window) {
         setNotificationPermission(Notification.permission);
+        
+        // Only show notification prompt for Android PWA with default permission
+        setShowNotificationPrompt(
+          isPwaCheck && 
+          /Android/i.test(navigator.userAgent) && 
+          Notification.permission !== 'granted'
+        );
       }
     }
   }, []);
 
   // Only show for Android PWA with no notification permission
-  if (!isAndroid || !isPWA || notificationPermission === 'granted') {
+  if (!showNotificationPrompt) {
     return null;
   }
 
@@ -50,18 +57,32 @@ export default function AndroidPWANotificationHelper() {
       setNotificationPermission(permission);
       
       if (permission === 'granted') {
+        setShowNotificationPrompt(false);
+        
         toast({
           title: "Notifications Enabled!",
           description: "You'll now receive notifications from TABU",
         });
         
-        // Send a test notification
-        setTimeout(() => {
+        // Register the service worker if needed
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then((registration) => {
+            // Send a test notification
+            setTimeout(() => {
+              registration.showNotification("TABU Notifications Working!", {
+                body: "Notifications are now working on your Android device!",
+                icon: "/tabu.jpg",
+                badge: "/icons/icon-96.webp"
+              });
+            }, 1000);
+          });
+        } else {
+          // Fallback to regular notification
           new Notification("TABU Notification Test", {
             body: "Notifications are now working on your Android device!",
             icon: "/tabu.jpg"
           });
-        }, 1000);
+        }
       } else if (permission === 'denied') {
         toast({
           title: "Notifications Blocked",
