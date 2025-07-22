@@ -1,9 +1,9 @@
 # App Icon Setup Guide for TABU 2 APK
 
-## Quick Setup (Using your tabu.jpg image)
+## Quick Setup (Using your tabu.png image)
 
 ### Step 1: Prepare Your Icon
-1. Take your `public/tabu.jpg` image
+1. Take your `public/tabu.png` image
 2. Convert it to PNG format if needed
 3. Make sure it's square (1:1 aspect ratio)
 4. Recommended base size: 1024x1024 pixels
@@ -53,7 +53,7 @@ Replace the files in these directories:
 
 ### Method B: Using Android Asset Studio
 1. Go to: https://romannurik.github.io/AndroidAssetStudio/icons-launcher.html
-2. Upload your tabu.jpg image
+2. Upload your tabu.png image
 3. Download the generated icon pack
 4. Extract and copy all the mipmap folders to `android/app/src/main/res/`
 

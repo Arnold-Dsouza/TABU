@@ -71,7 +71,7 @@ export default function AndroidPWANotificationHelper() {
             setTimeout(() => {
               registration.showNotification("TABU Notifications Working!", {
                 body: "Notifications are now working on your Android device!",
-                icon: "/tabu.jpg",
+                icon: "/tabu.png",
                 badge: "/icons/icon-96.webp"
               });
             }, 1000);
@@ -80,7 +80,7 @@ export default function AndroidPWANotificationHelper() {
           // Fallback to regular notification
           new Notification("TABU Notification Test", {
             body: "Notifications are now working on your Android device!",
-            icon: "/tabu.jpg"
+            icon: "/tabu.png"
           });
         }
       } else if (permission === 'denied') {

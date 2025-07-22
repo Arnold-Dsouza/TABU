@@ -135,7 +135,7 @@ class LaundryNotificationService {
             if ('Notification' in window && Notification.permission === 'granted') {
               const notification = new Notification(`Machine Cycle Completed! 🧺`, {
                 body: `Collect your clothes as soon as possible.`,
-                icon: '/tabu.jpg',
+                icon: '/tabu.png',
                 badge: '/icons/icon-96.webp',
                 tag: `laundry-${timer.id}`
               });
@@ -197,7 +197,7 @@ class LaundryNotificationService {
         if ('Notification' in window && Notification.permission === 'granted') {
           const notification = new Notification(`Machine Started 🚀`, {
             body: totalTimeText,
-            icon: '/tabu.jpg',
+            icon: '/tabu.png',
             badge: '/icons/icon-96.webp',
             tag: `laundry-start-${timer.id}`
           });
@@ -252,7 +252,7 @@ class LaundryNotificationService {
             if ('Notification' in window && Notification.permission === 'granted') {
               new Notification(`Machine Cycle Almost Done! ⏰`, {
                 body: `00:05:00 - Your laundry will be done in 5 minutes`,
-                icon: '/tabu.jpg',
+                icon: '/tabu.png',
                 badge: '/icons/icon-96.webp',
                 tag: `laundry-5min-${timer.id}`
               });
@@ -309,7 +309,7 @@ class LaundryNotificationService {
             if ('Notification' in window && Notification.permission === 'granted') {
               new Notification(`Machine Cycle Finishing Soon! 🔔`, {
                 body: `00:01:00 - Your laundry will be done in 1 minute`,
-                icon: '/tabu.jpg',
+                icon: '/tabu.png',
                 badge: '/icons/icon-96.webp',
                 tag: `laundry-1min-${timer.id}`
               });

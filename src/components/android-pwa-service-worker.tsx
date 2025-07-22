@@ -121,7 +121,7 @@ export default function AndroidPWAServiceWorkerRegistration() {
             setTimeout(() => {
               registration.showNotification("TABU Notifications Active!", {
                 body: "Your Android device is now set up to receive TABU notifications",
-                icon: "/tabu.jpg",
+                icon: "/tabu.png",
                 badge: "/icons/icon-96.webp"
               });
             }, 2000);

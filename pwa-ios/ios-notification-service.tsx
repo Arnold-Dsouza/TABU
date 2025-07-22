@@ -140,7 +140,7 @@ export default class IOSPWANotificationService {
       
       const mergedOptions = {
         body: 'This is a test notification from TABU',
-        icon: '/tabu.jpg',
+        icon: '/tabu.png',
         badge: '/icons/icon-96.webp',
         ...options
       };

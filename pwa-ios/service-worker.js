@@ -6,7 +6,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.webmanifest',
-  '/tabu.jpg'
+  '/tabu.png'
   // Add other critical assets here
 ];
 
@@ -85,7 +85,7 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
       body: data.body || 'New notification from TABU',
-      icon: data.icon || '/tabu.jpg',
+      icon: data.icon || '/tabu.png',
       badge: data.badge || '/icons/icon-96.webp',
       data: data.data || {},
       actions: data.actions || []

@@ -59,7 +59,7 @@ export default function IOSNotificationPermissionPrompt() {
         setTimeout(() => {
           new Notification('Notifications Enabled!', {
             body: 'You will now receive notifications from TABU',
-            icon: '/tabu.jpg'
+            icon: '/tabu.png'
           });
         }, 500);
       }

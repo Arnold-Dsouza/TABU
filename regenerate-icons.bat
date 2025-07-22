@@ -1,0 +1,6 @@
+@echo off
+echo Regenerating all icons from tabu.png...
+powershell -ExecutionPolicy Bypass -File "%~dp0regenerate-icons.ps1"
+echo.
+echo Press any key to exit...
+pause > nul

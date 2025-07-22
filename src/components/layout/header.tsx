@@ -247,7 +247,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarImage src="/tabu.jpg" alt="User" />
+                  <AvatarImage src="/tabu.png" alt="User" />
                   <AvatarFallback>{getInitials(currentUser)}</AvatarFallback>
                 </Avatar>
                 <span className="sr-only">Toggle user menu</span>

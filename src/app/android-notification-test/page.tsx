@@ -92,7 +92,7 @@ export default function AndroidNotificationTestPage() {
         navigator.serviceWorker.ready.then((registration) => {
           registration.showNotification('TABU Android Test Notification', {
             body: 'This is a test notification from TABU!',
-            icon: '/tabu.jpg',
+            icon: '/tabu.png',
             badge: '/icons/icon-96.webp',
             tag: 'test',
             ...(({
@@ -115,7 +115,7 @@ export default function AndroidNotificationTestPage() {
         // Fallback to basic notification
         const notification = new Notification('TABU Android Test Notification', {
           body: 'This is a test notification from TABU!',
-          icon: '/tabu.jpg',
+          icon: '/tabu.png',
           badge: '/icons/icon-96.webp',
           tag: 'test'
         });

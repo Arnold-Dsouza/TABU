@@ -10,7 +10,7 @@
 - ✅ Custom login message: "Whats up how are you doing today"
 - ✅ Forgot password functionality
 - ✅ Room number display instead of email
-- ✅ Custom avatar image from tabu.jpg
+- ✅ Custom avatar image from tabu.png
 - ✅ Theme toggle working (single click)
 - ✅ APK build working: `npx cap run android`
 - ✅ Adaptive icons for modern Android
@@ -57,7 +57,7 @@ npx capacitor run ios
 
 ### User Interface:
 - ✅ Room number display (instead of email)
-- ✅ Custom tabu.jpg avatar for all users
+- ✅ Custom tabu.png avatar for all users
 - ✅ Online users count with green indicator
 - ✅ Theme toggle (light/dark) - single click
 - ✅ Consistent TABU 2 branding
@@ -88,7 +88,7 @@ npx capacitor run ios
 ### Locations:
 - **Android Icons**: `android/app/src/main/res/mipmap-*/`
 - **iOS Icons**: `ios/App/App/Assets.xcassets/AppIcon.appiconset/`
-- **Source**: `assets/icon.png` (from your tabu.jpg)
+- **Source**: `assets/icon.png` (from your tabu.png)
 
 ## 🎯 **READY FOR DEPLOYMENT**
 

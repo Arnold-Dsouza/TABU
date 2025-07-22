@@ -61,9 +61,9 @@
   ],
   "screenshots": [
     {
-      "src": "/tabu.jpg",
+      "src": "/tabu.png",
       "sizes": "1170x2532",
-      "type": "image/jpg"
+      "type": "image/png"
     }
   ],
   "related_applications": [],
@@ -74,8 +74,14 @@
       "description": "Check laundry machine status"
     }
   ],
-  "categories": ["lifestyle", "utilities"],
-  "display_override": ["standalone", "window-controls-overlay"],
+  "categories": [
+    "lifestyle",
+    "utilities"
+  ],
+  "display_override": [
+    "standalone",
+    "window-controls-overlay"
+  ],
   "lang": "en-US",
   "dir": "ltr",
   "edge_side_panel": {
