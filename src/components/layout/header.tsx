@@ -36,7 +36,7 @@ import { db, auth } from '@/lib/firebase';
 import { doc, updateDoc, deleteDoc, collection, onSnapshot, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
-
+import { Capacitor } from '@capacitor/core';
 
 interface HeaderProps {
   currentUser: string | null;
@@ -315,10 +315,12 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
                 <Info className="mr-2" />
                 About
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
-                <RefreshCw className="mr-2" />
-                Check for Updates
-              </DropdownMenuItem>
+              {Capacitor.isNativePlatform() && (
+                <DropdownMenuItem onSelect={() => setIsUpdateDialogOpen(true)}>
+                  <RefreshCw className="mr-2" />
+                  Check for Updates
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2" />
@@ -384,8 +386,9 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
-        <AlertDialogContent>
+      {Capacitor.isNativePlatform() && (
+        <AlertDialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+          <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <RefreshCw className={`h-5 w-5 ${isCheckingUpdates ? 'animate-spin' : ''}`} />
@@ -494,6 +497,7 @@ export default function Header({ currentUser, title = 'LaundryView' }: HeaderPro
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      )}
     </>
   );
 }
