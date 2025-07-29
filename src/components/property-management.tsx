@@ -75,13 +75,13 @@ export default function PropertyManagement() {
 
     if (!content) {
         return (
-            <div className="p-2 md:p-8 w-full">
+            <div className="p-4 sm:p-6 md:p-8 w-full">
                 <Card className="w-full max-w-4xl mx-auto shadow-lg">
                     <CardHeader>
                         <Skeleton className="h-8 w-3/4" />
                         <Skeleton className="h-4 w-1/2" />
                     </CardHeader>
-                    <CardContent className="grid gap-6 md:grid-cols-2">
+                    <CardContent className="grid gap-4 grid-cols-1 sm:grid-cols-2">
                         <Skeleton className="h-32 w-full" />
                         <Skeleton className="h-32 w-full" />
                         <Skeleton className="h-32 w-full" />
@@ -93,7 +93,7 @@ export default function PropertyManagement() {
     }
     
     return (
-        <div className="flex flex-col items-center justify-start p-2 md:p-8 gap-6 md:gap-8 w-full">
+        <div className="flex flex-col items-center justify-start p-4 sm:p-6 md:p-8 gap-6 w-full">
             <Card className="w-full max-w-4xl shadow-lg relative">
                 {isAdmin && (
                     <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -134,21 +134,21 @@ export default function PropertyManagement() {
                 )}
                 <CardHeader>
                     <CardTitle className="text-2xl md:text-3xl font-bold font-headline tracking-tight">Property Management</CardTitle>
-                    <CardDescription>{content.changeOfResponsibility}</CardDescription>
+                    <CardDescription className="text-sm md:text-base">{content.changeOfResponsibility}</CardDescription>
                 </CardHeader>
-                <CardContent className="grid gap-4 sm:gap-6 md:grid-cols-2">
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {content.managers?.map((manager) => (
                         <div key={manager.id} className="flex flex-col p-4 bg-background rounded-lg border border-border/50 hover:border-primary/50 hover:bg-muted/50 transition-all">
                             <h3 className="text-lg font-semibold">{manager.name}</h3>
                             <p className="text-sm text-muted-foreground flex items-center gap-2"><Home className="h-4 w-4" />{manager.house}</p>
                             <Separator className="my-3" />
-                            <div className="space-y-2 text-sm">
+                            <div className="space-y-2 text-sm break-all">
                                 <a href={`mailto:${manager.email}`} className="flex items-center gap-2 hover:text-primary transition-colors">
-                                    <Mail className="h-4 w-4" />
+                                    <Mail className="h-4 w-4 flex-shrink-0" />
                                     <span>{manager.email}</span>
                                 </a>
                                 <a href={`tel:${manager.phone}`} className="flex items-center gap-2 hover:text-primary transition-colors">
-                                    <Phone className="h-4 w-4" />
+                                    <Phone className="h-4 w-4 flex-shrink-0" />
                                     <span>{manager.phone}</span>
                                 </a>
                             </div>
