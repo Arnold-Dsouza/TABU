@@ -183,10 +183,17 @@ function PageContent() {
                                 <span>Tabu Bar</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroup>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Property Management</SidebarGroupLabel>
+                    <SidebarMenu>
                         <SidebarMenuItem>
-                            <SidebarMenuButton tooltip="Property Management" onClick={() => handleViewSelect('propertyManagement')} isActive={activeView === 'propertyManagement'}>
+                            <SidebarMenuButton tooltip="View Contacts" onClick={() => handleViewSelect('propertyManagement')} isActive={activeView === 'propertyManagement'}>
                                 <Building />
-                                <span>Property Management</span>
+                                <span>Contacts</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     </SidebarMenu>
