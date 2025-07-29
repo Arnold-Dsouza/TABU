@@ -6,6 +6,7 @@ import {
     initialTeaRoomData,
     initialCafeteriaData,
     initialBarData,
+    initialPropertyManagementData,
 } from '@/lib/data';
 
 const initialDataMap: { [key: string]: PageContent } = {
@@ -13,6 +14,7 @@ const initialDataMap: { [key: string]: PageContent } = {
     teaRoom: initialTeaRoomData,
     tabuCafeteria: initialCafeteriaData,
     tabuBar: initialBarData,
+    propertyManagement: initialPropertyManagementData,
 };
 
 // This function can be called from server or client components

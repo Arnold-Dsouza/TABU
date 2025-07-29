@@ -9,6 +9,7 @@ import FitnessRoom from '@/components/fitness-room';
 import TabuCafeteria from '@/components/tabu-cafeteria';
 import TabuBar from '@/components/tabu-bar';
 import TeaRoom from '@/components/tea-room';
+import PropertyManagement from '@/components/property-management';
 import { auth, db } from '@/lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -31,7 +32,7 @@ import { initialBuildingsData } from '@/lib/data';
 import { Building, Home as HomeIcon, Dumbbell, Coffee, Utensils, Martini } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar';
+type View = 'laundry' | 'fitness' | 'tea' | 'cafeteria' | 'bar' | 'propertyManagement';
 
 function PageContent() {
   const [selectedBuilding, setSelectedBuilding] = useState<string>('all');
@@ -95,7 +96,7 @@ function PageContent() {
     }
   };
 
-  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar'].includes(activeView);
+  const isTabu2View = ['fitness', 'tea', 'cafeteria', 'bar', 'propertyManagement'].includes(activeView);
   const headerTitle = isTabu2View ? 'TABU 2' : 'LaundryView';
 
 
@@ -182,6 +183,12 @@ function PageContent() {
                                 <span>Tabu Bar</span>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton tooltip="Property Management" onClick={() => handleViewSelect('propertyManagement')} isActive={activeView === 'propertyManagement'}>
+                                <Building />
+                                <span>Property Management</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarMenuItem>
@@ -197,6 +204,7 @@ function PageContent() {
              {activeView === 'cafeteria' && <TabuCafeteria />}
              {activeView === 'bar' && <TabuBar />}
              {activeView === 'tea' && <TeaRoom />}
+             {activeView === 'propertyManagement' && <PropertyManagement />}
           </main>
         </div>
       </SidebarInset>

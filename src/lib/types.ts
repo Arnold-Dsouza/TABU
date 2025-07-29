@@ -50,6 +50,14 @@ export interface MenuItem {
   price: string;
 }
 
+export interface ManagerItem {
+  id: string;
+  name: string;
+  house: string;
+  email: string;
+  phone: string;
+}
+
 export interface PageContent {
   id: string;
   schedule?: ScheduleItem[];
@@ -58,4 +66,6 @@ export interface PageContent {
   specialMenu?: MenuItem[];
   usualMenu?: MenuItem[];
   privatePartiesContact?: string;
+  changeOfResponsibility?: string;
+  managers?: ManagerItem[];
 }

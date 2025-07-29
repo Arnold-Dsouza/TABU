@@ -132,3 +132,14 @@ export const initialBarData: PageContent = {
   ],
   privatePartiesContact: 'XYZ',
 };
+
+export const initialPropertyManagementData: PageContent = {
+    id: 'propertyManagement',
+    changeOfResponsibility: 'Change of responsibility as of 01.03.2025',
+    managers: [
+        { id: 'manager1', name: 'Patrick Kühnlein', house: 'House 64', email: 'wh.hirschbergerstr@studierendenwerk-bonn.de', phone: '01515-4754233' },
+        { id: 'manager2', name: 'Maksim Setkin', house: 'House 62', email: 'wh.hirschbergerstr@studierendenwerk-bonn.de', phone: '0175-7589714' },
+        { id: 'manager3', name: 'Arno Geslerski', house: 'House 60', email: 'wh.hirschbergerstr@studierendenwerk-bonn.de', phone: '01517-4420357' },
+        { id: 'manager4', name: 'Jürgen Bung', house: 'House 58', email: 'wh.hirschbergerstr@studierendenwerk-bonn.de', phone: '0175-8699982' },
+    ]
+};

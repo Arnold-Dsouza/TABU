@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { adminAccess } from './admins';
 
-type PageType = 'fitnessRoom' | 'teaRoom' | 'tabuCafeteria' | 'tabuBar';
+type PageType = 'fitnessRoom' | 'teaRoom' | 'tabuCafeteria' | 'tabuBar' | 'propertyManagement';
 
 export const useAdminAccess = (pageType: PageType) => {
   const [isAdmin, setIsAdmin] = useState(false);
