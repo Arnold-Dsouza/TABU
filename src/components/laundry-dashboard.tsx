@@ -13,6 +13,7 @@ import { useLaundryTimer } from '@/hooks/use-laundry-timer';
 import { Bell, BellOff, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import ErrorsDialog from './errors-dialog';
 
 interface LaundryDashboardProps {
   selectedBuildingId: string;
@@ -22,6 +23,8 @@ interface LaundryDashboardProps {
 export default function LaundryDashboard({ selectedBuildingId, currentUser }: LaundryDashboardProps) {
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isErrorsDialogOpen, setIsErrorsDialogOpen] = useState(false);
+  const [selectedBuildingForErrors, setSelectedBuildingForErrors] = useState<string>('');
   const { toast } = useToast();
   const { 
     startLaundryCycle, 
@@ -202,6 +205,11 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
     }
   }, [isMobile]);
 
+  const handleOpenErrorsDialog = (buildingName: string) => {
+    setSelectedBuildingForErrors(buildingName);
+    setIsErrorsDialogOpen(true);
+  };
+
   const handleReport = async (machineId: string, issue: string) => {
     try {
       await runTransaction(db, async (transaction) => {
@@ -343,7 +351,17 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
       {/* Buildings and Machines */}
       {filteredBuildings.map(building => (
         <section key={building.id}>
-          <h2 className="text-3xl font-bold tracking-tight mb-4 font-headline">{building.name}</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-3xl font-bold tracking-tight font-headline">{building.name}</h2>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-red-600 border-red-200 hover:bg-red-50"
+              onClick={() => handleOpenErrorsDialog(building.name)}
+            >
+              Errors
+            </Button>
+          </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {building.machines.map(machine => (
               <MachineCard 
@@ -362,6 +380,12 @@ export default function LaundryDashboard({ selectedBuildingId, currentUser }: La
           </div>
         </section>
       ))}
+      
+      <ErrorsDialog 
+        isOpen={isErrorsDialogOpen}
+        onClose={() => setIsErrorsDialogOpen(false)}
+        buildingName={selectedBuildingForErrors}
+      />
     </div>
   );
 }
